@@ -1,0 +1,38 @@
+@(user: String)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>jomamoma</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/index.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+        <script src="@routes.Assets.at("javascripts/jquery-1.9.0.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/index.js")" type="text/javascript"></script>
+    </head>
+    <body>
+        <div class="headerDiv">
+        	<h1>Welcome to JOMAMOMA games</h1>
+        </div>
+        <div class="introDiv">
+        	<h3>Hello @user</h3>
+        	<span class="joinMessageSpan"></span>
+        	<span class="startMessageSpan">
+        		Please select opponent below and click Start button
+        	</span>
+        </div>
+        <div class="opponentDiv">
+        	<span>
+        	 	<form name="opponentForm" action="startGame" method="post">
+	        		Choose opponent: 
+	        		<select class="opponentSelect" name="opponent" required="required"></select>
+	        		<input type="submit" id="Start" name="Start" value="Start" ></input>
+	        		<input type="button" name="Refresh" value="Refresh"></input>
+        		</form>
+        	</span>
+        </div>
+    </body>
+</html>
+
+
+

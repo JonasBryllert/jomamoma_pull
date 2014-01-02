@@ -1,0 +1,47 @@
+package controllers
+
+//import play.api._
+import play.api.mvc._
+import play.api.data.Form
+import play.api.data.Forms._
+import play.api.libs.iteratee._
+import scala.concurrent.ExecutionContext.Implicits.global
+import model.FiveInARowGame
+import model.Users
+import model.User
+import com.fasterxml.jackson.databind.JsonNode
+import play.api.libs.json._
+import play.api.libs.json.Json._
+import play.api.data.Forms
+
+object LoginController extends Controller {
+
+  val userForm = Form(
+	mapping(
+      "name" -> text,
+      "password" -> text
+    )(User.apply)(User.unapply)verifying(user => Users.exists(user))
+  )
+  
+  def login = Action { implicit request =>
+    request.session.get("user") match {
+      case Some(_) => Redirect(routes.Application.index2())
+      case _ => Ok(views.html.login())
+    }
+  }
+  
+  def doLogin = Action {implicit request =>    
+  	val params: Option[Map[String, Seq[String]]] = request.body.asFormUrlEncoded
+  	println("body:" + request.body)
+  	println("params:" + params.getOrElse("no param"))
+  	val userList: Seq[String] = params.flatMap(map => map.get("user")).getOrElse(List())
+  	val user: String = userList match {
+  	  case List(x) => x
+  	  case _ => ""
+  	}
+  	println(s"user: $user")
+//  	request.session = request.session + ("user" -> user)
+//  	println(s"session: $session")
+  	Redirect(routes.Application.index2()).withSession(session + ("user" -> user))
+  }
+}

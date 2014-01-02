@@ -1,0 +1,19 @@
+@(message: String)
+
+@main("Welcome to Play") {
+
+	<div class="well">
+        <h1>@message</h1>
+    </div>
+    
+    <div id="wsDiv">
+        <p>Test web socket</p>
+        <button onclick="startWS">start</button>
+        <button onclick="doSend">send</button>
+        Message: <input id ="theText" type="text" name="lname"></input>
+        <button id="doSend2">send2</button>
+        <div id="output">
+            Here the output will go...
+        </div>
+    </div>
+}

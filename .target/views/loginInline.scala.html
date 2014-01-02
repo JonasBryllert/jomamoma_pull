@@ -1,0 +1,28 @@
+@(input: String)
+
+<div class="loginContainer">
+<form action=""></form>
+	<table>
+		<thead>
+			<tr><th>Please enter your name and password</th></tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Name:</td>
+				<td><input type="text" class="loginInput" name="user" placeholder="Name" required autofocus></td>
+			</tr>
+				
+		</tbody>
+	</table>
+
+</div>
+    <div class="container">
+    
+      <form class="form-signin" name="loginForm" action="doLogin" method="post">
+        <h2 class="form-signin-heading">Please sign in</h2>
+        <input type="text" class="form-control" name="user" placeholder="User" required autofocus>
+        <input type="password" class="form-control" name="password" placeholder="Password" required>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+      
+    </div> 
