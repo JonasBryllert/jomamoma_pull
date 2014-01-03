@@ -3,17 +3,15 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index2
-GET     /index                      controllers.Application.index
-GET     /wsgame                     controllers.FiveInARowController.wsgame
-GET     /game                       controllers.FiveInARowController.startGame
+GET     /                           controllers.Application.index
+GET     /home                       controllers.Application.home
 GET		/login						controllers.LoginController.login
 POST	/doLogin					controllers.LoginController.doLogin
+GET	    /logout						controllers.LoginController.logout
 
 GET     /loadUsers					controllers.Application.loadUsers
 POST	/startGame					controllers.FiveInARowController.startGame
+GET     /wsgame						controllers.FiveInARowController.wsgame
 
-
-GET 	/ws							controllers.Application.ws
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

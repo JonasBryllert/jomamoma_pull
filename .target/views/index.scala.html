@@ -1,19 +1,25 @@
-@(message: String)
+@()
 
-@main("Welcome to Play") {
+<!DOCTYPE html>
 
-	<div class="well">
-        <h1>@message</h1>
-    </div>
-    
-    <div id="wsDiv">
-        <p>Test web socket</p>
-        <button onclick="startWS">start</button>
-        <button onclick="doSend">send</button>
-        Message: <input id ="theText" type="text" name="lname"></input>
-        <button id="doSend2">send2</button>
-        <div id="output">
-            Here the output will go...
+<html>
+    <head>
+        <title>jomamoma</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/index.css")">
+    </head>
+    <body>
+        <div class="headerDiv">
+        	<h1>Welcome to JOMAMOMA games</h1>
         </div>
-    </div>
-}
+        
+        <div class="infoDiv">
+        	<p>Here you can play online classic games like X and O by challenging someone else.</p>
+        	<p>You need to log in to continue.</p>
+        	<p/>
+        	<a href="login">Login</a>
+        	
+        </div>
+    	
+    
+    </body>
+</html>

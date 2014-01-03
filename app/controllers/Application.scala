@@ -14,15 +14,20 @@ object Application extends Controller {
   
   val waitList = scala.collection.mutable.Map.empty[String, String]
 
-  def index = Action {
-    Ok(views.html.index("Your new application is ready."))
+  def index = Action { implicit request =>
+    val user = request.session.get("user")
+    println(s"index -> user: $user")
+    user match {
+      case None => Ok(views.html.index())
+      case _ => Redirect(routes.Application.home)
+    }
   }
   
-  def index2 = Action { implicit request =>
+  def home = Action { implicit request =>
     val user = request.session.get("user")
     println(s"index2 -> user: $user")
     if (user == None ) Redirect(routes.LoginController.login)
-    else Ok(views.html.index2(user.get))
+    else Ok(views.html.home(user.get))
   }
   
   def loadUsers = Action { implicit request =>

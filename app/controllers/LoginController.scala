@@ -25,7 +25,7 @@ object LoginController extends Controller {
   
   def login = Action { implicit request =>
     request.session.get("user") match {
-      case Some(_) => Redirect(routes.Application.index2())
+      case Some(user) => Redirect(routes.Application.home())
       case _ => Ok(views.html.login())
     }
   }
@@ -42,6 +42,13 @@ object LoginController extends Controller {
   	println(s"user: $user")
 //  	request.session = request.session + ("user" -> user)
 //  	println(s"session: $session")
-  	Redirect(routes.Application.index2()).withSession(session + ("user" -> user))
+  	Redirect(routes.Application.home()).withSession(session + ("user" -> user))
   }
+  
+  def logout = Action { implicit request =>
+    println("Logout!!")
+    Redirect(routes.Application.index).withNewSession
+  }
+  
+
 }
