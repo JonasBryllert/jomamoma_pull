@@ -97,7 +97,7 @@ class FiveInARowGame(player1: String, player2: String) {
   }
   
   def checkGameScore(player: String): (Boolean, String) = {
-    //TODO code for diagonals
+    //TODO code for diagonals 
     val playerEntries: List[Position] = entries.filter(e => e._1 == player).map(e => e._2).toList
     var gameOver = false
     for (row <- 1 to 10) {
