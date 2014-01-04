@@ -28,11 +28,6 @@ object FiveInARowController extends Controller {
       val opponent: String = params.get("opponent")(0)
       println(s"startGame: $user $opponent")
       if (waitQueue.contains(opponent) && waitQueue(opponent) == user) {
-//        waitQueue -= opponent
-//	    val game = new FiveInARowGame(opponent, user)
-//        games += ((user, game))
-//        games += ((opponent, game))
-//        
         println(s"startGame: second opponent joined: $games")
       }
       else {
@@ -43,20 +38,10 @@ object FiveInARowController extends Controller {
         games += ((opponent, game))
         println(s"startGame: new game created $games")
       }
-//      val game = new FiveInARowGame()
-//      games += ((user, game))
-//      game.addPlayer(user)
       Ok(views.html.game(10, request.session("user")))
     }
   }
   
-//  def joinGame(player1: String) = Action { implicit request => 
-//    val user = request.session("user")
-//    val game = games(player1)
-//    games += ((request.session("user"), game))
-//    game.addPlayer(user)
-//    Ok(views.html.game(10, request.session("user")))
-//  } 
   
   def wsgame: WebSocket[JsValue] = WebSocket.using[JsValue] { implicit request => 
     println(s"wsGame: user: ${request.session("user")}")
@@ -65,40 +50,5 @@ object FiveInARowController extends Controller {
   	println()
   	game.webSocketStarted
   }
-//  	//Get session by user name.
-//    //store channel in session
-//    
-//    //Concurernt.broadcast returns (Enumerator, Concurrent.Channel)
-//    val (out: Enumerator[JsValue], channel) = Concurrent.broadcast[JsValue]
-//
-//    //log the message to stdout and send response back to client
-//    val in: Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] {
-//      msg =>
-//        println(msg)
-//        val typ = (msg \ "type").as[String]
-//        typ match {
-//          case "click" => {
-//            val pos = (msg \ "position").as[String]
-//            val jsonResponse = toJson(
-//              Map(
-//                "type" -> toJson("entry"),
-//                "position" -> toJson(pos)
-//              ))
-//                      
-//            channel.push(jsonResponse)
-//          }
-//          case "quit" => channel.eofAndEnd()
-//        }
-///*        if ("quit" == msg) {
-//          channel.eofAndEnd()
-//        }
-//        else {
-//        	//the Enumerator returned by Concurrent.broadcast subscribes to the channel and will 
-//        	//receive the pushed messages
-//        	channel push ("RESPONSE: " + msg)
-//        }
-//*/    }
-//    (in, out)
-//  }
-
+  
 }

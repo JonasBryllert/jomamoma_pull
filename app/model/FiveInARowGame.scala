@@ -18,18 +18,7 @@ class FiveInARowGame(player1: String, player2: String) {
   val playerToSymbol: Map[String, String] = Map(player1 -> "X", player2 -> "O")
   var currentPlayer: String = player1
   val entries: ListBuffer[(String, Position)] = new ListBuffer
-  
-//  val playerList: ListBuffer[String] = new ListBuffer
-//  def addPlayer(name: String) {
-//    if (player1 == "") player1 = name
-//    else player2 = name
-//    if (playerToSymbol.isEmpty) {
-//      playerToSymbol += (name -> "X") 
-//      currentPlayer = name
-//    }
-//    else playerToSymbol += (name -> "O")
-//  }
-  
+    
   def nextPlayer(): String = {
     if (currentPlayer == player1) currentPlayer = player2
     else currentPlayer = player1
@@ -38,7 +27,6 @@ class FiveInARowGame(player1: String, player2: String) {
   
   def webSocketStarted(implicit request: RequestHeader): (Iteratee[JsValue, Unit], Enumerator[JsValue]) = {
     
-    //TODO send back started to both players after short wait
     val player = request.session("user")
     val in: Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] { msg =>
         println(s"player: $player , msg: $msg")
@@ -85,24 +73,31 @@ class FiveInARowGame(player1: String, player2: String) {
   }
   
   def doClick(msg: JsValue, player: String) = {
-    val pos = (msg \ "position").as[String]    
-    println(s"doClick player: $player , pos: $pos")
-    entries += ((player, toPos(pos)))
-    channel.push(jsonResponseEntry(pos, player))
-    
-    //check score and send FINISH if game over
-    val (gameOver, resultString) = checkGameScore(player)
-    
-    println("gameOver: " + gameOver)
-    if (gameOver) {
- 	    channel.push(jsonResponseGameOver(resultString))     
+    val posString = (msg \ "position").as[String]    
+    val pos: Position = toPos(posString)
+    println(s"doClick player: $player , pos: $posString")
+    if (entries.exists(e => e._2 == pos)) {
+      channel.push(jsonResponseInvalidPosition(player))
     }
     else {
-	    channel.push(jsonResponseNextPlayer(nextPlayer))
-    }   
+	    entries += ((player, pos))
+	    channel.push(jsonResponseEntry(posString, player))
+	    
+	    //check score and send FINISH if game over
+	    val (gameOver, resultString) = checkGameScore(player)
+	    
+	    println("gameOver: " + gameOver)
+	    if (gameOver) {
+	 	    channel.push(jsonResponseGameOver(resultString))     
+	    }
+	    else {
+		    channel.push(jsonResponseNextPlayer(nextPlayer))
+	    }  
+    }
   }
   
   def checkGameScore(player: String): (Boolean, String) = {
+    //TODO code for diagonals
     val playerEntries: List[Position] = entries.filter(e => e._1 == player).map(e => e._2).toList
     var gameOver = false
     for (row <- 1 to 10) {
@@ -158,6 +153,17 @@ class FiveInARowGame(player1: String, player2: String) {
       toJson( 
         scala.collection.immutable.Map[String, JsValue](
           "type" -> toJson("nextPlayer"),
+          "player" -> toJson(player),
+          "symbol" -> toJson(symbol)
+       )
+     )        
+    }
+
+    def jsonResponseInvalidPosition(player: String) = {
+      val symbol = playerToSymbol(player)
+      toJson( 
+        scala.collection.immutable.Map[String, JsValue](
+          "type" -> toJson("invalidPosition"),
           "player" -> toJson(player),
           "symbol" -> toJson(symbol)
        )

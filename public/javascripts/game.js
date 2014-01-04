@@ -8,10 +8,9 @@ var clickListener = function(e) {
 		position: $(this).attr('id')
 	}
 	jsonString = JSON.stringify(jsonObject)
-	console.log($(this).attr('id'));
-	console.log($(this));
 	console.log(jsonString);
 	doSend(jsonString)	
+	$(".gamePos").off("click");
 }
 
 
@@ -80,15 +79,26 @@ function startWS() {
     	else if ("nextPlayer" == object.type) {
     		if (object.symbol == symbol) {
         		$("#infoSpan").text("You have " + symbol + ". Your turn. Please click in selected position")
-        		$("td").on("click", clickListener);
+        		$(".gamePos").on("click", clickListener);
     		}
     		else{
-        		$("#infoSpan").text("Please wait for the other players turn...")   			    			
-        		$("td").off("click", clickListener);
+        		$("#infoSpan").text("Please wait for the other players turn...")   	
+//        		Not needed as using one click above
+//        		$("td").off("click", clickListener);
+    		}
+    	}
+    	else if ("invalidPosition" == object.type) {
+    		if (object.symbol == symbol) {
+        		$("#infoSpan").text("You have " + symbol + ". Invalid position. Please click in selected position")
+        		$(".gamePos").on("click", clickListener);
     		}
     	}
     	else {
     		console.log("Unknown message: " + object)
+        	for (var key in object) {
+        		logString += ", " + key + ": " + object[key] 
+        	}
+
     	}
 //    	onMessage(evt) 
     }; 
