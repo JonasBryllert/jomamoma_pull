@@ -9,61 +9,51 @@ import play.api.mvc.RequestHeader
 import scala.concurrent.ExecutionContext.Implicits.global
 //import scala.collection.immutable.Map
 
-class FiveInARowGame(player1: String, player2: String) {
-  println(s"new game, players: $player1 $player2")
-  type Position = (Int, Int)
+object FiveInARowGame {
   
-  val (out, channel) = Concurrent.broadcast[JsValue]
+  sealed trait MoveResult
+  object PlayerWon extends MoveResult
+  object Draw extends MoveResult
+  object NextMove extends MoveResult
+
+  var gameIdCounter = 0
+  val gameMap: Map[String, FiveInARowGame] = Map.empty
+  
+  def newGame(size: Int, nrToWin: Int, player1: String, player2: String): String = {
+    gameIdCounter += 1
+    val gameId = gameIdCounter.toString
+    gameMap += ((gameId, new FiveInARowGame(size, nrToWin, player1, player2)))
+    gameId
+  }  
+  
+  def getGame(gameId: String): Option[FiveInARowGame] = gameMap.get(gameId)
+  
+  def endGame(gameId: String) = gameMap.remove(gameId)
+  
+}
+
+class FiveInARowGame(val size: Int, nrToWin: Int, player1: String, player2: String) {
+  import FiveInARowGame._
+  println(s"new game, size: $size, nrToWin: $nrToWin, players: $player1 $player2")
+  type Position = (Int, Int)
   
   val playerToSymbol: Map[String, String] = Map(player1 -> "X", player2 -> "O")
   var currentPlayer: String = player1
   val entries: ListBuffer[(String, Position)] = new ListBuffer
+  
+  //stores message
+  val playerToMessageQueue = Map(player1 -> new ListBuffer[JsValue], player2 -> new ListBuffer[JsValue])
     
+  def getPlayerSymbol(player: String): String = playerToSymbol(player)
+  
+  def otherPlayer(player: String): String = if (player == player1) player2 else player1
+  
   def nextPlayer(): String = {
     if (currentPlayer == player1) currentPlayer = player2
     else currentPlayer = player1
     currentPlayer
-  }
-  
-  def webSocketStarted(implicit request: RequestHeader): (Iteratee[JsValue, Unit], Enumerator[JsValue]) = {
+  }  
     
-    val player = request.session("user")
-    val in: Iteratee[JsValue, Unit] = Iteratee.foreach[JsValue] { msg =>
-        println(s"player: $player , msg: $msg")
-        val typ = (msg \ "type").as[String]
-        typ match {
-          case "click" => if (player == currentPlayer) doClick(msg, player)
-          case "quit" => channel.eofAndEnd()
-        }
-/*        if ("quit" == msg) {
-          channel.eofAndEnd()
-        }
-        else {
-        	//the Enumerator returned by Concurrent.broadcast subscribes to the channel and will 
-        	//receive the pushed messages
-        	channel push ("RESPONSE: " + msg)
-        }
-*/  }
-    val t = new java.util.Timer
-    t.schedule(new java.util.TimerTask() {
-      def run() {
-	    if (player == player1) {
-	      channel.push(jsonResponseWaiting)
-	    } 
-	    else {
-//	      channel.push(jsonResponseJoin)
-	      startGame
-	    }        
-      }
-    }, 10)
-    
-    (in, out)
-  }
-  
-  def startGame(implicit request: RequestHeader) = {
-     channel.push(jsonResponseNextPlayer(currentPlayer))  
-  }
-  
   def toPos(pos: String): Position = {
 //    row-col-@row-@column
     val arr = pos.split("-")
@@ -72,111 +62,45 @@ class FiveInARowGame(player1: String, player2: String) {
     (row, col)
   }
   
-  def doClick(msg: JsValue, player: String) = {
+  def doClick(msg: JsValue, player: String): MoveResult = {
     val posString = (msg \ "position").as[String]    
     val pos: Position = toPos(posString)
-    println(s"doClick player: $player , pos: $posString")
-    if (entries.exists(e => e._2 == pos)) {
-      channel.push(jsonResponseInvalidPosition(player))
-    }
-    else {
-	    entries += ((player, pos))
-	    channel.push(jsonResponseEntry(posString, player))
+	entries += ((player, pos))
+    println(s"doClick player: $player , pos: $posString, entris size: ${entries.size}")
 	    
-	    //check score and send FINISH if game over
-	    val (gameOver, resultString) = checkGameScore(player)
-	    
-	    println("gameOver: " + gameOver)
-	    if (gameOver) {
-	 	    channel.push(jsonResponseGameOver(resultString))     
-	    }
-	    else {
-		    channel.push(jsonResponseNextPlayer(nextPlayer))
-	    }  
-    }
+    //check score and send FINISH if game over
+    moveResult(player, pos)
   }
   
-  def checkGameScore(player: String): (Boolean, String) = {
+  def moveResult(player: String, pos: Position): MoveResult = {
     //TODO code for diagonals 
     val playerEntries: List[Position] = entries.filter(e => e._1 == player).map(e => e._2).toList
-    var gameOver = false
-    for (row <- 1 to 10) {
-      val thisRowEntries = playerEntries.filter(e => e._1 == row).map(e => e._2).sorted
-      println(s"thisRowEntries: $thisRowEntries")
-      if (has5InARow(thisRowEntries)) {
-        gameOver = true
-      }
-    }
-    for (col <- 1 to 10) {
-      val thisColEntries = playerEntries.filter(e => e._2 == col).map(e => e._1)
-      if (has5InARow(thisColEntries.sorted)) {
-        gameOver = true
-      }
-    }
+    val rowEntries = playerEntries.filter(e => e._1 == pos._1).map(e => e._2).sorted
+    val colEntries = playerEntries.filter(e => e._2 == pos._2).map(e => e._1).sorted
+    val diag1Entries = playerEntries.filter(e => e._1 - e._2 == pos._1 - pos._2).map(e => e._1).sorted
+    val diag2Entries = playerEntries.filter(e => e._1 + e._2 == pos._1 + pos._2).map(e => e._1).sorted
     
-    (gameOver, if (gameOver) "Player " + player + " has won!!!!" else "")
+    val playerHasWon = hasWon(rowEntries) || hasWon(colEntries) || hasWon(diag1Entries) || hasWon(diag2Entries)
+    println()
+    if (playerHasWon) {
+      println("Player won!!!")      
+      PlayerWon
+    }
+    else if (entries.size == (size * size)) {
+      println("Draw!!!")
+      Draw
+    }
+    else NextMove
   }
   
-  def has5InARow(list: List[Int], prev: Int = 0, count: Int = 0): Boolean = {
-    if (count == 5) true
+  def hasWon(list: List[Int], prev: Int = 0, count: Int = 0): Boolean = {
+    if (count == nrToWin) true
     else if (list.isEmpty) false
-    else if (prev == 0) has5InARow(list.tail, list.head, count + 1)
+    else if (prev == 0) hasWon(list.tail, list.head, count + 1)
     else {
-      if (list.head == prev + 1) has5InARow(list.tail, list.head, count + 1)
-      else has5InARow(list.tail, list.head, 0)
+      if (list.head == prev + 1) hasWon(list.tail, list.head, count + 1)
+      else hasWon(list.tail, list.head, 0)
     }
   }
-  
-  //************* JSON repsonses *****************
-    def jsonResponseEntry(pos: String, player: String) = toJson(
-     scala.collection.immutable.Map(
-        "type" -> toJson("entry"),
-        "position" -> toJson(pos),
-        "symbol" -> toJson(playerToSymbol(player))
-      )
-    )             
-
-    def jsonResponseWaiting = toJson(
-      scala.collection.immutable.Map[String, JsValue](
-        "type" -> toJson("waiting")
-      )
-    )  
-    
-    val jsonResponseJoin = toJson(
-      scala.collection.immutable.Map[String, JsValue](
-        "type" -> toJson("join")
-      )
-    )    
-
-    def jsonResponseNextPlayer(player: String) = {
-      val symbol = playerToSymbol(player)
-      toJson( 
-        scala.collection.immutable.Map[String, JsValue](
-          "type" -> toJson("nextPlayer"),
-          "player" -> toJson(player),
-          "symbol" -> toJson(symbol)
-       )
-     )        
-    }
-
-    def jsonResponseInvalidPosition(player: String) = {
-      val symbol = playerToSymbol(player)
-      toJson( 
-        scala.collection.immutable.Map[String, JsValue](
-          "type" -> toJson("invalidPosition"),
-          "player" -> toJson(player),
-          "symbol" -> toJson(symbol)
-       )
-     )        
-    }
-
-    def jsonResponseGameOver(resultString: String) = toJson(
-      scala.collection.immutable.Map[String, JsValue](
-        "type" -> toJson("gameOver"),
-        "result" -> toJson(resultString)
-      )
-    )    
-      
-
-  
+   
 }

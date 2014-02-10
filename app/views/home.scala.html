@@ -14,23 +14,35 @@
         	<h1>Welcome to JOMAMOMA games</h1>
         </div>
         <div class="introDiv">
-        	<h3>Hello @user</h3>
+        	<h3>Hello <span id=userIdSpan">@user</span></h3>
         	<span class="joinMessageSpan"></span>
         </div>
-        <div class="opponentDiv">
+        <div id="challengeDiv"> 
+        	You have been challenged by <span id="challengerSpan"></span> for a game of <span id="challengerGameSpan"></span>.
+        	<span><button id="acceptChallengeButton" value="Accept">Accept</button></span>       
+        	<span><button id="rejectChallengeButton" value="Reject">Reject</button></span>       
+        </div>
+        <div id="messageDiv">
+        </div>
+        <div class="startGameDiv">
         	<span class="startMessageSpan">
-        		Please select opponent below and click Start button.
+        		Please select game opponent to challenge and click Start button:
+        	</span>
+        	<p></p>
+        	<span id="gameId">
+        		Game: 
+        		<select id="gameSelect" name="game">
+        			<option value="ThreeInARow">Three in a row</option>
+        			<option value="FiveInARow">Five in a row</option>        			
+        		</select>
         	</span>
         	<span>
-        	 	<form name="opponentForm" action="startGame" method="post">
-	        		Choose opponent: 
-	        		<select class="opponentSelect" name="opponent" required="required"></select>
-	        		<input type="submit" id="Start" name="Start" value="Start" ></input>
-	        		<input type="button" name="Refresh" value="Refresh"></input>
-        		</form>
+        		Opponent: 
+        		<select id="opponentSelect" name="opponent"></select>
+        		<input type="button" id="challengeButton" value="Challenge" ></input>
         	</span>
         </div>
-        <div class="footerDiv">
+        <div id="footerDiv">
         	<form method="get" action="logout">
         		<input type="submit" value="Logout"></input>
         	</form>

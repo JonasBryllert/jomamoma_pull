@@ -10,14 +10,26 @@ h1 {
 }
 
 #gameInfoDiv {
-	margin-bottom: 30px;
-	border: 1px solid black;
+	padding-top: 20px;
+	padding-bottom: 20px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	text-align: center;
 }
 
-#infoSpan {
-	
+#messageDiv {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	text-align: center;
 }
 
+#returnDiv {
+	margin-top: 30px;
+	display: none;
+	text-align: center;
+}
 
 table, th, td {
 	border: 1px solid black;

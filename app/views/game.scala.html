@@ -1,4 +1,4 @@
-@(size:Int, userName: String)
+@(size:Int, userName: String, sign: String)
 <!DOCTYPE html>
 <html>
   <head>
@@ -10,8 +10,10 @@
   <body>
     <h1>X and O (five in a row)</h1>
    	  <div id="gameInfoDiv">
-   	    User: @userName
-		<span id="infoSpan"></span>   	    
+   	    Good luck <span id="userIdSpan">@userName</span>. You have <span id="symbolSpan">@sign</span>.
+   	  </div>
+   	  <div id="messageDiv">
+   	  	Please wait...
    	  </div>
 
       <table id="gameTable" class="xtable">
@@ -32,9 +34,12 @@
       	  	  } 
       	  	</tr>
       	  }
-      	</tbody>
-      	
+      	</tbody>    	
       </table>
+      
+      <div id="returnDiv">
+      	Return to <a href="@routes.Application.home">home page</a>.
+      </div>
 
   </body>    
 </html>

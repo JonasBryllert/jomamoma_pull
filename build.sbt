@@ -1,4 +1,4 @@
-name := "jomamoma"
+name := "jomamoma_pull"
 
 version := "1.0-SNAPSHOT"
 

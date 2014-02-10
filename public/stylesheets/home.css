@@ -4,7 +4,27 @@ body {
 	margin-right: auto;
 }
 
-div.headerDiv, div.introDiv, div.opponentDiv, div.footerDiv {
+div {
 	text-align: center;
 }
+
+div#challengeDiv {
+	border: medium black solid;
+	padding-top: 30px;
+	padding-bottom: 30px;
+	display: none;
+	color: red;
+}
+
+div#messageDiv {
+	display: none;
+	border: medium black solid;
+	padding-top: 30px;
+	padding-bottom: 30px;
+	display: none;
+	color: green;
+}
+
+div#footerDiv {
+	margin-top: 30px;
 

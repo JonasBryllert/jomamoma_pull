@@ -3,7 +3,7 @@ package model
 import scala.collection.mutable.ListBuffer
 
 object Users {
-  val users = List(new User("Moya", "moya"), new User("Jonas", "jonas"))
+  val users = List(new User("Moya", "moya"), new User("Jonas", "jonas"), new User("Mary", "mary"), new User("Gosta", "gosta"), new User("Birgitta", "birgitta"))
   
   val loggedInUsers: ListBuffer[User] = new ListBuffer
   
