@@ -4,6 +4,7 @@ var userId;
 var gameId = location.pathname.match(/\/game\/(.*)/)[1];
 
 var clickListener = function(e) {
+	$(".gamePos").off("click");
 	$(this).removeClass("gamePos").html(symbol);		
 	jsonObject = {
 		type: "click",
@@ -14,7 +15,6 @@ var clickListener = function(e) {
 	console.log(jsonString);
 	$("#messageDiv").text("Please wait...")
 	sendClientMessage(jsonString)	
-	$(".gamePos").off("click");
 }
 
 

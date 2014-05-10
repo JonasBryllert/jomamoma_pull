@@ -93,21 +93,27 @@ object FiveInARowController extends Controller {
       val posString = (jsValue \ "position").as[String]    
       moveResult match {
 	      case PlayerWon => {
-	        val js = Json.obj(
+	        val jsUser = Json.obj(
+	                "type" -> "gameOver",
+	                "result" -> (user + " has won!!!"))
+	        val jsOtherUser = Json.obj(
 	                "type" -> "gameOver",
 	                "result" -> (user + " has won!!!"),
 	                "prevMove" -> posString)
-	        messageQueue += ((user, js))
-	        messageQueue += ((game.otherPlayer(user), js))
+	        messageQueue += ((user, jsUser))
+	        messageQueue += ((game.otherPlayer(user), jsOtherUser))
 	
 	      }
 	      case Draw => {
-	        val js = Json.obj(
+	        val jsUser = Json.obj(
+	                "type" -> "gameOver",
+	                "result" -> "It is a draw!")
+	        val jsOtherUser = Json.obj(
 	                "type" -> "gameOver",
 	                "result" -> "It is a draw!",
 	                "prevMove" -> posString)
-	        messageQueue += ((user, js))
-	        messageQueue += ((game.otherPlayer(user), js))
+	        messageQueue += ((user, jsUser))
+	        messageQueue += ((game.otherPlayer(user), jsOtherUser))
 	      }
 	      case _ => {
 	    	 val posString = (jsValue \ "position").as[String]    
