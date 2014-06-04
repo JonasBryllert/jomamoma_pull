@@ -4,7 +4,7 @@ package controllers
 import play.api.mvc._
 import play.api.libs.iteratee._
 import scala.concurrent.ExecutionContext.Implicits.global
-import model.FiveInARowGame
+import model.XandOGame
 import model.Users
 import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json._
@@ -16,6 +16,9 @@ object Application extends Controller {
   val messageQueue = scala.collection.mutable.Map.empty[String, JsValue]
   
 
+  /**
+   * This is the index page where you end up before you log in and after you log out.
+   */
   def index = Action { implicit request =>
     val user = request.session.get("user")
     println(s"index -> user: $user")
@@ -25,6 +28,9 @@ object Application extends Controller {
     }
   }
   
+  /**
+   * This is the home page where you select game and opponent.
+   */
   def home = Action { implicit request =>
     val user = request.session.get("user")
     println(s"home -> user: $user")
@@ -45,11 +51,24 @@ object Application extends Controller {
   }
   
   /**
+   * Client call to retrieve messages as JSON
+   */
+  def getMessages = Action { implicit request =>
+    val user = request.session("user")
+    println(s"Application.getMessages -> user: ${user}, messageQueue: $messageQueue")
+    val message = messageQueue.remove(user)
+    message match {
+      case Some(jsValue) => returnJSON(jsValue)
+      case _ => returnJSON(Json.obj("type"->"empty"))
+    }     
+  }
+  
+  /**
    * JSON client message
    */
   def clientMessage() = Action { implicit request =>
     val user = request.session("user")
-    println(s"clientMessage -> user: $user")
+    println(s"Application.clientMessage -> user: $user")
     val jsonMessage: Option[JsValue] = request.body.asJson
     println(s"clientMessage -> user: $user, json: $jsonMessage")
     jsonMessage match {
@@ -61,8 +80,8 @@ object Application extends Controller {
     }
   }
   
-  def handleClientMessage(jsValue: JsValue, user: String): Result = {
-    println(s"handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
+  private def handleClientMessage(jsValue: JsValue, user: String): Result = {
+    println(s"Application.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
     val mType = (jsValue \ "type").asOpt[String]
     mType match {
       case Some(sType) => {
@@ -79,8 +98,8 @@ object Application extends Controller {
     }
   }
   
-  def handleClientChallenge(jsValue: JsValue, user: String): Result = {
-    println(s"handleClientChallenge -> user: $user")
+  private def handleClientChallenge(jsValue: JsValue, user: String): Result = {
+    println(s"Application.handleClientChallenge -> user: $user")
     val opponent = (jsValue \ "opponent").as[String]
     val game = (jsValue \ "game").as[String]
     println(s"handleClientChallenge $opponent")
@@ -91,36 +110,35 @@ object Application extends Controller {
     )
     messageQueue +=((opponent, jsObject)) 
     Ok("")
-//    messageQueue +=((opponent, jsObject) )    
   }
   
-  def handleClientChallengeAccepted(jsValue: JsValue, user: String): Result = {
-    println(s"handleClientChallengeAccepted -> user: $user")
+  private def handleClientChallengeAccepted(jsValue: JsValue, user: String): Result = {
+    println(s"Application.handleClientChallengeAccepted -> user: $user")
     val challenger = (jsValue \ "challenger").as[String]
     val game = (jsValue \ "game").as[String]
     println(s"handleClientChallengeAccepted -> user: $user, game: $game, challenger: $challenger")
      
     //Create game
     val gameId = 
-    	if (game == "ThreeInARow") FiveInARowGame.newGame(3, 3, challenger, user)
-    	else FiveInARowGame.newGame(10, 5, challenger, user)
+    	if (game == "ThreeInARow") XandOGame.newGame(3, 3, challenger, user)
+    	else XandOGame.newGame(10, 5, challenger, user)
     
+    val url = "/xando/" + gameId;
     val jsObject = Json.obj(
       "type" -> "challengeAccepted",
       "challenger" -> challenger,
       "challengee" -> user,
+      "url" -> url,
       "gameId" -> gameId
     )
     
     messageQueue +=((challenger, jsObject) )  
     messageQueue +=((user, jsObject) )  
-//    Redirect(routes.FiveInARowController.game(gameId))
     Ok("")
-//    messageQueue +=((opponent, jsObject) )        
   }
 
-  def handleClientChallengeRejected(jsValue: JsValue, user: String): Result = {
-    println(s"handleClientChallengeRejected -> user: $user")
+  private def handleClientChallengeRejected(jsValue: JsValue, user: String): Result = {
+    println(s"Application.handleClientChallengeRejected -> user: $user")
     val challenger = (jsValue \ "challenger").as[String]
     
     val jsObject = Json.obj(
@@ -131,29 +149,9 @@ object Application extends Controller {
     
     messageQueue +=((challenger, jsObject) )  
     messageQueue +=((user, jsObject) )  
-//    Redirect(routes.FiveInARowController.game(gameId))
     Ok("")
-//    messageQueue +=((opponent, jsObject) )        
   }
   
-  /**
-   * Client call to retrieve messages
-   */
-  def getMessages = Action { implicit request =>
-    val user = request.session("user")
-    println(s"entering checkMessages: user: ${user}, messageQueue: $messageQueue")
-    val message = messageQueue.remove(user)
-    message match {
-      case Some(jsValue) => returnJSON(jsValue)
-      case _ => returnJSON(Json.obj("type"->"empty"))
-    }     
-  }
-  
-  def returnJSON(json: JsValue): Result = Ok(json).withHeaders(CACHE_CONTROL -> "max-age=0, no-store", EXPIRES -> new java.util.Date().toString)
-  
-//  def fiveInARowGame = Action {
-//    Ok(views.html.game(FiveInARowGame.size))
-//  }
-//
- 
+  private def returnJSON(json: JsValue): Result = Ok(json).withHeaders(CACHE_CONTROL -> "max-age=0, no-store", EXPIRES -> new java.util.Date().toString)
+   
 }

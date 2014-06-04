@@ -3,12 +3,12 @@
 <html>
   <head>
     <title>jomamoma</title>
-    <link rel='stylesheet' href='@routes.Assets.at("stylesheets/game.css")'>
+    <link rel='stylesheet' href='@routes.Assets.at("stylesheets/xando.css")'>
     <script src='@routes.Assets.at("javascripts/jquery.js")'></script>
-    <script src='@routes.Assets.at("javascripts/game.js")'></script>
+    <script src='@routes.Assets.at("javascripts/xando.js")'></script>
   </head>
   <body>
-    <h1>X and O (five in a row)</h1>
+    <h1>X and O</h1>
    	  <div id="gameInfoDiv">
    	    Good luck <span id="userIdSpan">@userName</span>. You have <span id="symbolSpan">@sign</span>.
    	  </div>
@@ -17,18 +17,18 @@
    	  </div>
 
       <table id="gameTable" class="xtable">
-      	<thead>
+      	<!-- thead>
       	  <tr>
       	  	<th></th>
       	  	@for(colHeader <- ('A' to 'Z').take(size)){
       	  	  <th>@colHeader</th>
       	  	}
       	  </tr>
-      	</thead>
+      	</thead-->
       	<tbody>
       	  @for(row <- 1 to size){
       	  	<tr>
-      	  	  <td>@row</td>
+      	  	  <!-- td>@row</td-->
       	  	  @for(column <- 1 to size){
       	  	  	<td id=row-col-@row-@column class="gamePos"></td>
       	  	  } 

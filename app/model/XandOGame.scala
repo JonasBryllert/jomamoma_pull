@@ -9,7 +9,7 @@ import play.api.mvc.RequestHeader
 import scala.concurrent.ExecutionContext.Implicits.global
 //import scala.collection.immutable.Map
 
-object FiveInARowGame {
+object XandOGame {
   
   sealed trait MoveResult
   object PlayerWon extends MoveResult
@@ -17,24 +17,24 @@ object FiveInARowGame {
   object NextMove extends MoveResult
 
   var gameIdCounter = 0
-  val gameMap: Map[String, FiveInARowGame] = Map.empty
+  val gameMap: Map[String, XandOGame] = Map.empty
   
   def newGame(size: Int, nrToWin: Int, player1: String, player2: String): String = {
     gameIdCounter += 1
     val gameId = gameIdCounter.toString
-    gameMap += ((gameId, new FiveInARowGame(size, nrToWin, player1, player2)))
+    gameMap += ((gameId, new XandOGame(size, nrToWin, player1, player2)))
     gameId
   }  
   
-  def getGame(gameId: String): Option[FiveInARowGame] = gameMap.get(gameId)
+  def getGame(gameId: String): Option[XandOGame] = gameMap.get(gameId)
   
   def endGame(gameId: String) = gameMap.remove(gameId)
   
 }
 
-class FiveInARowGame(val size: Int, nrToWin: Int, player1: String, player2: String) {
-  import FiveInARowGame._
-  println(s"new game, size: $size, nrToWin: $nrToWin, players: $player1 $player2")
+class XandOGame(val size: Int, nrToWin: Int, player1: String, player2: String) {
+  import XandOGame._
+  println(s"XandOGame.new, size: $size, nrToWin: $nrToWin, players: $player1 $player2")
   type Position = (Int, Int)
   
   val playerToSymbol: Map[String, String] = Map(player1 -> "X", player2 -> "O")
@@ -66,7 +66,7 @@ class FiveInARowGame(val size: Int, nrToWin: Int, player1: String, player2: Stri
     val posString = (msg \ "position").as[String]    
     val pos: Position = toPos(posString)
 	entries += ((player, pos))
-    println(s"doClick player: $player , pos: $posString, entris size: ${entries.size}")
+    println(s"XandOGame.doClick player: $player , pos: $posString, entris size: ${entries.size}")
 	    
     //check score and send FINISH if game over
     moveResult(player, pos)
@@ -83,11 +83,11 @@ class FiveInARowGame(val size: Int, nrToWin: Int, player1: String, player2: Stri
     val playerHasWon = hasWon(rowEntries) || hasWon(colEntries) || hasWon(diag1Entries) || hasWon(diag2Entries)
     println()
     if (playerHasWon) {
-      println("Player won!!!")      
+      println("XandOGame Player won!!!")      
       PlayerWon
     }
     else if (entries.size == (size * size)) {
-      println("Draw!!!")
+      println("XandOGame Draw!!!")
       Draw
     }
     else NextMove

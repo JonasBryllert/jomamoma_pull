@@ -12,12 +12,10 @@ GET	    /logout						controllers.LoginController.logout
 GET     /loadUsers					controllers.Application.loadUsers
 GET		/getMessages				controllers.Application.getMessages
 POST 	/clientMessage				controllers.Application.clientMessage
-#POST	/startGame					controllers.FiveInARowController.startGame
-#GET     /wsgame						controllers.FiveInARowController.wsgame
-#GET     /game/						controllers.FiveInARowController.game
-GET     /game/getMessages			controllers.FiveInARowController.getMessages
-GET     /game/:gameId				controllers.FiveInARowController.game(gameId: String)
-POST 	/game/clientMessage			controllers.FiveInARowController.clientMessage
+
+GET     /xando/getMessages			controllers.XandOController.getMessages
+GET     /xando/:gameId				controllers.XandOController.xando(gameId: String)
+POST 	/xando/clientMessage		controllers.XandOController.clientMessage
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

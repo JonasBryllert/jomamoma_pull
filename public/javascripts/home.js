@@ -64,7 +64,7 @@ function getMessages(){
 			handleChallenge(data.challenger, data.game);
 		}
 		else if ("type" in data && data.type == "challengeAccepted") {
-			handleChallengeAccepted(data.challengee, data.gameId);
+			handleChallengeAccepted(data.challengee, data.url);
 		}
 		else if ("type" in data && data.type == "challengeRejected") {
 			if (userId == data.challenger) {
@@ -91,13 +91,14 @@ function handleChallenge(challenger, gameChoice) {
 	$("#challengeDiv").show();
 }
 
-function handleChallengeAccepted(challengee, gameId) {
+function handleChallengeAccepted(challengee, url) {
 	$("#messageDiv").text("The challenge has been accepted, please wait...")
 	$("#messageDiv").show();
 	window.setTimeout(function(){
 		$("#challengeDiv").hide();		
 		$("#messageDiv").hide();
-		window.location.href = "/game/" + gameId; 	
+//		window.location.href = "/xando/" + gameId; 	
+		window.location.href = url; 	
 	}, 2000);
 }
 
