@@ -39,18 +39,20 @@ object MemoryController extends Controller {
       //TODO Add redirect to error page if game not exist
       val game: MemoryGame = MemoryGame.getGame(gameId).get
       
-      messageQueue += ((user, Json.obj(
+      val imageWithIdArray = for(i <- 1 to game.shuffledImages.length) yield new ImageWithId("pos-" + i, game.shuffledImages(i-1));
+      val jsonMessageGameInfo = Json.obj(
     		  "functionName" -> "gameInfo",
     		  "args" -> Json.obj(
-    		      "images" -> Json.toJson(game.shuffledImages.map(i => new ImageWithId())),
+    		      "images" -> Json.toJson(imageWithIdArray),
     		      "player1" -> game.player1,
     		      "player2" -> game.player2
-    		   )
-          )))
-      val playerSymbol = game.getPlayerSymbol(user)
-      if (playerSymbol == "X") {
+    		   ))
+      messageQueue += ((user, jsonMessageGameInfo))
+      if (user == game.currentPlayer) {
+        //Add json to your turn
         messageQueue += ((user, Json.obj("type" -> "yourMove")))
       }
+
       Ok(views.html.Memory(game.size, request.session("user"), playerSymbol))
     }
   }
