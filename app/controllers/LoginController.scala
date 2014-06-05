@@ -38,7 +38,7 @@ object LoginController extends Controller {
         },
     	user => {
           println("User logged in successfully: " + user)
-    	  Redirect(routes.Application.home()).withSession(session + ("user" -> user.name))
+    	  Redirect(routes.Application.home()).withSession(request.session + ("user" -> user.name))
     	}
     )
 //  	val params: Option[Map[String, Seq[String]]] = request.body.asFormUrlEncoded
