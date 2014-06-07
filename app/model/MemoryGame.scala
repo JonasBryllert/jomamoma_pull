@@ -1,6 +1,6 @@
 package model
 
-import play.api.libs.iteratee._
+//import play.api.libs.iteratee._
 import play.api.libs.json._
 import play.api.libs.json.Json._
 import scala.collection.mutable.ListBuffer
@@ -12,6 +12,8 @@ import controllers.Assets
 
 object MemoryGame {
   
+  case class ImageWithId(id: String, image: String)
+
   sealed trait MoveResult
   object PlayerWon extends MoveResult
   object Draw extends MoveResult
@@ -36,15 +38,22 @@ object MemoryGame {
 class MemoryGame(val size: Int, val player1: String, val player2: String) {
   import MemoryGame._
   println(s"new game, size: $size, players: $player1 $player2")
-  type Position = (Int, Int)
+  type Position = String
   
   var currentPlayer: String = player1
-  val entries: ListBuffer[(String, Position)] = new ListBuffer
+  val score = Map(player1 -> 0, player2 -> 0)
   
   //stores message
   val playerToMessageQueue = Map(player1 -> new ListBuffer[JsValue], player2 -> new ListBuffer[JsValue])
   
-  val shuffledImages: Array[String] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg").toArray
+//  val imageWithIdArray = for(i <- 1 to game.shuffledImages.length) yield new ImageWithId("pos-" + i, game.shuffledImages(i-1));
+//  val shuffledImageWithIds: Array[ImageWithId] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg").toArray
+  val shuffledImageWithIds: Array[ImageWithId] = {
+    val shuffledImages: Array[String] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg").toArray
+    val shuffledImageWithIds = for(i <- 1 to shuffledImages.length) yield new ImageWithId("pos-" + i, shuffledImages(i-1));
+    shuffledImageWithIds.toArray
+//    scala.util.Random.shuffle(1 to size).map(i => new ImageWithId("pos-" + count++, "images/memory/pic" + i + ".jpg")).toArray
+  }
     
   def getOtherPlayer(player: String): String = if (player == player1) player2 else player1
   
@@ -54,19 +63,10 @@ class MemoryGame(val size: Int, val player1: String, val player2: String) {
     currentPlayer
   }  
     
-  def toPos(pos: String): Position = {
-//    row-col-@row-@column
-    val arr = pos.split("-")
-    val row = arr(2).toInt
-    val col = arr(3).toInt
-    (row, col)
-  }
-  
   def firstCellSelected(msg: JsValue, player: String): MoveResult = {
-    val posString = (msg \ "position").as[String]    
-    val pos: Position = toPos(posString)
-	entries += ((player, pos))
-    println(s"doClick player: $player , pos: $posString, entris size: ${entries.size}")
+    val position = (msg \ "position").as[String]    
+	entries += ((player, position))
+    println(s"MemoryGame.firstCellSelected player: $player , pos: $position, entris size: ${entries.size}")
 	    
     //check score and send FINISH if game over
     moveResult(player, pos)

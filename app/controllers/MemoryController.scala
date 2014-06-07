@@ -20,13 +20,12 @@ object MemoryController extends Controller {
   val messageQueue = scala.collection.mutable.Map.empty[String, JsValue]
   
   //Json conversion
-  case class ImageWithId(id: String, image: String)
   implicit val locationWrites = new Writes[ImageWithId] {
-  def writes(imageWithId: ImageWithId) = Json.obj(
-    "id" -> imageWithId.id,
-    "image" -> imageWithId.image
-  )
-}
+    def writes(imageWithId: ImageWithId) = Json.obj(
+      "id" -> imageWithId.id,
+      "image" -> imageWithId.image
+    )
+  }
 
   /**
    * The game page where user will be redirected to when game starts
@@ -39,11 +38,10 @@ object MemoryController extends Controller {
       //TODO Add redirect to error page if game not exist
       val game: MemoryGame = MemoryGame.getGame(gameId).get
       
-      val imageWithIdArray = for(i <- 1 to game.shuffledImages.length) yield new ImageWithId("pos-" + i, game.shuffledImages(i-1));
       val jsonMessageGameInfo = Json.obj(
     		  "functionName" -> "gameInfo",
     		  "args" -> Json.obj(
-    		      "images" -> Json.toJson(imageWithIdArray),
+    		      "images" -> Json.toJson(game.shuffledImageWithIds),
     		      "player1" -> game.player1,
     		      "player2" -> game.player2
     		   ))
