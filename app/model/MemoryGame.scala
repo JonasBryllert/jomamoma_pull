@@ -12,7 +12,7 @@ import controllers.Assets
 
 object MemoryGame {
   
-  case class ImageWithId(id: String, image: String)
+//  case class ImageWithId(id: String, image: String)
 
   sealed trait MoveResult
   object PlayerWon extends MoveResult
@@ -48,12 +48,17 @@ class MemoryGame(val size: Int, val player1: String, val player2: String) {
   
 //  val imageWithIdArray = for(i <- 1 to game.shuffledImages.length) yield new ImageWithId("pos-" + i, game.shuffledImages(i-1));
 //  val shuffledImageWithIds: Array[ImageWithId] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg").toArray
-  val shuffledImageWithIds: Array[ImageWithId] = {
-    val shuffledImages: Array[String] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg").toArray
-    val shuffledImageWithIds = for(i <- 1 to shuffledImages.length) yield new ImageWithId("pos-" + i, shuffledImages(i-1));
-    shuffledImageWithIds.toArray
-//    scala.util.Random.shuffle(1 to size).map(i => new ImageWithId("pos-" + count++, "images/memory/pic" + i + ".jpg")).toArray
+  val shuffledIdImageMap: scala.collection.immutable.Map[String, String] = {
+    val shuffledImages: Seq[String] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg")
+    val shuffledImageWithIds: Seq[(String, String)] = for(i <- 1 to shuffledImages.length) yield (("pos-" + i, shuffledImages(i-1)));
+    shuffledImageWithIds.toMap
   }
+
+//  val shuffledImageWithIds: Array[ImageWithId] = {
+//    val shuffledImages: Array[String] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg").toArray
+//    val shuffledImageWithIds = for(i <- 1 to shuffledImages.length) yield new ImageWithId("pos-" + i, shuffledImages(i-1));
+//    shuffledImageWithIds.toArray
+//  }
     
   def getOtherPlayer(player: String): String = if (player == player1) player2 else player1
   
@@ -63,9 +68,9 @@ class MemoryGame(val size: Int, val player1: String, val player2: String) {
     currentPlayer
   }  
     
-  def firstCellSelected(msg: JsValue, player: String): MoveResult = {
-    val position = (msg \ "position").as[String]    
-	entries += ((player, position))
+  def secondCellSelected(player: String, firstCell: String, secondCell: String): MoveResult = {
+    
+    entries += ((player, position))
     println(s"MemoryGame.firstCellSelected player: $player , pos: $position, entris size: ${entries.size}")
 	    
     //check score and send FINISH if game over

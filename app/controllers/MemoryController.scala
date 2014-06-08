@@ -19,13 +19,13 @@ object MemoryController extends Controller {
   //message queue, user, JsValue
   val messageQueue = scala.collection.mutable.Map.empty[String, JsValue]
   
-  //Json conversion
-  implicit val locationWrites = new Writes[ImageWithId] {
-    def writes(imageWithId: ImageWithId) = Json.obj(
-      "id" -> imageWithId.id,
-      "image" -> imageWithId.image
-    )
-  }
+//  //Json conversion
+//  implicit val locationWrites = new Writes[ImageWithId] {
+//    def writes(imageWithId: ImageWithId) = Json.obj(
+//      "id" -> imageWithId.id,
+//      "image" -> imageWithId.image
+//    )
+//  }
 
   /**
    * The game page where user will be redirected to when game starts
@@ -41,7 +41,7 @@ object MemoryController extends Controller {
       val jsonMessageGameInfo = Json.obj(
     		  "functionName" -> "gameInfo",
     		  "args" -> Json.obj(
-    		      "images" -> Json.toJson(game.shuffledImageWithIds),
+    		      "images" -> Json.toJson(game.shuffledIdImageMap),
     		      "player1" -> game.player1,
     		      "player2" -> game.player2
     		   ))
@@ -58,7 +58,7 @@ object MemoryController extends Controller {
   /**
    * Client call to retrieve messages
    */
-  def getMessages = Action { implicit request =>
+  def getMessages(gameId: String) = Action { implicit request =>
     val user = request.session("user")
     println(s"XandO.getMessages -> : user: ${user}, messageQueue: $messageQueue")
     val message = messageQueue.remove(user)
@@ -74,23 +74,34 @@ object MemoryController extends Controller {
   /**
    * JSON client message
    */
-  def clientMessage() = Action { implicit request =>
+  def clientMessage(gameId: String) = Action(BodyParsers.parse.json) { implicit request =>
     val user = request.session("user")
-    val jsonMessage: Option[JsValue] = request.body.asJson
-    println(s"XandO.clientMessage -> user: $user, json: $jsonMessage")
-    jsonMessage match {
-      case Some(value) => handleClientMessage(value, request.session("user"))
-      case None => {
-        println("clientMessage -> None")
-        Ok("")
-      }
+    val jsonMessage: JsValue = request.body
+    val game = MemoryGame.getGame(gameId).get
+    println(s"XandO.clientMessage -> user: $user, json: ${jsonMessage}")
+    val message = (jsonMessage \ "message").as[String]
+    if ("firstCellSelected".equals(message)) {
+      //Just forward selected cell to opponent
+      val responseJson: JsValue = Json.obj(
+              "message" -> "firstCellSelected",
+              "messageObject" -> Json.obj(
+                  "firstCell" -> (jsonMessage \ "messageObject" \ "firstCell")
+              )
+      )
+      messageQueue += ((game.getOtherPlayer(user), responseJson))              
+    } else if ("secondCellSelected".equals(message)) {
+      val firstCell = (jsonMessage \ "messageObject" \ "firstCell").as[String]
+      val secondCell = (jsonMessage \ "messageObject" \ "secondCell").as[String]
+      game.secondCellSelected(user, firstCell, secondCell)
+    } else {
+      println(s"MemoryController.clientMessage -> Unknown message")  
     }
+    Ok("")
   }
   
   private def handleClientMessage(jsValue: JsValue, user: String): Result = {
     println(s"XandO.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
     val gameId = (jsValue \ "gameId").as[String]
-    val game = MemoryGame.getGame(gameId).get
     val mType = (jsValue \ "type").asOpt[String]
     mType match {
       case Some(sType) => {
