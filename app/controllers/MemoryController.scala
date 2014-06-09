@@ -39,11 +39,11 @@ object MemoryController extends Controller {
       val game: MemoryGame = MemoryGame.getGame(gameId).get
       
       val jsonMessageGameInfo = Json.obj(
-    		  "functionName" -> "gameInfo",
-    		  "args" -> Json.obj(
-    		      "images" -> Json.toJson(game.shuffledIdImageMap),
-    		      "player1" -> game.player1,
-    		      "player2" -> game.player2
+    		  "message" -> "gameInfo",
+    		  "messageObject" -> Json.obj(
+     		      "player1" -> game.player1,
+    		      "player2" -> game.player2,
+   		          "images" -> Json.toJson(game.shuffledIdImageMap)
     		   ))
       messageQueue += ((user, jsonMessageGameInfo))
       if (user == game.currentPlayer) {

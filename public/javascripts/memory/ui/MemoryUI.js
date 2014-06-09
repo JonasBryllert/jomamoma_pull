@@ -72,7 +72,8 @@ define([
 			runTopicLoop(this);
 			topic.subscribe(topicName, lang.hitch(this, function(object) { //object is: {functionName: xx, args: yy}
 //				executeFunctionByName(object.functionName, this, object.args);
-				messageQueue.enqueue({ context: this, functionName: object.functionName, args: object.args});
+				console.log("Topic message received: " + object);
+				messageQueue.enqueue({ context: this, functionName: object.message, args: object.messageObject});
 			}));
 		},
 		
