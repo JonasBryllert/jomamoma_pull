@@ -88,34 +88,78 @@ object MemoryController extends Controller {
                   "firstCell" -> (jsonMessage \ "messageObject" \ "firstCell")
               )
       )
-      messageQueue += ((game.getOtherPlayer(user), responseJson))              
+      messageQueue += ((game.getOtherPlayer(user), responseJson)) 
+      
     } else if ("secondCellSelected".equals(message)) {
       val firstCell = (jsonMessage \ "messageObject" \ "firstCell").as[String]
       val secondCell = (jsonMessage \ "messageObject" \ "secondCell").as[String]
-      game.secondCellSelected(user, firstCell, secondCell)
+      //Send update to opponent, and then send to game.
+      val responseJson: JsValue = Json.obj(
+              "message" -> "secondCellSelected",
+              "messageObject" -> Json.obj(
+                  "firstCell" -> firstCell,
+                  "secondCell" -> secondCell
+              )
+      )
+      messageQueue += ((game.getOtherPlayer(user), responseJson)) 
+      
+      val (score, result) = game.secondCellSelected(user, firstCell, secondCell)
+      val scoreJson: JsValue = Json.obj(
+          "message" -> "score",
+          "messageObject" -> Json.obj(
+              game.player1 -> score.getScore(game.player1),
+              game.player2 -> score.getScore(game.player2)
+          )
+      )
+      messageQueue += ((user, scoreJson)) 
+      messageQueue += ((game.getOtherPlayer(user), scoreJson)) 
+      
+      result match {
+        case PlayerWon(p) => {
+          val resultJson: JsValue = Json.obj(
+            "message" -> "gameover",
+            "messageObject" -> p
+          )          
+          messageQueue += ((user, resultJson)) 
+          messageQueue += ((game.getOtherPlayer(user), resultJson)) 
+        }
+        case Draw => {
+          val resultJson: JsValue = Json.obj(
+            "message" -> "gameover"
+          )          
+          messageQueue += ((user, resultJson)) 
+          messageQueue += ((game.getOtherPlayer(user), resultJson)) 
+        }
+        case NextMove => {
+          val resultJson: JsValue = Json.obj(
+            "message" -> "yourmove"
+          )          
+          messageQueue += ((game.getOtherPlayer(user), resultJson)) 
+        }
+      }
     } else {
       println(s"MemoryController.clientMessage -> Unknown message")  
     }
     Ok("")
   }
   
-  private def handleClientMessage(jsValue: JsValue, user: String): Result = {
-    println(s"XandO.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
-    val gameId = (jsValue \ "gameId").as[String]
-    val mType = (jsValue \ "type").asOpt[String]
-    mType match {
-      case Some(sType) => {
-        if (sType == "click") {
-//          handleClick(game, jsValue, user)
-        }
-      }
-      case _ => {
-        println(s"Unknown client message: ${Json.prettyPrint(jsValue)}")
-        Ok("")
-      } 
-    }
-    Ok("") 
-  }
+//  private def handleClientMessage(jsValue: JsValue, user: String): Result = {
+//    println(s"XandO.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
+//    val gameId = (jsValue \ "gameId").as[String]
+//    val mType = (jsValue \ "type").asOpt[String]
+//    mType match {
+//      case Some(sType) => {
+//        if (sType == "click") {
+////          handleClick(game, jsValue, user)
+//        }
+//      }
+//      case _ => {
+//        println(s"Unknown client message: ${Json.prettyPrint(jsValue)}")
+//        Ok("")
+//      } 
+//    }
+//    Ok("") 
+//  }
     
 //  private def handleClick(game: MemoryGame, jsValue: JsValue, user: String) = {
 //      val moveResult = game.doClick(jsValue, user)

@@ -5,6 +5,7 @@ import play.api.mvc._
 import play.api.libs.iteratee._
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.XandOGame
+import model.MemoryGame
 import model.Users
 import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json._
@@ -121,7 +122,9 @@ object Application extends Controller {
     //Create game
     val gameId = 
     	if (game == "ThreeInARow") XandOGame.newGame(3, 3, challenger, user)
-    	else XandOGame.newGame(10, 5, challenger, user)
+    	else if (game == "FiveInARow") XandOGame.newGame(10, 5, challenger, user)
+    	else if (game == "Memory") MemoryGame.newGame(4, challenger, user)
+    	else "-1"
     
     val url = "/xando/" + gameId;
     val jsObject = Json.obj(

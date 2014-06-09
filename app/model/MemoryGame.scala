@@ -13,9 +13,26 @@ import controllers.Assets
 object MemoryGame {
   
 //  case class ImageWithId(id: String, image: String)
+  
+  class Score(val player1: String, val player2: String) {
+    private var player1Score = 0
+    private var player2Score = 0
+    def increment(player: String) {
+      if (player.equals(player1)) player1Score += 1
+      else player2Score += 1
+    }
+    def getScore(player: String): Int = {
+      if (player.equals(player1)) player1Score
+      else player2Score
+    }
+    def getTotalScore(): Int = player1Score + player2Score
+    override def toString(): String = {
+      ""  + player1 + ": " + player1Score + ", " + player2 +  ": " + player2Score
+    }
+  }
 
   sealed trait MoveResult
-  object PlayerWon extends MoveResult
+  case class PlayerWon(val winner: String) extends MoveResult 
   object Draw extends MoveResult
   object NextMove extends MoveResult
 
@@ -41,71 +58,48 @@ class MemoryGame(val size: Int, val player1: String, val player2: String) {
   type Position = String
   
   var currentPlayer: String = player1
-  val score = Map(player1 -> 0, player2 -> 0)
+  private val score = new Score(player1,player2)
   
-  //stores message
-  val playerToMessageQueue = Map(player1 -> new ListBuffer[JsValue], player2 -> new ListBuffer[JsValue])
-  
-//  val imageWithIdArray = for(i <- 1 to game.shuffledImages.length) yield new ImageWithId("pos-" + i, game.shuffledImages(i-1));
-//  val shuffledImageWithIds: Array[ImageWithId] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg").toArray
+  //The map with <id, images>
   val shuffledIdImageMap: scala.collection.immutable.Map[String, String] = {
-    val shuffledImages: Seq[String] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg")
+    val images = for (i <- 1 to size /2) yield "images/memory/pic" + i + ".jpg"
+    val duplicatedImages = images ++ images
+    val shuffledImages: Seq[String] = scala.util.Random.shuffle(duplicatedImages)
     val shuffledImageWithIds: Seq[(String, String)] = for(i <- 1 to shuffledImages.length) yield (("pos-" + i, shuffledImages(i-1)));
     shuffledImageWithIds.toMap
   }
-
-//  val shuffledImageWithIds: Array[ImageWithId] = {
-//    val shuffledImages: Array[String] = scala.util.Random.shuffle(1 to size).map(i => "images/memory/pic" + i + ".jpg").toArray
-//    val shuffledImageWithIds = for(i <- 1 to shuffledImages.length) yield new ImageWithId("pos-" + i, shuffledImages(i-1));
-//    shuffledImageWithIds.toArray
-//  }
     
   def getOtherPlayer(player: String): String = if (player == player1) player2 else player1
   
-  def nextPlayer(): String = {
+  private def nextPlayer(): String = {
     if (currentPlayer == player1) currentPlayer = player2
     else currentPlayer = player1
     currentPlayer
   }  
     
-  def secondCellSelected(player: String, firstCell: String, secondCell: String): MoveResult = {
-    
-    entries += ((player, position))
-    println(s"MemoryGame.firstCellSelected player: $player , pos: $position, entris size: ${entries.size}")
-	    
-    //check score and send FINISH if game over
-    moveResult(player, pos)
+  def secondCellSelected(player: String, firstCell: String, secondCell: String): (Score, MoveResult) = {
+    if (shuffledIdImageMap(firstCell).equals(shuffledIdImageMap(secondCell))) {
+      score.increment(player)
+    }
+    val moveResult: MoveResult = {
+      if (score.getTotalScore() >= size/2) {
+        //Game over, calculate winner
+        if (score.getScore(player1) == score.getScore(player2)) {
+          Draw
+        }
+        else {
+          val winner =  {
+            if (score.getScore(player1) > score.getScore(player2)) player1
+            else player2
+          }
+          new PlayerWon(winner)
+        }
+      } else {
+        NextMove
+      }
+    }
+    println(s"MemoryGame.secondCellSelected player: $player , firstCell: $firstCell, secondCell: $secondCell, score: $score")
+	(score, moveResult)  
   }
   
-  def moveResult(player: String, pos: Position): MoveResult = {
-    //TODO code for diagonals 
-    val playerEntries: List[Position] = entries.filter(e => e._1 == player).map(e => e._2).toList
-    val rowEntries = playerEntries.filter(e => e._1 == pos._1).map(e => e._2).sorted
-    val colEntries = playerEntries.filter(e => e._2 == pos._2).map(e => e._1).sorted
-    val diag1Entries = playerEntries.filter(e => e._1 - e._2 == pos._1 - pos._2).map(e => e._1).sorted
-    val diag2Entries = playerEntries.filter(e => e._1 + e._2 == pos._1 + pos._2).map(e => e._1).sorted
-    
-    val playerHasWon = hasWon(rowEntries) || hasWon(colEntries) || hasWon(diag1Entries) || hasWon(diag2Entries)
-    println()
-    if (playerHasWon) {
-      println("Player won!!!")      
-      PlayerWon
-    }
-    else if (entries.size == (size * size)) {
-      println("Draw!!!")
-      Draw
-    }
-    else NextMove
-  }
-  
-  def hasWon(list: List[Int], prev: Int = 0, count: Int = 0): Boolean = {
-    if (count == 0) true
-    else if (list.isEmpty) false
-    else if (prev == 0) hasWon(list.tail, list.head, count + 1)
-    else {
-      if (list.head == prev + 1) hasWon(list.tail, list.head, count + 1)
-      else hasWon(list.tail, list.head, 0)
-    }
-  }
-   
 }

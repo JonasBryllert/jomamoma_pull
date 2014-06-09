@@ -1,16 +1,74 @@
 @(size:Int, userName: String)
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>jomamoma</title>
+<head>
+	<meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jomamoma - Memory</title>
     <link rel='stylesheet' href='@routes.Assets.at("stylesheets/memory.css")'>
-    <script src='@routes.Assets.at("javascripts/jquery.js")'></script>
-  </head>
-  <body>
-    <h1>X and O (five in a row)</h1>
-   	  <div id="gameInfoDiv">
-   	    Good luck <span id="userIdSpan">@userName</span>.
-   	  </div>
+    <link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
+	
+</head>
+<body>
+	<div id="pageDiv" class="container">
+		<header>
+			<div id="headerDiv" class="text-center info">
+				<h1 class="center">Memory</h1>
+			</div>
+		</header>
+			
+		<section>
+			<div id="scoreDiv" class="text-center info">
+				<div>Welcome to memory @userName</div>
+				<h4>Current score: </h4>
+				<div id="scoreResultDiv">	
+					<table id=scoreTable class="center">
+						<tr>
+							<th>Player Name</th>
+							<th>Score</th>
+						<tr>
+							<td id="playerOneName">Loading...</td>
+							<td id="playerOneScore"></td>
+						</tr>
+						<tr>
+							<td id="playerTwoName">Loading...</td>
+							<td id="playerTwoScore"></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		
+			<div id="infoDiv" class="text-center info">
+			</div>
+		
+		</section>
 
-  </body>    
+		<main>
+            <div id="main" class="text-center info">
+                <table id="gameTable" class="center">
+                </table>
+            </div>
+        </main>
+	</div>
+	
+	<!-- scripts -->
+	<script type="text/javascript" src="lib/jquery/jquery-2.1.1.js"></script>
+	<script>
+	    dojoConfig= {
+	        async: true,
+	        baseUrl: "javascript/",
+	        packages: [
+		   				{ name: "ui", location: "memory/ui" },
+		   				{ name: "controller", location: "memory/controller" },
+		   				{ name: "data", location: "memory/data" }
+	   	    	]
+	    };
+	</script>
+    <script src='@routes.Assets.at("lib/dojo/dojo.js")' data-dojo-config="async: true"></script>
+    <script src='@routes.Assets.at("lib/bootstrap/js/bootstrap.js")'></script>
+    <script src='@routes.Assets.at("javascript/memory/MemoryConnector.js")'></script>
+	<!-- end scripts -->
+	
+</body>
 </html>
