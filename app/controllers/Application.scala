@@ -121,12 +121,14 @@ object Application extends Controller {
      
     //Create game
     val gameId = 
-    	if (game == "ThreeInARow") XandOGame.newGame(3, 3, challenger, user)
-    	else if (game == "FiveInARow") XandOGame.newGame(10, 5, challenger, user)
-    	else if (game == "Memory") MemoryGame.newGame(4, challenger, user)
+    	if ("ThreeInARow".equals(game)) XandOGame.newGame(3, 3, challenger, user)
+    	else if ("FiveInARow".equals(game)) XandOGame.newGame(10, 5, challenger, user)
+    	else if ("Memory".equals(game)) MemoryGame.newGame(8, challenger, user)
     	else "-1"
+    val url = 
+    	if ("Memory".equals(game)) "/memory/" + gameId
+    	else "/xando/" + gameId
     
-    val url = "/xando/" + gameId;
     val jsObject = Json.obj(
       "type" -> "challengeAccepted",
       "challenger" -> challenger,
@@ -135,8 +137,8 @@ object Application extends Controller {
       "gameId" -> gameId
     )
     
-    messageQueue +=((challenger, jsObject) )  
-    messageQueue +=((user, jsObject) )  
+    messageQueue += ((challenger, jsObject) )  
+    messageQueue += ((user, jsObject) )  
     Ok("")
   }
 

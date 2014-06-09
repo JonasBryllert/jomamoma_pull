@@ -111,7 +111,7 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 	    //Private methods
 	    
 	    //Retrieve messages periodically from server
-	    function getMessages(){
+	    getMessages: function (){
 	        // Request the JSON data from the server every second
 	    	setTimeout(lang.hitch(this, function() {
 		        request.get("getMessages", {
@@ -129,7 +129,7 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 	    },
 	    
 	    //Send JSON message to server
-	    function sendClientMessage(json) {
+	    sendClientMessage: function(json) {
 	    	request.post("clientMessage", {
 	    		data: json
 	    	}).then(function(text){
