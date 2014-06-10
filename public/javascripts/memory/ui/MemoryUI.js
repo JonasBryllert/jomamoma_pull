@@ -96,7 +96,6 @@ define([
 	       	var currentRow = null;
 	       	var imArray = Object.keys(gameData.images);
 	       	var imagesPerRow = Math.min(5, Math.floor(imArray.length / 2));
-//	       	var imagesPerRow = Math.min(5, Math.floor(gameData.images.length / 2));
 	       	imArray.forEach(function(value, index, array) {
 	        	if (index % imagesPerRow == 0) {
 	        		currentRow = domConstruct.create("tr");
