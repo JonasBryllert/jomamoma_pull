@@ -45,10 +45,13 @@ object MemoryController extends Controller {
     		      "player2" -> game.player2,
    		          "images" -> Json.toJson(game.shuffledIdImageMap)
     		   ))
+      println(s"MemoryController.memory game: $gameId user: $user sending message <gameInfo>")
       messageQueue += ((user, jsonMessageGameInfo))
+
       if (user == game.currentPlayer) {
         //Add json to your turn
-        messageQueue += ((user, Json.obj("type" -> "yourMove")))
+        println(s"MemoryController.memory game: $gameId user: $user sending message <yourMove>")
+        messageQueue += ((user, Json.obj("message" -> "yourMove")))
       }
 
       Ok(views.html.memory(game.size, request.session("user")))
@@ -64,7 +67,7 @@ object MemoryController extends Controller {
     val message = messageQueue.remove(user)
     message match {
       case Some(jsValue) => returnJSON(jsValue)
-      case _ => returnJSON(Json.obj("type"->"empty"))
+      case _ => returnJSON(Json.obj("message" -> "empty"))
     }     
   }
   

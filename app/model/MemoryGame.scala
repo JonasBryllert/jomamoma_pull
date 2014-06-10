@@ -62,7 +62,7 @@ class MemoryGame(val size: Int, val player1: String, val player2: String) {
   
   //The map with <id, images>
   val shuffledIdImageMap: scala.collection.immutable.Map[String, String] = {
-    val images = for (i <- 1 to size /2) yield "images/memory/pic" + i + ".jpg"
+    val images = for (i <- 1 to size /2) yield "/assets/images/memory/pic" + i + ".jpg"
     val duplicatedImages = images ++ images
     val shuffledImages: Seq[String] = scala.util.Random.shuffle(duplicatedImages)
     val shuffledImageWithIds: Seq[(String, String)] = for(i <- 1 to shuffledImages.length) yield (("pos-" + i, shuffledImages(i-1)));

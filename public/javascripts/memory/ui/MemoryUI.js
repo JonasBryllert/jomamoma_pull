@@ -94,12 +94,14 @@ define([
 			plTwo.appendChild(document.createTextNode(gameData.player2));
 	       	var tbody = domConstruct.create("tbody");
 	       	var currentRow = null;
-	       	var imagesPerRow = Math.min(5, Math.floor(gameData.images.length / 2));
-	       	gameData.images.forEach(function(value, index, array) {
+	       	var imArray = Object.keys(gameData.images);
+	       	var imagesPerRow = Math.min(5, Math.floor(imArray.length / 2));
+//	       	var imagesPerRow = Math.min(5, Math.floor(gameData.images.length / 2));
+	       	imArray.forEach(function(value, index, array) {
 	        	if (index % imagesPerRow == 0) {
 	        		currentRow = domConstruct.create("tr");
 	        	}
-	        	domConstruct.place('<td id="' + value.id + '" class="available"><img class="gameImage hide" alt="1" src="' + value.image + '"></td>', currentRow);
+	        	domConstruct.place('<td id="' + value + '" class="available"><img class="gameImage hide" alt="1" src="' + gameData.images[value] + '"></td>', currentRow);
 	        	if ((index + 1) % imagesPerRow == 0 || index == array.length - 1) {
 	        		//place row in tbody
 	        		domConstruct.place(currentRow, tbody);

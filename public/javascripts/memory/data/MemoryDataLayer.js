@@ -37,6 +37,7 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 		constructor: function(topicName){
 			this.topicName = topicName;
 			this.gameId = window.location.pathname.match(/\/memory\/(.*)/)[1];
+			this.relativeUrl = "/memory/" + this.gameId + "/";
 		},
     
 		startGame: function() {	
@@ -114,43 +115,34 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 	    getMessages: function (){
 	        // Request the JSON data from the server every second
 	    	setTimeout(lang.hitch(this, function() {
-		        request.get("getMessages", {
+		        request.get(this.relativeUrl + "getMessages", {
 		            // Parse data from JSON to a JavaScript object
 		            handleAs: "json"
-		        }).then(function(data){
-		        	console.log("Message received: " + data);
-					topic.publish(this.topicName, data);	        	
-		        },function(error) {
+		        }).then(lang.hitch(this, function(data){
+		        	if (data.message !== "empty") {
+		        		console.log("Message received: " + data);
+		        		topic.publish(this.topicName, data);	  
+		        	}
+		        }),function(error) {
 		        	console.error("Error message received: " + error);	        	
 		        });
 		        //keep the loop going
 		        this.getMessages();
-	    	}), 1000);
+	    	}), 2000);
 	    },
 	    
 	    //Send JSON message to server
 	    sendClientMessage: function(json) {
-	    	request.post("clientMessage", {
+	    	request.post(this.relativeUrl + "clientMessage", {
 	    		data: json
 	    	}).then(function(text){
 	    		console.log("clientMessage: ", json);
 	    	}, function(error) {
 	    		console.log("Error clientMessage: (" + json + ")" , error, e);
-	    	}
-//	    	$.ajax({
-//	            url: "/xando/clientMessage",
-//	            type: "POST",
-//	            data: json,
-//	            contentType: 'application/json; charset=utf-8',
-//	            dataType: "json",
-//	            async: false,
-//	            success: function(msg) {
-//	                alert(msg);
-//	            }
-//	        });	
+	    	});
 	    }
 
-    
+	//END DECLARE
 	});
 
 });
