@@ -62,7 +62,7 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 	    },
 	    
 	    firstCellSelected: function(firstCell) {
-	    	this.sendsendClientMessage({
+	    	this.sendClientMessage({
 	    		message: "firstCellSelected",
 	    		messageObject: {
 	    			firstCell: firstCell
@@ -71,7 +71,7 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 	    },
 	    
 	    secondCellSelected: function(firstCell, secondCell) {
-	    	this.sendsendClientMessage({
+	    	this.sendClientMessage({
 	    		message: "secondCellSelected",
 	    		messageObject: {
 	    			firstCell: firstCell,
@@ -120,7 +120,7 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 		            handleAs: "json"
 		        }).then(lang.hitch(this, function(data){
 		        	if (data.message !== "empty") {
-		        		console.log("Message received: " + data);
+		        		console.log("Message received: " + JSON.stringify(data));
 		        		topic.publish(this.topicName, data);	  
 		        	}
 		        }),function(error) {
@@ -133,13 +133,43 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 	    
 	    //Send JSON message to server
 	    sendClientMessage: function(json) {
-	    	request.post(this.relativeUrl + "clientMessage", {
-	    		data: json
-	    	}).then(function(text){
-	    		console.log("clientMessage: ", json);
-	    	}, function(error) {
-	    		console.log("Error clientMessage: (" + json + ")" , error, e);
-	    	});
+	    	$.ajax({
+	            url: this.relativeUrl + "clientMessage",
+	            type: "POST",
+	            data: json,
+	            contentType: 'application/json; charset=utf-8',
+	            dataType: "json",
+	            async: false,
+	            success: function(msg) {
+	                alert(msg);
+	            },
+	            error: function(xhr, text, error) {
+	            	console.log("Error: " + text + " " + error);
+	            }
+	        });	
+
+//	        var xhrArgs = {
+//	        	      url: this.relativeUrl + "clientMessage",
+//	        	      postData: dojo.toJson(json),
+//	        	      handleAs: "text",
+//	        	      load: function(data){
+//	        	    	  console.log("clientMessage: ", JSON.stringify(json));
+//	        	      },
+//	        	      error: function(error){
+//	        	    	  console.log("Error clientMessage: (" + JSON.stringify(json) + ")" , error, e);
+//	        	      }
+//	        	    }
+//	        	    // Call the asynchronous xhrPost
+//	        	    var deferred = dojo.xhrPost(xhrArgs);
+
+//	    	request.post(this.relativeUrl + "clientMessage", {
+//	    		data: json,
+//	    		handleAs: "json",
+//	    	}).then(function(text){
+//	    		console.log("clientMessage: ", JSON.stringify(json));
+//	    	}, function(error) {
+//	    		console.log("Error clientMessage: (" + json + ")" , error, e);
+//	    	});
 	    }
 
 	//END DECLARE

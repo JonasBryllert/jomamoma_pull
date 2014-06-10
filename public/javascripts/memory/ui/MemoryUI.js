@@ -107,6 +107,38 @@ define([
 	        	}
 	         });
 	       	domConstruct.place(tbody, "gameTable");	
+	       	if (gameData.yourMove === true) {
+	       		this.yourMove(true);
+	       	} 
+	       	else {
+	       		this.showInfo("Please wait for other players move...");
+	       	}
+		},
+		
+		//Called when other player selects first cell
+		firstCellSelected: function(object) {
+			var tdCell = dom.byId(object.firstCell);
+			domClass.remove(tdCell.children[0], "hide");
+			this.firstCell = tdCell;
+		},
+		
+		//Called when other player selects second cell
+		secondCellSelected: function(object) {
+			var tdCell = dom.byId(object.secondCell);
+			this.secondCell = tdCell;
+			if (this.firstCell.children[0].src === this.secondCell.children[0].src) {
+				this.showInfo("Showing other players squares...");
+			}
+			else {
+				this.showInfo("Showing other players squares...");
+			}
+			//Don't receive messages until waiting is done
+			this.waiting = true;
+			//Make sure wait 3 seconds before receiving message again
+			setTimeout(lang.hitch(this, function() {
+				this.checkResult(this.firstCell, this.secondCell);
+				this.waiting = false;
+			}), 3000);
 		},
 		
 		moveResult: function(moveResultData) {
@@ -122,7 +154,7 @@ define([
 		},
 		
 		yourMove: function(isFirst) {
-			this.showInfo('Your turn. Please select a square.');
+			this.showInfo('Your turn. Please select two squares.');
 			this.addClickHandling();
 		},
 		
