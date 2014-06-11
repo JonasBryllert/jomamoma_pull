@@ -10,14 +10,15 @@ import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json._
 import play.api.libs.json.Json._
 import java.util.Timer
+import scala.collection._
 
 object MemoryController extends Controller {  
   
-  val games: scala.collection.mutable.Map[String, MemoryGame] = scala.collection.mutable.Map.empty
-  val waitQueue: scala.collection.mutable.Map[String, String] = scala.collection.mutable.Map.empty
+  val games: mutable.Map[String, MemoryGame] = mutable.Map.empty
+  val waitQueue: scala.collection.mutable.Map[String, String] = mutable.Map.empty
   
   //message queue, user, JsValue
-  val messageQueue = scala.collection.mutable.Map.empty[String, JsValue]
+  val messageQueue = mutable.Map.empty[String, mutable.Queue[JsValue]]
   
 //  //Json conversion
 //  implicit val locationWrites = new Writes[ImageWithId] {
@@ -31,13 +32,16 @@ object MemoryController extends Controller {
    * The game page where user will be redirected to when game starts
    */
   def memory(gameId: String) = Action { implicit request =>
-    println("MemoryController.memory -> " + gameId)
+    println("\nMemoryController.memory -> " + gameId)
     if (request.session.get("user") == None ) Redirect(routes.LoginController.login)
     else {
       val user = request.session("user")
       //TODO Add redirect to error page if game not exist
       val game: MemoryGame = MemoryGame.getGame(gameId).get
-      val isFirst = user == game.currentPlayer
+      //Add a queue for player
+      messageQueue += ((user, new mutable.Queue))
+      
+      val isFirst = (user == game.currentPlayer)
       val jsonMessageGameInfo = Json.obj(
     		  "message" -> "gameInfo",
     		  "messageObject" -> Json.obj(
@@ -46,8 +50,8 @@ object MemoryController extends Controller {
    		          "images" -> Json.toJson(game.shuffledIdImageMap),
    		          "yourMove" -> isFirst
     		   ))
-      println(s"MemoryController.memory game: $gameId user: $user sending message <gameInfo>")
-      messageQueue += ((user, jsonMessageGameInfo))
+      println(s"\nMemoryController.memory game: $gameId user: $user sending message <gameInfo>")
+      messageQueue(user).enqueue(jsonMessageGameInfo)
 
       Ok(views.html.memory(game.size, request.session("user")))
     }
@@ -58,14 +62,14 @@ object MemoryController extends Controller {
    */
   def getMessages(gameId: String) = Action { implicit request =>
     val user = request.session("user")
-    val message = messageQueue.remove(user)
-    message match {
-      case Some(jsValue) => {
-        println(s"MemoryController.getMessages -> : user: ${user}, messageQueue: $messageQueue")
-        returnJSON(jsValue)
-      }
-      case _ => returnJSON(Json.obj("message" -> "empty"))
-    }     
+    if (!messageQueue(user).isEmpty) {
+      val message = messageQueue(user).dequeue
+      println(s"\nMemoryController.getMessages -> : user: ${user}, message: ${message}, messageQueue: $messageQueue")
+      returnJSON(message)      
+    }
+    else {
+    	returnJSON(Json.obj("message" -> "empty"))
+    }
   }
   
   private def returnJSON(json: JsValue): Result = Ok(json).withHeaders(CACHE_CONTROL -> "max-age=0, no-store", EXPIRES -> new java.util.Date().toString)
@@ -76,15 +80,15 @@ object MemoryController extends Controller {
    */
   def clientMessage(gameId: String) = Action { implicit request =>
     val user = request.session("user")
-    println(s"XandO.clientMessage -> user: $user, body: ${request.body}")
+//    println(s"XandO.clientMessage -> user: $user, body: ${request.body}")
     val jsonMessageO: Option[JsValue] = request.body.asJson
-    println(s"XandO.clientMessage -> user: $user, json: $jsonMessageO")
+//    println(s"XandO.clientMessage -> user: $user, json: $jsonMessageO")
     val jsonMessage = jsonMessageO.get
-    println(s"XandO.clientMessage -> user: $user, json: $jsonMessage")
+//    println(s"XandO.clientMessage -> user: $user, json: $jsonMessage")
 //    val user = request.session("user")
 //    val jsonMessage: JsValue = request.body
     val game = MemoryGame.getGame(gameId).get
-    println(s"Memory.clientMessage -> user: $user, json: ${jsonMessage}")
+    println(s"\nMemoryController.clientMessage -> user: $user, json: ${jsonMessage}")
     val message = (jsonMessage \ "message").as[String]
     if ("firstCellSelected".equals(message)) {
       //Just forward selected cell to opponent
@@ -94,7 +98,8 @@ object MemoryController extends Controller {
                   "firstCell" -> (jsonMessage \ "messageObject" \ "firstCell")
               )
       )
-      messageQueue += ((game.getOtherPlayer(user), responseJson)) 
+      println(s"\nMemoryController.clientMessage -> user: $user, adding response message json: ${responseJson}")
+      messageQueue(game.getOtherPlayer(user)).enqueue(responseJson)
       
     } else if ("secondCellSelected".equals(message)) {
       val firstCell = (jsonMessage \ "messageObject" \ "firstCell").as[String]
@@ -107,18 +112,20 @@ object MemoryController extends Controller {
                   "secondCell" -> secondCell
               )
       )
-      messageQueue += ((game.getOtherPlayer(user), responseJson)) 
+      println(s"\nMemoryController.clientMessage -> user: $user, adding response message json: ${responseJson}")
+      messageQueue(game.getOtherPlayer(user)).enqueue(responseJson) 
       
       val (score, result) = game.secondCellSelected(user, firstCell, secondCell)
       val scoreJson: JsValue = Json.obj(
-          "message" -> "score",
+          "message" -> "showScore",
           "messageObject" -> Json.obj(
-              game.player1 -> score.getScore(game.player1),
-              game.player2 -> score.getScore(game.player2)
+              "player1" -> score.getScore(game.player1),
+              "player2" -> score.getScore(game.player2)
           )
       )
-      messageQueue += ((user, scoreJson)) 
-      messageQueue += ((game.getOtherPlayer(user), scoreJson)) 
+      println(s"\nMemoryController.clientMessage -> user: $user, adding response message json: ${scoreJson}")
+      messageQueue(user).enqueue(scoreJson) 
+      messageQueue(game.getOtherPlayer(user))enqueue(scoreJson) 
       
       result match {
         case PlayerWon(p) => {
@@ -126,21 +133,21 @@ object MemoryController extends Controller {
             "message" -> "gameOver",
             "messageObject" -> p
           )          
-          messageQueue += ((user, resultJson)) 
-          messageQueue += ((game.getOtherPlayer(user), resultJson)) 
+          messageQueue(user).enqueue(resultJson) 
+          messageQueue(game.getOtherPlayer(user))enqueue(resultJson) 
         }
         case Draw => {
           val resultJson: JsValue = Json.obj(
             "message" -> "gameOver"
           )          
-          messageQueue += ((user, resultJson)) 
-          messageQueue += ((game.getOtherPlayer(user), resultJson)) 
+          messageQueue(user).enqueue(resultJson) 
+          messageQueue(game.getOtherPlayer(user))enqueue(resultJson) 
         }
         case NextMove => {
-          val resultJson: JsValue = Json.obj(
+          val nextMoveJson: JsValue = Json.obj(
             "message" -> "yourMove"
           )          
-          messageQueue += ((game.getOtherPlayer(user), resultJson)) 
+          messageQueue(game.getOtherPlayer(user))enqueue(nextMoveJson) 
         }
       }
     } else {
