@@ -229,7 +229,7 @@ define([
 			domClass.remove(tdCell, "selectCursor");
 			if (this.firstCell == null) {
 				this.firstCell = tdCell;
-				this.controller.firstCellSelected(this.firstCell);
+				this.controller.firstCellSelected(this.firstCell.id);
 				this.showInfo("Well done. Please select a second square.");
 			}
 			else {
@@ -244,7 +244,7 @@ define([
 				}
 				//Don't receive messages until waiting is done
 				this.waiting = true;
-				this.controller.secondCellSelected(this.firstCell, this.secondCell);
+				this.controller.secondCellSelected(this.firstCell.id, this.secondCell.id);
 				//Make sure wait 3 seconds before receiving message again
 				setTimeout(lang.hitch(this, function() {
 					this.checkResult(this.firstCell, this.secondCell);

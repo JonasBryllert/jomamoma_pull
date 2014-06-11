@@ -31,7 +31,7 @@
 //}
 //
 
-define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",], function(declare, topic, request, lang) {
+define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang", "dojo/request/xhr"], function(declare, topic, request, lang, xhr) {
 	
 	return declare(null, {
 		constructor: function(topicName){
@@ -136,18 +136,15 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 	    	$.ajax({
 	            url: this.relativeUrl + "clientMessage",
 	            type: "POST",
-	            data: json,
-	            contentType: 'application/json; charset=utf-8',
+	            data: JSON.stringify(json),
+	            contentType: "application/json; charset=utf-8",
 	            dataType: "json",
 	            async: false,
 	            success: function(msg) {
 	                alert(msg);
-	            },
-	            error: function(xhr, text, error) {
-	            	console.log("Error: " + text + " " + error);
 	            }
 	        });	
-
+//
 //	        var xhrArgs = {
 //	        	      url: this.relativeUrl + "clientMessage",
 //	        	      postData: dojo.toJson(json),
@@ -160,11 +157,20 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang",]
 //	        	      }
 //	        	    }
 //	        	    // Call the asynchronous xhrPost
-//	        	    var deferred = dojo.xhrPost(xhrArgs);
+////    	    xhr(xhrArgs);
+//    	    xhr(this.relativeUrl + "clientMessage", {
+//    	    	postData: dojo.toJson(json),
+//    	    	handleAs: "text"
+//    	    }).then(function(data) {
+//    	    	console.log("clientMessage ok: " + JSON.stringify(json));
+//    	    }, function(error) {
+//    	    	console.log("clientMessage error: (" + JSON.stringify(json) + "), error: " + error);
+//    	    });
 
 //	    	request.post(this.relativeUrl + "clientMessage", {
-//	    		data: json,
-//	    		handleAs: "json",
+//	    		data: json
+////	    		handleAs: "json",
+////	    		headers: { "Content-Type": 'application/json; charset=utf-8' }
 //	    	}).then(function(text){
 //	    		console.log("clientMessage: ", JSON.stringify(json));
 //	    	}, function(error) {

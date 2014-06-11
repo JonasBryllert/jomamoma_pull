@@ -74,9 +74,15 @@ object MemoryController extends Controller {
   /**
    * JSON client message
    */
-  def clientMessage(gameId: String) = Action(BodyParsers.parse.json) { implicit request =>
+  def clientMessage(gameId: String) = Action { implicit request =>
     val user = request.session("user")
-    val jsonMessage: JsValue = request.body
+    println(s"XandO.clientMessage -> user: $user, body: ${request.body}")
+    val jsonMessageO: Option[JsValue] = request.body.asJson
+    println(s"XandO.clientMessage -> user: $user, json: $jsonMessageO")
+    val jsonMessage = jsonMessageO.get
+    println(s"XandO.clientMessage -> user: $user, json: $jsonMessage")
+//    val user = request.session("user")
+//    val jsonMessage: JsValue = request.body
     val game = MemoryGame.getGame(gameId).get
     println(s"Memory.clientMessage -> user: $user, json: ${jsonMessage}")
     val message = (jsonMessage \ "message").as[String]
