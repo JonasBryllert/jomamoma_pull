@@ -131,14 +131,15 @@ object MemoryController extends Controller {
         case PlayerWon(p) => {
           val resultJson: JsValue = Json.obj(
             "message" -> "gameOver",
-            "messageObject" -> p
+            "messageObject" -> Json.obj("winner" -> p)
           )          
           messageQueue(user).enqueue(resultJson) 
           messageQueue(game.getOtherPlayer(user))enqueue(resultJson) 
         }
         case Draw => {
           val resultJson: JsValue = Json.obj(
-            "message" -> "gameOver"
+            "message" -> "gameOver",
+            "messageObject" -> Json.obj("draw" -> true)
           )          
           messageQueue(user).enqueue(resultJson) 
           messageQueue(game.getOtherPlayer(user))enqueue(resultJson) 
