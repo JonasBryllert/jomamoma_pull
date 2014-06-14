@@ -62,7 +62,8 @@ object MemoryController extends Controller {
    */
   def getMessages(gameId: String) = Action { implicit request =>
     val user = request.session("user")
-    if (!messageQueue(user).isEmpty) {
+    val queue = messageQueue.getOrElse(user, mutable.Queue.empty)
+    if (!queue.isEmpty) {
       val message = messageQueue(user).dequeue
       println(s"\nMemoryController.getMessages -> : user: ${user}, message: ${message}, messageQueue: $messageQueue")
       returnJSON(message)      
@@ -144,11 +145,13 @@ object MemoryController extends Controller {
           messageQueue(user).enqueue(resultJson) 
           messageQueue(game.getOtherPlayer(user))enqueue(resultJson) 
         }
-        case NextMove => {
+        case NextMove(isScore) => {
           val nextMoveJson: JsValue = Json.obj(
-            "message" -> "yourMove"
-          )          
-          messageQueue(game.getOtherPlayer(user))enqueue(nextMoveJson) 
+            "message" -> "yourMove",
+            "messageObject" -> Json.obj("isNotFirst" -> isScore)        
+          )       
+          if (isScore) messageQueue(user)enqueue(nextMoveJson)
+          else messageQueue(game.getOtherPlayer(user))enqueue(nextMoveJson) 
         }
       }
     } else {
@@ -157,60 +160,4 @@ object MemoryController extends Controller {
     Ok("")
   }
   
-//  private def handleClientMessage(jsValue: JsValue, user: String): Result = {
-//    println(s"XandO.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
-//    val gameId = (jsValue \ "gameId").as[String]
-//    val mType = (jsValue \ "type").asOpt[String]
-//    mType match {
-//      case Some(sType) => {
-//        if (sType == "click") {
-////          handleClick(game, jsValue, user)
-//        }
-//      }
-//      case _ => {
-//        println(s"Unknown client message: ${Json.prettyPrint(jsValue)}")
-//        Ok("")
-//      } 
-//    }
-//    Ok("") 
-//  }
-    
-//  private def handleClick(game: MemoryGame, jsValue: JsValue, user: String) = {
-//      val moveResult = game.doClick(jsValue, user)
-//      val posString = (jsValue \ "position").as[String]    
-//      moveResult match {
-//	      case PlayerWon => {
-//	        val jsUser = Json.obj(
-//	                "type" -> "gameOver",
-//	                "result" -> (user + " has won!!!"))
-//	        val jsOtherUser = Json.obj(
-//	                "type" -> "gameOver",
-//	                "result" -> (user + " has won!!!"),
-//	                "prevMove" -> posString)
-//	        messageQueue += ((user, jsUser))
-//	        messageQueue += ((game.otherPlayer(user), jsOtherUser))
-//	
-//	      }
-//	      case Draw => {
-//	        val jsUser = Json.obj(
-//	                "type" -> "gameOver",
-//	                "result" -> "It is a draw!")
-//	        val jsOtherUser = Json.obj(
-//	                "type" -> "gameOver",
-//	                "result" -> "It is a draw!",
-//	                "prevMove" -> posString)
-//	        messageQueue += ((user, jsUser))
-//	        messageQueue += ((game.otherPlayer(user), jsOtherUser))
-//	      }
-//	      case _ => {
-//	    	 val posString = (jsValue \ "position").as[String]    
-//	         val js = Json.obj(
-//	                "type" -> "yourMove",
-//	                "prevMove" -> posString)
-//	        messageQueue += ((game.otherPlayer(user), js))           
-//	      }
-//      }
-//    
-//  }
- 
 }

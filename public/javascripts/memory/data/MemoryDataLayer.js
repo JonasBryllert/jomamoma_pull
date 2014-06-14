@@ -38,6 +38,7 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang", 
 			this.topicName = topicName;
 			this.gameId = window.location.pathname.match(/\/memory\/(.*)/)[1];
 			this.relativeUrl = "/memory/" + this.gameId + "/";
+			this.gameOverIndicator = false;
 		},
     
 		startGame: function() {	
@@ -109,10 +110,14 @@ define(["dojo/_base/declare", "dojo/topic", "dojo/request" , "dojo/_base/lang", 
 //	    	}, 4000);
 	    },
 	    
+	    gameOver: function() {
+	    	this.gameOverIndicator = true;
+	    },
 	    //Private methods
 	    
 	    //Retrieve messages periodically from server
 	    getMessages: function (){
+	    	if (this.gameOverIndicator === true) return;
 	        // Request the JSON data from the server every second
 	    	setTimeout(lang.hitch(this, function() {
 		        request.get(this.relativeUrl + "getMessages", {

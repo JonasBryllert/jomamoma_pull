@@ -147,56 +147,35 @@ define([
 			}), 3000);
 		},
 		
-//		moveResult: function(moveResultData) {
-//			if (moveResultData.score) this.showScore(moveResultData.score);
-//			if (moveResultData.previousMove) this.previousMove(moveResultData);
-//			//The below must be put on queue as previous move will hang for the user to see
-//			if (moveResultData.yourMove) {
-//				messageQueue.enqueue({ context: this, functionName: "yourMove", args: moveResultData.yourMove});
-//			}
-//			if (moveResultData.gameOver) {
-//				messageQueue.enqueue({ context: this, functionName: "showGameOver", args: moveResultData.gameOver});
-//			}
-//		},
-//		
-		yourMove: function(isFirst) {
-			this._showInfo('Your turn. Please select two squares.');
+		yourMove: function(object) {
+			if (object.isNotFirst && object.isNotFirst === true) {
+				this._showInfo('You scored! Please select another two squares.');
+			}
+			else this._showInfo('Your turn. Please select two squares.');
 			this._addClickHandling();
 		},
-		
-		//handle showing previous move and then enqueing next action
-//		previousMove: function(move) {
-//			var prevMove = move.previousMove;
-//			this.waitingIndicator = true;
-//			this.firstCell = dom.byId(prevMove.id1);
-//			this.secondCell = dom.byId(prevMove.id2);
-//			domClass.remove(this.firstCell.children[0], "hide");
-//			domClass.remove(this.secondCell.children[0], "hide");
-//			this._showInfo("Other player made a move...");
-//			setTimeout(lang.hitch(this, function() {
-//				this._checkResult(this.firstCell, this.secondCell);
-//				this._showInfo("");
-//				this.waitingIndicator = false;
-//			}), 3000);
-//		},
-		
+				
 		_showInfo: function(message) {
 			domConstruct.empty(this.infoDiv);
 			domConstruct.place("<p>" + message + "</p>", this.infoDiv);
 		},
 		
 		gameOver: function(object) {
+			this.controller.gameOver();
 			this.gameOverIndicator = true;
-	        var infoDiv = dom.byId('infoDiv');
-	        infoDiv.innerHTML = "";
+//	        var infoDiv = dom.byId('infoDiv');
+//	        infoDiv.innerHTML = "";
 	        var resultString;
 	        if (object.winner) {
 	        	resultString = object.winner + ' has won!';
+	        	if (object.winner === this.userName) domClass.add(this.infoDiv, "winner-color");
+	        	else domClass.add(this.infoDiv, "looser-color");
 	        }
-	        else {
-	        	resultString = 'It is a draw';
-	        }
+	        else resultString = 'It is a draw';
+	        
 	        this._showInfo("Game over. " + resultString);
+	        domClass.remove(dom.byId("returnDiv"), "hide");
+	        
 //	        domConstruct.place('<h3>Game over. ' + resultString + '</h3>', infoDiv);			
 //	        dojoObj.domConstruct.place('h3>Game over.</h3>', infoDiv);			
 		},
@@ -220,13 +199,13 @@ define([
 			}));
       	},
       	
-//		_handleCellClick: function() {
-//			if (this.removeHandler) {
-//				this.removeHandler.remove();
-//			}
-//			query("td.selectCursor").removeClass("selectCursor");
-//      	},
-//      	
+        _removeClickHandling: function() {
+            if (this.removeHandler) {
+                    this.removeHandler.remove();
+            }
+            query("td.selectCursor").removeClass("selectCursor");
+        },
+
 		_handleCellClick: function(tdCell) {
 			domClass.remove(tdCell.children[0], "hide");
 			domClass.remove(tdCell, "selectCursor");
@@ -239,7 +218,8 @@ define([
 				//Second cell, remove click listener, Wait a few secs and then check result 
 				this.secondCell = tdCell;
 				this._removeClickHandling();
-				if (this.firstCell.children[0].src === this.secondCell.children[0].src) {
+				var isScore = this.firstCell.children[0].src === this.secondCell.children[0].src
+				if (isScore) {
 					this._showInfo("Well done!");
 				}
 				else {
@@ -251,7 +231,9 @@ define([
 				//Make sure wait 3 seconds before receiving message again
 				setTimeout(lang.hitch(this, function() {
 					this._checkResult(this.firstCell, this.secondCell);
-					this._showInfo(this.otherUserName + " turn. Please wait...");
+					if (!isScore) {
+						this._showInfo(this.otherUserName + " turn. Please wait...");
+					}
 					this.waitingIndicator = false;
 				}), 3000);
 			}

@@ -58,6 +58,10 @@ define(["dojo/_base/declare"], function(declare){
 	    secondCellSelected: function(firstCell, secondCell) {
 	    	this.dataLayer.secondCellSelected(firstCell, secondCell);
 	    },
+	    
+	    gameOver: function() {
+	    	this.dataLayer.gameOver();
+	    }
     
 	});
 });

@@ -32,9 +32,9 @@ object MemoryGame {
   }
 
   sealed trait MoveResult
-  case class PlayerWon(val winner: String) extends MoveResult 
+  case class PlayerWon(winner: String) extends MoveResult 
   object Draw extends MoveResult
-  object NextMove extends MoveResult
+  case class NextMove(isScore: Boolean) extends MoveResult
 
   var gameIdCounter = 0
   val gameMap: Map[String, MemoryGame] = Map.empty
@@ -78,9 +78,9 @@ class MemoryGame(val size: Int, val player1: String, val player2: String) {
   }  
     
   def secondCellSelected(player: String, firstCell: String, secondCell: String): (Score, MoveResult) = {
-    if (shuffledIdImageMap(firstCell).equals(shuffledIdImageMap(secondCell))) {
-      score.increment(player)
-    }
+    val isScore = shuffledIdImageMap(firstCell).equals(shuffledIdImageMap(secondCell))
+    if (isScore) score.increment(player)
+    
     val moveResult: MoveResult = {
       if (score.getTotalScore() >= size/2) {
         //Game over, calculate winner
@@ -95,7 +95,7 @@ class MemoryGame(val size: Int, val player1: String, val player2: String) {
           new PlayerWon(winner)
         }
       } else {
-        NextMove
+        new NextMove(isScore)
       }
     }
     println(s"MemoryGame.secondCellSelected player: $player , firstCell: $firstCell, secondCell: $secondCell, score: $score")

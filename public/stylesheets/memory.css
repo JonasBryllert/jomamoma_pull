@@ -34,6 +34,14 @@ body {
 	opacity:1.0
 }
 
+.winner-color {
+	background-color: green;
+}
+
+.looser-color {
+	background-color: red;
+}
+
 .center {
 	margin-left: auto;
 	margin-right: auto;
@@ -73,6 +81,10 @@ body {
 }
 td.available:HOVER {
 	cursor: pointer;
+}
+
+#returnDiv {
+	margin-top: 20px;
 }
 
 

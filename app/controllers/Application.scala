@@ -123,7 +123,7 @@ object Application extends Controller {
     val gameId = 
     	if ("ThreeInARow".equals(game)) XandOGame.newGame(3, 3, challenger, user)
     	else if ("FiveInARow".equals(game)) XandOGame.newGame(10, 5, challenger, user)
-    	else if ("Memory".equals(game)) MemoryGame.newGame(8, challenger, user)
+    	else if ("Memory".equals(game)) MemoryGame.newGame(16, challenger, user)
     	else "-1"
     val url = 
     	if ("Memory".equals(game)) "/memory/" + gameId
