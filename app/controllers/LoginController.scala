@@ -20,7 +20,7 @@ object LoginController extends Controller {
 	mapping(
       "name" -> nonEmptyText,
       "password" -> nonEmptyText
-    )(User.apply)(User.unapply)verifying(user => Users.exists(user))
+    )(User.apply)(User.unapply)verifying("User does not exist.", user => Users.exists(user))
   )
   
   def login = Action { implicit request =>

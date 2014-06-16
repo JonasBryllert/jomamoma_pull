@@ -13,13 +13,24 @@
     <script src='@routes.Assets.at("javascripts/bootstrap.js")'></script>
   </head>
   <body>
-
-	@helper.form(action = routes.LoginController.doLogin) {
-    	@helper.inputText(myForm("name"), 'id -> "name", 'size -> 30, '_showConstraints -> false, '_label -> "User name")
-    	@helper.inputPassword(myForm("password"), 'id -> "password", 'size -> 30, '_showConstraints -> false, '_label -> "Password")
-    	<input type="submit" value="Logon">
-    
-	}
+  	<div class="container">
+		@helper.form(action = routes.LoginController.doLogin) {
+			<h3>Please login:</h1>
+			
+			@if(myForm.hasGlobalErrors) {
+			  <ul>
+			  @for(error <- myForm.globalErrors) {
+			    <li>@error.message</li>
+			  }
+			  </ul>
+			}	    	
+			
+			@helper.inputText(myForm("name"), 'id -> "name", 'size -> 30, '_showConstraints -> false, '_label -> "User name:")
+	    	@helper.inputPassword(myForm("password"), 'id -> "password", 'size -> 30, '_label -> "Password:")
+	    	<input type="submit" value="Logon">
+	    	<a class="btn" href="..">Cancel</a>
+		}
+	</div>
     <!--  div class="container">
     
       <form class="form-signin" name="loginForm" action="doLogin" method="post">
