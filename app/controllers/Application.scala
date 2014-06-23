@@ -22,7 +22,7 @@ object Application extends Controller {
    */
   def index = Action { implicit request =>
     val user = request.session.get("user")
-    println(s"index -> user: $user")
+    println(s"Application -> index, user: $user")
     user match {
       case None => Ok(views.html.index())
       case _ => Redirect(routes.Application.home)
@@ -34,9 +34,12 @@ object Application extends Controller {
    */
   def home = Action { implicit request =>
     val user = request.session.get("user")
-    println(s"home -> user: $user")
-    if (user == None ) Redirect(routes.LoginController.login)
-    else Ok(views.html.home(user.get))
+    println(s"Application -> home, user: $user")
+    if (user == None ) Redirect(routes.LoginController.login())
+    else {
+      if (Users.isLoggedIn(user.get)) Ok(views.html.home(user.get))
+      else Redirect(routes.LoginController.logout())
+    }
   }
   
   /**
@@ -44,10 +47,9 @@ object Application extends Controller {
    */
   def loadUsers = Action { implicit request =>
     val user = request.session("user")
-    println(s"entering loadUsers: user: ${user}")
-    val userNames: List[String] = Users.users.map(user => user.name).filter(u => u != user)
-    println(s"exiting loadUsers: ${userNames}")
-    println(s"exiting loadUsers: ${toJson(userNames)}")
+    println(s"Application -> loadUsers, user: ${user}")
+    val userNames: List[String] = Users.getLoggedOnUsers().filter(_ != user)
+    println(s"Application <- loadUsers: ${userNames}")
     returnJSON(toJson(userNames))
   }
   
@@ -59,8 +61,27 @@ object Application extends Controller {
     println(s"Application.getMessages -> user: ${user}, messageQueue: $messageQueue")
     val message = messageQueue.remove(user)
     message match {
+      //Send message from queeu if there is one!
       case Some(jsValue) => returnJSON(jsValue)
-      case _ => returnJSON(Json.obj("type"->"empty"))
+      case _ => {
+        val usersOption: Option[(List[String], List[String])] = Users.getLoggedOnOffUsers(user)
+        println(s"Application.getMessages -> user: ${user}, users: $usersOption")
+        usersOption match {
+          //2nd chice see if there are any new users logged on/off
+          case Some(users) => {
+            returnJSON(Json.obj(
+                "message" -> "users",
+                "messageObject" -> Json.obj(
+                    "loggedOn" -> toJson(users._1),
+            		"loggedOff" -> toJson(users._2)
+            	)
+            ))
+          }
+          //last case return empty message
+          case _ => returnJSON(Json.obj("message"->"empty"))
+        }
+        
+      }
     }     
   }
   
@@ -83,7 +104,7 @@ object Application extends Controller {
   
   private def handleClientMessage(jsValue: JsValue, user: String): Result = {
     println(s"Application.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
-    val mType = (jsValue \ "type").asOpt[String]
+    val mType = (jsValue \ "message").asOpt[String]
     mType match {
       case Some(sType) => {
         if (sType == "challenge") handleClientChallenge(jsValue, user)
@@ -105,7 +126,7 @@ object Application extends Controller {
     val game = (jsValue \ "game").as[String]
     println(s"handleClientChallenge $opponent")
     val jsObject = Json.obj(
-      "type" -> "challenge",
+      "message" -> "challenge",
       "game" -> game,
       "challenger" -> user
     )
@@ -130,7 +151,7 @@ object Application extends Controller {
     	else "/xando/" + gameId
     
     val jsObject = Json.obj(
-      "type" -> "challengeAccepted",
+      "message" -> "challengeAccepted",
       "challenger" -> challenger,
       "challengee" -> user,
       "url" -> url,
@@ -147,7 +168,7 @@ object Application extends Controller {
     val challenger = (jsValue \ "challenger").as[String]
     
     val jsObject = Json.obj(
-      "type" -> "challengeRejected",
+      "message" -> "challengeRejected",
       "challenger" -> challenger,
       "challengee" -> user
     )

@@ -12,10 +12,12 @@
         <div class="headerDiv">
         	<h1>Welcome to JOMAMOMA games</h1>
         </div>
+        
         <div class="introDiv">
-        	<h3>Hello <span id=userIdSpan">@user</span></h3>
+        	<h3>Hello <span id="userIdSpan">@user</span></h3>
         	<span class="joinMessageSpan"></span>
         </div>
+        
         <div id="challengeDiv"> 
         	You have been challenged by <span id="challengerSpan"></span> for a game of <span id="challengerGameSpan"></span>.
         	<span><button id="acceptChallengeButton" value="Accept">Accept</button></span>       
@@ -23,11 +25,12 @@
         </div>
         <div id="messageDiv">
         </div>
-        <div class="startGameDiv">
+        
+        <div id="startGameDiv" class="remove">
         	<span class="startMessageSpan">
-        		Please select game opponent to challenge and click Start button:
+        		To start a game please select opponent and click the 'Challenge' button:
         	</span>
-        	<p></p>
+        	<br/><br/>
         	<span id="gameId">
         		Game: 
         		<select id="gameSelect" name="game">
@@ -42,6 +45,10 @@
         		<input type="button" id="challengeButton" value="Challenge" ></input>
         	</span>
         </div>
+        <div id="waitForOpponentDiv" class="remove">
+        	No opponent have logged in yet. Please wait...
+        </div>
+        
         <div id="footerDiv">
         	<form method="get" action="logout">
         		<input type="submit" value="Logout"></input>

@@ -38,6 +38,7 @@ object LoginController extends Controller {
         },
     	user => {
           println("User logged in successfully: " + user)
+          Users.logon(user);
     	  Redirect(routes.Application.home()).withSession(request.session + ("user" -> user.name))
     	}
     )
@@ -56,7 +57,8 @@ object LoginController extends Controller {
   }
   
   def logout = Action { implicit request =>
-    println("Logout!!")
+    println("LoginController -> Logout!!")
+    request.session.get("user").foreach(s => Users.logout(s))
     Redirect(routes.Application.index).withNewSession
   }
   

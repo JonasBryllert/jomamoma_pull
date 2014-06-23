@@ -1,4 +1,5 @@
 var userId;
+var userArray = [];
 
 $( document ).ready(function() {
 	console.log("index ready");
@@ -6,7 +7,7 @@ $( document ).ready(function() {
 	console.log("userId: " + userId);
 	
 	//Start message checking
-	setInterval(function() {getMessages()}, 5000);
+	setInterval(function() {getMessages()}, 3000);
 	
 	//load users logged in
 	loadUsers();
@@ -27,13 +28,28 @@ function disableGameSelection() {
 	$("#challengeButton").attr('disabled', 'disabled');
 }
 
+function checkShowGameDiv() {
+	if (userArray.length > 0) {
+		$("#startGameDiv").removeClass("remove");
+		if (!$("#waitForOpponentDiv").hasClass("remove")) {
+			$("#waitForOpponentDiv").addClass("remove")
+		};		
+	}
+	else {
+		if (!$("#startGameDiv").hasClass("remove")) {
+			$("#startGameDiv").addClass("remove")
+		};		
+		$("#waitForOpponentDiv").removeClass("remove");
+	}
+}
+
 function challenge() {
 	disableGameSelection();
 	var gameChoice = $("#gameSelect").val();
 	var opp = $("#opponentSelect").val();
 	if (!opp || "" == opp) return;
 	console.log("startGame: " + opp);
-	var oMessage = {type: "challenge", game: gameChoice, opponent: opp};
+	var oMessage = {message: "challenge", game: gameChoice, opponent: opp};
 	var message = JSON.stringify(oMessage)
 	console.log("startGame: " + message)
 	$("#messageDiv").text("You have challenged " + opp + ". Waiting for resonse...")
@@ -45,31 +61,51 @@ function loadUsers() {
 	$.getJSON( "loadUsers", function( data ) {
 		console.log("loadUsers: " + data);
 		if (data instanceof Array && !data.empty) {
-			var items = [];
 			data.forEach(function(user) {
-				console.log('<option value=' + '"' + user + '">' + user + '</option>')
-				items.push( '<option value=' + '"' + user + '">' + user + '</option>' );
+				_addUser(user);
 			});
-		    allOptions = items.join( "" ) 
-		    console.log("allOptions: " + allOptions)
-			$( allOptions ).appendTo( "#opponentSelect" );
 		}
+		checkShowGameDiv();
 	});	
+}
+
+function _addUser(user) {
+	//Don't add oneself or if already exist
+	if (user === userId || userArray.indexOf(user) >= 0) return;
+	userArray.push(user);
+	console.log("New user: " + user);
+	var optionString = '<option class="Temp' + user + '" value=' + '"' + user + '">' + user + '</option>';
+	$( optionString ).appendTo( "#opponentSelect" );	
+}
+
+function _removeUser(user) {
+	var index = userArray.indexOf(user);
+	if (index >= 0) {
+		console.log("Remove user: " + user);
+		userArray.splice(index, 1);
+		var classToRemove = ".Temp" + user;
+		$(classToRemove).remove();
+	}
 }
 
 function getMessages(){
 	$.getJSON("getMessages", function( data ) {
 		console.log("getMessages: " + data + "  " + JSON.stringify(data));
-		if ("type" in data && data.type == "challenge") {
+		if (!("message" in data)) console.log("Invalid message: " + data);
+		
+		if (data.message === "challenge") {
 			handleChallenge(data.challenger, data.game);
 		}
-		else if ("type" in data && data.type == "challengeAccepted") {
+		else if (data.message === "challengeAccepted") {
 			handleChallengeAccepted(data.challengee, data.url);
 		}
-		else if ("type" in data && data.type == "challengeRejected") {
+		else if (data.message === "challengeRejected") {
 			if (userId == data.challenger) {
-				challengeRejected();
+				handleChallengeRejected();
 			}
+		}
+		else if (data.message === "users") {
+			handleNewUsers(data.messageObject);
 		}
 //		startTimeOut();
 	});
@@ -80,13 +116,13 @@ function handleChallenge(challenger, gameChoice) {
 	$("#challengerSpan").text(challenger);
 	$("#challengerGameSpan").text(gameChoice);
 	$("#acceptChallengeButton").one("click", function() {
-		var json = JSON.stringify({type:"challengeAccepted", game: gameChoice, challenger:challenger})
+		var json = JSON.stringify({message:"challengeAccepted", game: gameChoice, challenger:challenger})
 		sendClientMessage(json)
 	});
 	$("#rejectChallengeButton").one("click", function() {
-		var json = JSON.stringify({type:"challengeRejected",challenger:challenger})
+		var json = JSON.stringify({message:"challengeRejected",challenger:challenger})
 		sendClientMessage(json)
-		challengeRejected();
+		handleChallengeRejected();
 	});
 	$("#challengeDiv").show();
 }
@@ -102,7 +138,7 @@ function handleChallengeAccepted(challengee, url) {
 	}, 2000);
 }
 
-function challengeRejected() {
+function handleChallengeRejected() {
 	$("#messageDiv").text("The challenge has been rejected, please wait...")
 	$("#messageDiv").show();
 	window.setTimeout(function(){
@@ -110,6 +146,20 @@ function challengeRejected() {
 		$("#messageDiv").hide();
 		enableGameSelection();
 	}, 3000);
+}
+
+function handleNewUsers(users) {
+	if (users.loggedOn) {
+		users.loggedOn.forEach(function(user) {
+			_addUser(user);
+		});
+	}
+	if (users.loggedOff) {
+		users.loggedOff.forEach(function(user) {
+			_removeUser(user);
+		});
+	}
+	checkShowGameDiv();
 }
 
 function sendClientMessage(json) {
