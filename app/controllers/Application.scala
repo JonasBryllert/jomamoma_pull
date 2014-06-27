@@ -144,10 +144,11 @@ object Application extends Controller {
     val gameId = 
     	if ("ThreeInARow".equals(game)) XandOGame.newGame(3, 3, challenger, user)
     	else if ("FiveInARow".equals(game)) XandOGame.newGame(10, 5, challenger, user)
-    	else if ("Memory".equals(game)) MemoryGame.newGame(16, challenger, user)
+    	else if ("Memory-10".equals(game)) MemoryGame.newGame(10, challenger, user)
+    	else if ("Memory-20".equals(game)) MemoryGame.newGame(20, challenger, user)
     	else "-1"
     val url = 
-    	if ("Memory".equals(game)) "/memory/" + gameId
+    	if (game.startsWith("Memory")) "/memory/" + gameId
     	else "/xando/" + gameId
     
     val jsObject = Json.obj(

@@ -25,7 +25,7 @@
 			  </ul>
 			}	    	
 			
-			@helper.inputText(myForm("name"), 'id -> "name", 'size -> 30, '_showConstraints -> false, '_label -> "User name:")
+			@helper.inputText(myForm("name"), 'id -> "name", 'size -> 30, 'required -> None, 'autofocus -> None, '_showConstraints -> false, '_label -> "User name:")
 	    	@helper.inputPassword(myForm("password"), 'id -> "password", 'size -> 30, '_label -> "Password:")
 	    	<input type="submit" value="Logon">
 	    	<a class="btn" href="..">Cancel</a>

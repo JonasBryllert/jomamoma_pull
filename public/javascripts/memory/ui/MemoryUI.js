@@ -8,9 +8,10 @@ define([
         'dojo/topic',
         'dojo/_base/declare',
         'dojo/_base/lang',
+        'dojo/_base/fx',
         'dojo/NodeList-dom',
         'dojo/domReady!'
-        ], function (dom, domConstruct, query, domClass, domStyle, topic, declare, lang) {
+        ], function (dom, domConstruct, query, domClass, domStyle, topic, declare, lang, fx) {
 		
 	/**
 	 * Executes a function with args and within a context
@@ -155,9 +156,21 @@ define([
 			this._addClickHandling();
 		},
 				
-		_showInfo: function(message) {
-			domConstruct.empty(this.infoDiv);
-			domConstruct.place("<p>" + message + "</p>", this.infoDiv);
+		_showInfo: function(message, _messageChangeClass) {
+			var node = this.infoDiv;
+			var messageChangeClass = _messageChangeClass || 'messageChange';
+			domConstruct.empty(node);
+			domConstruct.place("<p class='" + messageChangeClass + "'>" + message + "</p>", node);
+//			fx.fadeOut({
+//				node: node,
+//				onEnd: function(){
+//					domConstruct.empty(node);
+//					domConstruct.place("<p class='messageChange'>" + message + "</p>", node);
+//					dojo.fadeIn({
+//						node: node
+//					}).play();
+//				}
+//			}).play();
 		},
 		
 		gameOver: function(object) {
@@ -168,13 +181,13 @@ define([
 	        var resultString;
 	        if (object.winner) {
 	        	resultString = object.winner + ' has won!';
-	        	if (object.winner === this.userName) domClass.add(this.infoDiv, "winner-color");
-	        	else domClass.add(this.infoDiv, "looser-color");
+//	        	if (object.winner === this.userName) domClass.add(this.infoDiv, "winner-color");
+//	        	else domClass.add(this.infoDiv, "looser-color");
 	        }
 	        else resultString = 'It is a draw';
 	        
-	        this._showInfo("Game over. " + resultString);
-	        domClass.remove(dom.byId("returnDiv"), "hide");
+	        this._showInfo("Game over. " + resultString, "enlargeText");
+	        domClass.remove(dom.byId("returnDiv"), "remove");
 	        
 //	        domConstruct.place('<h3>Game over. ' + resultString + '</h3>', infoDiv);			
 //	        dojoObj.domConstruct.place('h3>Game over.</h3>', infoDiv);			

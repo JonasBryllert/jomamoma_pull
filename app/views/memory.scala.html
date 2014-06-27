@@ -6,55 +6,61 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>jomamoma - Memory</title>
-    <link rel='stylesheet' href='@routes.Assets.at("stylesheets/memory.css")'>
     <link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
+    <link rel='stylesheet' href='@routes.Assets.at("stylesheets/memory.css")'>
 	
 </head>
 <body>
-	<div id="pageDiv" class="container">
-		<header>
-			<div id="headerDiv" class="text-center info">
-				<h1 class="center">Memory</h1>
-			</div>
-		</header>
-			
-		<section>
-			<div id="scoreDiv" class="text-center info">
-				<div>Welcome to memory <span id="userSpan">@userName</span></div>
-				<h4>Current score: </h4>
-				<div id="scoreResultDiv">	
-					<table id=scoreTable class="center">
-						<tr>
-							<th>Player Name</th>
-							<th>Score</th>
-						<tr>
-							<td id="playerOneName">Loading...</td>
-							<td id="playerOneScore"></td>
-						</tr>
-						<tr>
-							<td id="playerTwoName">Loading...</td>
-							<td id="playerTwoScore"></td>
-						</tr>
-					</table>
+	<div class="container">
+		<div id="pageDiv">
+			<header>
+				<div id="headerDiv" class="text-center info">
+					<h1 class="center">Memory</h1>
 				</div>
-			</div>
-		
-			<div id="infoDiv" class="text-center info">
-			</div>
-		
-		</section>
+			</header>
+			<hr/>
+			<section>
+				<div id="scoreDiv" class="text-center info">
+					<div>Welcome to memory <span id="userSpan">@userName</span></div>
+					<h4>Current score: </h4>
+					<div id="scoreResultDiv">	
+						<table id=scoreTable class="center">
+							<tr>
+								<th>Player Name</th>
+								<th>Score</th>
+							</tr>
+							<tr>
+								<td id="playerOneName">Loading...</td>
+								<td id="playerOneScore"></td>
+							</tr>
+							<tr>
+								<td id="playerTwoName">Loading...</td>
+								<td id="playerTwoScore"></td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			
+				<div id="infoDiv" class="text-center info">
+				</div>
+			
+		        <div id="returnDiv" class="remove text-center info">
+		      		<span class="center">Return to <a href="@routes.Application.home">home page</a>.</span>
+		      		<br/>
+		      	</div>
+	        
+			</section>
 
-		<main>
-            <div id="main" class="text-center info">
-                <table id="gameTable" class="center">
-                </table>
-            </div>
-        </main>
-        
-        <div id="returnDiv" class="hide winner-color text-center">
-      		<span class="center">Return to <a href="@routes.Application.home">home page</a>.</span>
-      	</div>
-        
+			<hr/>
+	
+			<main>
+	            <div id="main" class="text-center info">
+	                <table id="gameTable" class="center">
+	                </table>
+	            </div>
+	        </main>
+	        
+        </div>
 	</div>
 	
 	<!-- scripts -->
