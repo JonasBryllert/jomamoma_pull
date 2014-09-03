@@ -14,27 +14,46 @@ import model.User
 //import play.api.libs.json.Json._
 import play.api.data.Forms
 
-object LoginController extends Controller {
+object IndexController extends Controller {
 
   val userForm = Form(
 	mapping(
       "name" -> nonEmptyText,
-      "password" -> nonEmptyText
-    )(User.apply)(User.unapply)verifying("User does not exist.", user => Users.exists(user))
+      "group" -> optional(text)
+    )(User.apply)(User.unapply)verifying("User is not unique. Please try another name.", user => !Users.exists(user))
   )
   
-  def login = Action { implicit request =>
-    request.session.get("user") match {
-      case Some(user) => Redirect(routes.Application.home())
-      case _ => Ok(views.html.login(userForm))
+  /**
+   * This is the index page where you end up before you log in and after you log out.
+   */
+  def index = Action { implicit request =>
+    val user = request.session.get("user")
+    println(s"Application -> index, user: $user")
+    user match {
+      case None => Ok(views.html.index(userForm))
+      case Some(uName) => {
+        //Check that hte user also exist in the DB
+        if (Users.isLoggedIn(uName)) Redirect(routes.Application.home)
+        else {
+          Users.logout(uName)
+          Ok(views.html.index(userForm))
+        }
+      }
     }
   }
+  
+//  def login = Action { implicit request =>
+//    request.session.get("user") match {
+//      case Some(user) => Redirect(routes.Application.home())
+//      case _ => Ok(views.html.login(userForm))
+//    }
+//  }
   
   def doLogin = Action {implicit request =>    
     userForm.bindFromRequest.fold(
         formWithErrors => {
           println("Error in login form: " + formWithErrors)
-          BadRequest(views.html.login(formWithErrors))
+          BadRequest(views.html.index(formWithErrors))
         },
     	user => {
           println("User logged in successfully: " + user)
@@ -56,10 +75,15 @@ object LoginController extends Controller {
 //  	Redirect(routes.Application.home()).withSession(session + ("user" -> user))
   }
   
-  def logout = Action { implicit request =>
+  def doLogout = Action { implicit request =>
     println("LoginController -> Logout!!")
     request.session.get("user").foreach(s => Users.logout(s))
-    Redirect(routes.Application.index).withNewSession
+    Redirect(routes.IndexController.loggedOut).withNewSession
+  }
+  
+  def loggedOut = Action { implicit request =>
+    println("LoginController -> loggedOut!!")
+    Ok(views.html.loggedout())
   }
   
 

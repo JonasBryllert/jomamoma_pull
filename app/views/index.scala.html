@@ -1,24 +1,73 @@
-@()
+@(myForm: Form[model.User])
 <!DOCTYPE html>
 
 <html>
     <head>
         <title>jomamoma</title>
+   	 	<link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/index.css")">
+        <script src="@routes.Assets.at("lib/jquery/jquery-2.1.1.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/index.js")" type="text/javascript"></script>
     </head>
     <body>
-        <div class="headerDiv">
-        	<h1>Welcome to JOMAMOMA games</h1>
-        </div>
-        
-        <div class="infoDiv">
-        	<p>Here you can play online classic games like X and O by challenging someone else.</p>
-        	<p>You need to log in to continue.</p>
-        	<p/>
-        	<a href="login">Login</a>
-        	
-        </div>
-    	
-    
+    	<div class="container">
+	        <div class="text-center">
+	        	<h1>Welcome to JOMAMOMA games</h1>
+	        </div>
+	        
+	        <hr/>
+	        
+	        <div class="text-center">
+	        	<p>Here you can play online classic games like memory, X and O, by challenging someone else. 
+	        	<a id="more-info-action" href="javascript:;" >Tell me more.</a>
+	        	</p>
+	        	<div id="info-div" class="info-temp remove">
+	        		<p>JOMAMOMA is a site for playing classic kids games over internet.
+	        		You login with a user name of your liking. Make sure your opponents knows your user name so they can challenge you.
+	        		If you enter a group name you will only be able to challenge (or be challenged) by people
+	        		who join the same group, so this is a way of privacy. Agree with your friends a group name and
+	        		challenge each other.</p>
+	        		<p>All games are for two players a are typical mind challenge games that are great to play with kids
+	        		like memory, X and O, sink ships etc.
+	        		<p><a id="less-info-action" href="javascript:;" >Hide.</a></p>
+	        	</div>
+	        	<p>You need to log in to continue.</p>
+	        </div>
+    		
+	        <hr/>
+	        
+    		<div class="text-center">
+				@helper.form(action = routes.IndexController.doLogin) {
+					<h4>Please login:</h4>
+					
+					@if(myForm.hasGlobalErrors) {
+					  <ul>
+					  @for(error <- myForm.globalErrors) {
+					    <li>@error.message</li>
+					  }
+					  </ul>
+					}	    	
+					
+					@helper.inputText(myForm("name"), 'id -> "name", 'size -> 30, 'required -> None, 'autofocus -> None, '_showConstraints -> false, '_label -> "User name:")
+					<a id="user-name-info-action-show" href="javascript:;" >What's this?</a>
+					<div class="form-separator"></div>
+					<div id="user-name-info" class="remove info-temp">
+						Your user name is the name you will be identified with in JOMAMOMA and which other people will see to challenge you.
+						<p><a id="user-name-info-action-hide" href="javascript:;" >Hide.</a></p>
+					</div>
+					
+			    	@helper.inputText(myForm("group"), 'id -> "group", 'size -> 30, '_label -> "Group(optional):")
+					<a id="group-name-info-action-show" href="javascript:;" >What's this?</a>
+					<div class="form-separator"></div>			    	
+					<div id="group-name-info" class="remove info-temp">
+						If you enter a group name you will only be able to play with people that have entered the same group name.
+						<p><a id="group-name-info-action-hide" href="javascript:;" >Hide.</a></p>
+					</div>
+					
+			    	<input type="submit" value="Logon">
+				}
+    		
+    		</div>
+		</div>    
     </body>
 </html>

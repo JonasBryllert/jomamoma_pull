@@ -3,16 +3,21 @@
 <html>
   <head>
     <title>jomamoma - XandO</title>
+   	<link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
     <link rel='stylesheet' href='@routes.Assets.at("stylesheets/xando.css")'>
-    <script src='@routes.Assets.at("javascripts/jquery.js")'></script>
+    <script src='@routes.Assets.at("lib/jquery/jquery-2.1.1.js")'></script>
     <script src='@routes.Assets.at("javascripts/xando.js")'></script>
   </head>
   <body>
-    <h1>X and O</h1>
-   	  <div id="gameInfoDiv">
+     <div class="container">
+      <h1 class="text-center">JOMAMOMA - X and O</h1>
+      <hr>
+      
+   	  <div id="gameInfoDiv" class="text-center info-margins">
    	    Good luck <span id="userIdSpan">@userName</span>. You have <span id="symbolSpan">@sign</span>.
    	  </div>
-   	  <div id="messageDiv">
+   	  
+   	  <div id="messageDiv" class="text-center info-margins">
    	  	Please wait...
    	  </div>
 
@@ -37,9 +42,9 @@
       	</tbody>    	
       </table>
       
-      <div id="returnDiv">
+      <div id="returnDiv" class="text-center hide">
       	Return to <a href="@routes.Application.home">home page</a>.
       </div>
-
-  </body>    
+	</div>
+ </body>    
 </html>

@@ -1,10 +1,39 @@
 body {
-	width: 800px;
-	margin-left: auto;
-	margin-right: auto;
+	background-color: #2C2C0F;
 }
 
-div.headerDiv, div.infoDiv {
-	text-align: center;
+.container {
+	background-color: 	#E6E682;
+	padding-bottom: 20px;
+}
+
+.form-separator {
+	height: 2px;
+}
+
+.remove {
+	display: none;
+}
+
+.info-temp {
+	background-color: #CFCF75;
+	padding: 10px 10px 5px 10px;
+	margin-bottom: 5px;
+}
+
+dl, dt, dd {
+	display: inline;
+}
+
+dt {
+	text-align: right;
+}
+
+form label {
+	width: 150px;
+}
+
+form dl {
+	margin-bottom: 5px;
 }
 

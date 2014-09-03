@@ -1,5 +1,6 @@
 var userId;
 var userArray = [];
+var state = "idle"; //idle, challenging, challenged  not used yet.
 
 $( document ).ready(function() {
 	console.log("index ready");
@@ -105,7 +106,7 @@ function getMessages(){
 			}
 		}
 		else if (data.message === "users") {
-			handleNewUsers(data.messageObject);
+			handleUserChange(data.messageObject);
 		}
 //		startTimeOut();
 	});
@@ -148,7 +149,7 @@ function handleChallengeRejected() {
 	}, 3000);
 }
 
-function handleNewUsers(users) {
+function handleUserChange(users) {
 	if (users.loggedOn) {
 		users.loggedOn.forEach(function(user) {
 			_addUser(user);

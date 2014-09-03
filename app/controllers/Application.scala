@@ -18,27 +18,15 @@ object Application extends Controller {
   
 
   /**
-   * This is the index page where you end up before you log in and after you log out.
-   */
-  def index = Action { implicit request =>
-    val user = request.session.get("user")
-    println(s"Application -> index, user: $user")
-    user match {
-      case None => Ok(views.html.index())
-      case _ => Redirect(routes.Application.home)
-    }
-  }
-  
-  /**
    * This is the home page where you select game and opponent.
    */
   def home = Action { implicit request =>
     val user = request.session.get("user")
     println(s"Application -> home, user: $user")
-    if (user == None ) Redirect(routes.LoginController.login())
+    if (user == None ) Redirect(routes.IndexController.index())
     else {
       if (Users.isLoggedIn(user.get)) Ok(views.html.home(user.get))
-      else Redirect(routes.LoginController.logout())
+      else Redirect(routes.IndexController.index())
     }
   }
   

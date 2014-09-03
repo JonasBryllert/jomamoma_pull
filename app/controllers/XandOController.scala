@@ -24,7 +24,7 @@ object XandOController extends Controller {
    */
   def xando(gameId: String) = Action { implicit request =>
     println("XandO.game -> " + gameId)
-    if (request.session.get("user") == None ) Redirect(routes.LoginController.login)
+    if (request.session.get("user") == None ) Redirect(routes.IndexController.index)
     else {
       val user = request.session("user")
       //TODO Add redirect to error page if game not exist

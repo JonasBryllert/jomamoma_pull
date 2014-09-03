@@ -1,34 +1,21 @@
 body {
-	width: 800px;
-	margin-top: 30px;
-	margin-left: auto;
-	margin-right: auto;
+	background-color: #2C2C0F;
 }
 
-h1 {
-	text-align: center;
+.container {
+	background-color: 	#E6E682;
+	padding-bottom: 20px;
 }
 
-#gameInfoDiv {
+.info-margins {
 	padding-top: 20px;
 	padding-bottom: 20px;
 	margin-top: 10px;
 	margin-bottom: 10px;
-	text-align: center;
-}
-
-#messageDiv {
-	padding-top: 20px;
-	padding-bottom: 20px;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	text-align: center;
 }
 
 #returnDiv {
 	margin-top: 30px;
-	display: none;
-	text-align: center;
 }
 
 table, th, td {
@@ -39,6 +26,7 @@ table, th, td {
 table {
 	margin-right: auto;
 	margin-left: auto;
+	background-color: white;
 }
 
 th, td {

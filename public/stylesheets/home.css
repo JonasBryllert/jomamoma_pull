@@ -1,7 +1,10 @@
 body {
-	width: 800px;
-	margin-left: auto;
-	margin-right: auto;
+	background-color: #2C2C0F;
+}
+
+.container {
+	background-color: 	#E6E682;
+	padding-bottom: 20px;
 }
 
 div {

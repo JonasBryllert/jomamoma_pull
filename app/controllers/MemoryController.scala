@@ -33,7 +33,7 @@ object MemoryController extends Controller {
    */
   def memory(gameId: String) = Action { implicit request =>
     println("\nMemoryController.memory -> " + gameId)
-    if (request.session.get("user") == None ) Redirect(routes.LoginController.login)
+    if (request.session.get("user") == None ) Redirect(routes.IndexController.index)
     else {
       val user = request.session("user")
       //TODO Add redirect to error page if game not exist

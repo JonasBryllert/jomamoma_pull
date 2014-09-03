@@ -3,11 +3,13 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                           controllers.IndexController.index
+GET     /index                      controllers.IndexController.index
 GET     /home                       controllers.Application.home
-GET		/login						controllers.LoginController.login
-POST	/doLogin					controllers.LoginController.doLogin
-GET	    /logout						controllers.LoginController.logout
+# GET		/login				 		controllers.IndexController.login
+POST	/doLogin					controllers.IndexController.doLogin
+POST	/doLogout					controllers.IndexController.doLogout
+GET	    /loggedOut				    controllers.IndexController.loggedOut
 
 GET     /loadUsers					controllers.Application.loadUsers
 GET		/getMessages				controllers.Application.getMessages
