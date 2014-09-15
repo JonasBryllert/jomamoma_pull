@@ -1,4 +1,4 @@
-@(user: String)
+@(user: String, group: String)
 <!DOCTYPE html>
 
 <html>
@@ -18,7 +18,7 @@
 	        <hr/>
 	        
 	        <div class="introDiv text-center">
-	        	<h3>Hello <span id="userIdSpan">@user</span></h3>
+	        	<h3>Hello <span id="userIdSpan">@user</span> (group: <span id="gruopIdSpan">@group</span>)</h3>
 	        	<span class="joinMessageSpan"></span>
 	        </div>
 	        

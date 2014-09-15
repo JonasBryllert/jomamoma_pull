@@ -8,35 +8,35 @@ object Users {
 //  private val loggedInUsers: mutable.Set[User] = mutable.Set.empty
   private val loggedInUsers: mutable.Map[User, Long] = mutable.Map.empty
   
-  private val userToUserLoggedOnOffmap: mutable.Map[String, (mutable.Set[String], mutable.Set[String])] = mutable.Map.empty
+  private val userToUserLoggedOnOffmap: mutable.Map[User, (mutable.Set[User], mutable.Set[User])] = mutable.Map.empty
    
-  private def userForName(uName: String): Option[User] = loggedInUsers.keys.filter(u => u.name == uName).headOption
+  def userForName(uName: String): Option[User] = loggedInUsers.keys.filter(u => u.name == uName).headOption
   
   def exists(user: User) : Boolean = loggedInUsers.keys.map(u => u.name).exists(_ == user.name)
   
-  private def addLoggedOnUser(uName: String, loggedOnUser: String) = {
-    println(s"Users -> addLoggedOnUser, user: $uName, map: $userToUserLoggedOnOffmap")
-    val (loggedOn, loggedOff)  = userToUserLoggedOnOffmap.getOrElse(uName, (mutable.Set.empty[String], mutable.Set.empty[String]))
-    loggedOn += loggedOnUser
-    if (loggedOff.contains(loggedOnUser)) loggedOff -= loggedOnUser
-    userToUserLoggedOnOffmap.put(uName, (loggedOn, loggedOff))
-    println(s"Users <- addLoggedOnUser, user: $uName, map: $userToUserLoggedOnOffmap")
+  private def addLoggedOnUser(alreadyLoggedinUser: User, currentlyLogginInUser: User) = {
+    println(s"Users -> addLoggedOnUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginInUser.name}, map: $userToUserLoggedOnOffmap")
+    val (loggedOn, loggedOff)  = userToUserLoggedOnOffmap.getOrElse(alreadyLoggedinUser, (mutable.Set.empty[User], mutable.Set.empty[User]))
+    loggedOn += currentlyLogginInUser
+    if (loggedOff.contains(currentlyLogginInUser)) loggedOff -= currentlyLogginInUser
+    userToUserLoggedOnOffmap.put(alreadyLoggedinUser, (loggedOn, loggedOff))
+    println(s"Users <- addLoggedOnUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginInUser.name}, map: $userToUserLoggedOnOffmap")
   }
   
-  private def addLoggedOffUser(uName: String, loggedOffUser: String) = {
-    println(s"Users -> addLoggedOffUser, user: $uName, map: $userToUserLoggedOnOffmap")
-    val (loggedOn, loggedOff) = userToUserLoggedOnOffmap.getOrElse(uName, (mutable.Set.empty[String], mutable.Set.empty[String]))
-    loggedOff += loggedOffUser
-    if (loggedOn.contains(loggedOffUser)) loggedOn -= loggedOffUser
-    userToUserLoggedOnOffmap.put(uName, (loggedOn, loggedOff))
-    println(s"Users <- addLoggedOffUser, user: $uName, map: $userToUserLoggedOnOffmap")
+  private def addLoggedOffUser(alreadyLoggedinUser: User, currentlyLogginOffUser: User) = {
+    println(s"Users -> addLoggedOffUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginOffUser.name}, map: $userToUserLoggedOnOffmap")
+    val (loggedOn, loggedOff) = userToUserLoggedOnOffmap.getOrElse(alreadyLoggedinUser, (mutable.Set.empty[User], mutable.Set.empty[User]))
+    loggedOff += currentlyLogginOffUser
+    if (loggedOn.contains(currentlyLogginOffUser)) loggedOn -= currentlyLogginOffUser
+    userToUserLoggedOnOffmap.put(alreadyLoggedinUser, (loggedOn, loggedOff))
+    println(s"Users -> addLoggedOffUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginOffUser.name}, map: $userToUserLoggedOnOffmap")
   }
   
   def logon(user: User) = {
     //Message to all other users that user has logged in
     println(s"Users -> logon, user: ${user.name}, loggedinUsers: $loggedInUsers")
-    for (u <- loggedInUsers.keys) {
-      addLoggedOnUser(u.name, user.name)
+    for (u <- loggedInUsers.keys.filter(_.group == user.group)) {
+      addLoggedOnUser(u, user)
     }
     
     //login the user
@@ -46,16 +46,20 @@ object Users {
 
   def logout(uName: String) = {
     //logout the user
-    val user = userForName(uName)
-    user match {
-      case Some(u) => loggedInUsers -= u
+    val userOption = userForName(uName)
+    userOption match {
+      case Some(user) => {
+        loggedInUsers -= user
+        //Message to all other users that user has logged out
+        for (u <- loggedInUsers.keys.filter(_.group == user.group)) {
+          addLoggedOffUser(u, user)
+        }
+        //Also remove the current user in case in map
+        userToUserLoggedOnOffmap.remove(user)
+      }
       case _ =>
     }
     
-    //Message to all other users that user has logged out
-    for (u <- loggedInUsers.keys) {
-      addLoggedOffUser(u.name, uName)
-    }
 
   }
   
@@ -63,13 +67,23 @@ object Users {
     loggedInUsers.keys.map(u => u.name).exists(_ == uName)
   }
   
-  def getLoggedOnUsers() = loggedInUsers.keys.map(_.name).toList
-  
-  def getLoggedOnOffUsers(uName: String): Option[(List[String],List[String])] = {
-    println(s"Users -> getLoggedOnOffUsers, user: $uName, map: ${userToUserLoggedOnOffmap.get(uName)}")
-    userToUserLoggedOnOffmap.remove(uName).map(e => (e._1.toList, e._2.toList))
+  /**
+   * Return a list of the users logged on in same group
+   */
+  def getLoggedOnUsers(uName: String) = {
+    val user: User = userForName(uName).get
+    loggedInUsers.keys.filter(u => (u.group == user.group) && (u.name != user.name)).map(_.name).toList
   }
   
+  def getLoggedOnOffUsers(uName: String): Option[(List[String],List[String])] = {
+    val user = userForName(uName).get
+    println(s"Users -> getLoggedOnOffUsers, user: $uName, map: ${userToUserLoggedOnOffmap.get(user)}")
+    userToUserLoggedOnOffmap.remove(user).map(e => (e._1.map(_.name).toList, e._2.map(_.name).toList))
+  }
+  
+  /**
+   * Called periodically to log out users that have no intreaction for one hour.
+   */
   def logoutOldUsers(currentTime: Long): Unit = {
     val expiredUser:  mutable.ListBuffer[User] = mutable.ListBuffer.empty
     loggedInUsers.foreach { case(u, t) => {
@@ -89,4 +103,4 @@ object Users {
 
 }
 
-case class User(name: String, group: Option[String])
+case class User(name: String, group: Option[String] = Option(""))

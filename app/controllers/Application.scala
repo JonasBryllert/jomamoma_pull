@@ -21,8 +21,18 @@ object Application extends Controller {
    * This is the home page where you select game and opponent.
    */
   def home = Action { implicit request =>
-    val user = request.session.get("user")
-    println(s"Application -> home, user: $user")
+    val userName = request.session.get("user")
+    println(s"Application -> home, user: userName")
+    userName match {
+      case None => Redirect(routes.IndexController.index())
+      case Some(uName) => {
+        if (Users.isLoggedIn(uName)) {
+          val user = Users.userForName(uName).get
+          Ok(views.html.home(user.name, user.group))
+        }
+        else Redirect(routes.IndexController.index())        
+      }
+    }
     if (user == None ) Redirect(routes.IndexController.index())
     else {
       if (Users.isLoggedIn(user.get)) Ok(views.html.home(user.get))
@@ -36,7 +46,7 @@ object Application extends Controller {
   def loadUsers = Action { implicit request =>
     val user = request.session("user")
     println(s"Application -> loadUsers, user: ${user}")
-    val userNames: List[String] = Users.getLoggedOnUsers().filter(_ != user)
+    val userNames: List[String] = Users.getLoggedOnUsers(user)
     println(s"Application <- loadUsers: ${userNames}")
     returnJSON(toJson(userNames))
   }
