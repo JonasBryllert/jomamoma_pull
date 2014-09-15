@@ -12,55 +12,51 @@
 </head>
 <body>
 	<div class="container">
-		<div id="pageDiv">
-			<header>
-				<div id="headerDiv" class="text-center info">
-					<h1 class="center">Memory</h1>
+		<header class="text-center">
+     			<h1>JOMAMOMA - Memory</h1>
+				<div>Welcome to memory <span id="userSpan">@userName</span></p>
+		</header>
+		<hr/>
+		<section>
+			<div id="scoreDiv" class="text-center">
+				<h4>Current score: </h4>
+				<div id="scoreResultDiv">	
+					<table id=scoreTable class="center">
+						<tr>
+							<th>Player Name</th>
+							<th>Score</th>
+						</tr>
+						<tr>
+							<td id="playerOneName">Loading...</td>
+							<td id="playerOneScore"></td>
+						</tr>
+						<tr>
+							<td id="playerTwoName">Loading...</td>
+							<td id="playerTwoScore"></td>
+						</tr>
+					</table>
 				</div>
-			</header>
-			<hr/>
-			<section>
-				<div id="scoreDiv" class="text-center info">
-					<div>Welcome to memory <span id="userSpan">@userName</span></div>
-					<h4>Current score: </h4>
-					<div id="scoreResultDiv">	
-						<table id=scoreTable class="center">
-							<tr>
-								<th>Player Name</th>
-								<th>Score</th>
-							</tr>
-							<tr>
-								<td id="playerOneName">Loading...</td>
-								<td id="playerOneScore"></td>
-							</tr>
-							<tr>
-								<td id="playerTwoName">Loading...</td>
-								<td id="playerTwoScore"></td>
-							</tr>
-						</table>
-					</div>
-				</div>
+			</div>
+		
+			<!-- div class="vertical-space-10"></div-->
 			
-				<div id="infoDiv" class="text-center info">
-				</div>
-			
-		        <div id="returnDiv" class="remove text-center info">
-		      		<span class="center">Return to <a href="@routes.Application.home">home page</a>.</span>
-		      		<br/>
-		      	</div>
-	        
-			</section>
+		</section>
 
-			<hr/>
-	
-			<main>
-	            <div id="main" class="text-center info">
-	                <table id="gameTable" class="center">
-	                </table>
-	            </div>
-	        </main>
-	        
-        </div>
+		<hr/>
+
+		<main>
+ 			<div id="infoDiv" class="text-center info"></div>
+		
+	        <div id="returnDiv" class="remove text-center">
+	      		<p>Return to <a href="@routes.Application.home">home page</a>.</p>
+	      	</div>
+        
+            <div id="main" class="text-center">
+                <table id="gameTable" class="center">
+                </table>
+            </div>
+        </main>
+
 	</div>
 	
 	<!-- scripts -->

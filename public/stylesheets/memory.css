@@ -1,34 +1,21 @@
 @CHARSET "UTF-8";
 
 body {
-	background-color: #dbdbdb;
+	background-color: #2C2C0F;
 }
 
 hr {
-	margin: 0;
-	border-top: 1px solid black;
+	margin-top: 5px;
+	margin-bottom: 5px;
 }
 
-#pageDiv {
-    border: 1px solid black;
+.container {
+	background-color: 	#E6E682;
+	padding-bottom: 20px;
 }
 
-#headerDiv {
-/*    background-color: #3e8f3e;*/
-	background-image: url("../images/memory/checkered.jpg");
-}
-#headerDiv * {
-	background-image: none;
-	background-color: #c1e2b3;
-	width: 200px;
-	padding: 10px;
-	font-family: serif;
-}
-
-.info {
-	background-color: #c1e2b3;
-    padding: 5px;
-/*    border: 1px solid black; */
+.vertical-space-10 {
+	padding-top: 10px;
 }
 
 .hide {
@@ -139,9 +126,10 @@ td.available:HOVER {
 }
 
 @media (min-width: 600px) {
-	
-	.info {
-    	padding: 10px;
+
+	hr {
+		margin-top: 10px;
+		margin-bottom: 10px;
 	}
 	
 	#gameTable {
@@ -161,10 +149,12 @@ td.available:HOVER {
 }
 
 @media (min-width: 800px) {
-	.info {
-    	padding: 20px;
+	
+	hr {
+		margin-top: 20px;
+		margin-bottom: 20px;
 	}
-
+	
 	#gameTable {
 		border-spacing: 5px;
 	}
