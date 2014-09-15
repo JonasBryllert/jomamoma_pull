@@ -1,0 +1,59 @@
+@(size:Int, userName: String)
+<!DOCTYPE html>
+<html>
+<head>
+    <title>jomamoma - SinkShip</title>
+   	<link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
+    <link rel='stylesheet' href='@routes.Assets.at("stylesheets/sinkship.css")'>
+    <script src='@routes.Assets.at("lib/jquery/jquery-2.1.1.js")'></script>
+    <script src='@routes.Assets.at("javascripts/sinkship.js")'></script>
+</head>
+<body>
+	<div class="container">
+		<header class="text-center">
+     		<h1>JOMAMOMA - Memory</h1>
+			<div>Welcome to memory <span id="userSpan">@userName</span></p>
+		</header>
+		<hr/>
+		
+		<section>
+			<div>
+				Need to know the rules? Click <a href="javascript:">here</a>.
+				<div>
+					Add rules....
+				</div>
+			</div>
+		</section>
+		  
+		<main>
+ 			<div id="infoDiv" class="text-center info"></div>
+		
+	        <div id="returnDiv" class="remove text-center">
+	      		<p>Return to <a href="@routes.Application.home">home page</a>.</p>
+	      	</div>
+        
+            <div id="main" class="text-center">
+                <table id="opponentsTable" class="center">
+			      	<thead>
+			      		<tr>
+				      	  	@for(colHeader <- ('A' to 'Z').take(size)){
+				      	  	  	<th>@colHeader</th>
+				      	  	}
+				      	  	<th colspan="@size">Opponents ships</th> 
+			      		</tr>
+			      	</thead>
+			      	<tbody>
+			      	  	@for(row <- 1 to size){
+			      	  	<tr>
+			      	  	  	@for(column <- 1 to size){
+			      	  	  		<td id=pos-@row-@column class="gamePos"></td>
+			      	  	  	} 
+			      	  	</tr>
+			      	  	}
+			      	</tbody>    	
+                </table>
+            </div>
+        </main>
+	</div>
+ </body>    
+</html>

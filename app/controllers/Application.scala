@@ -6,6 +6,7 @@ import play.api.libs.iteratee._
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.XandOGame
 import model.MemoryGame
+import model.SinkShipGame
 import model.Users
 import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json._
@@ -28,16 +29,17 @@ object Application extends Controller {
       case Some(uName) => {
         if (Users.isLoggedIn(uName)) {
           val user = Users.userForName(uName).get
-          Ok(views.html.home(user.name, user.group))
+          val group = user.group.getOrElse("")
+          Ok(views.html.home(user.name, group))
         }
         else Redirect(routes.IndexController.index())        
       }
     }
-    if (user == None ) Redirect(routes.IndexController.index())
-    else {
-      if (Users.isLoggedIn(user.get)) Ok(views.html.home(user.get))
-      else Redirect(routes.IndexController.index())
-    }
+//    if (user == None ) Redirect(routes.IndexController.index())
+//    else {
+//      if (Users.isLoggedIn(user.get)) Ok(views.html.home(user.get))
+//      else Redirect(routes.IndexController.index())
+//    }
   }
   
   /**
@@ -144,6 +146,7 @@ object Application extends Controller {
     	else if ("FiveInARow".equals(game)) XandOGame.newGame(10, 5, challenger, user)
     	else if ("Memory-10".equals(game)) MemoryGame.newGame(10, challenger, user)
     	else if ("Memory-20".equals(game)) MemoryGame.newGame(20, challenger, user)
+    	else if ("SinkShip".equals(game)) SinkShipGame.newGame(20, challenger, user)
     	else "-1"
     val url = 
     	if (game.startsWith("Memory")) "/memory/" + gameId

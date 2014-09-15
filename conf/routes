@@ -19,9 +19,13 @@ GET     /xando/getMessages			controllers.XandOController.getMessages
 GET     /xando/:gameId				controllers.XandOController.xando(gameId: String)
 POST 	/xando/clientMessage		controllers.XandOController.clientMessage
 
-GET     /memory/:gameId/getMessages		controllers.MemoryController.getMessages(gameId)
+GET     /memory/:gameId/getMessages		controllers.MemoryController.getMessages(gameId: String)
 GET     /memory/:gameId					controllers.MemoryController.memory(gameId: String)
 POST 	/memory/:gameId/clientMessage	controllers.MemoryController.clientMessage(gameId: String)
+
+GET     /sinkship/:gameId/getMessages	controllers.SinkShipController.getMessages(gameId: String)
+GET     /sinkship/:gameId				controllers.SinkShipController.sinkShip(gameId: String)
+POST 	/sinkship/:gameId/clientMessage	controllers.SinkShipController.clientMessage(gameId: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
