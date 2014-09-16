@@ -5,43 +5,62 @@
     <title>jomamoma - SinkShip</title>
    	<link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
     <link rel='stylesheet' href='@routes.Assets.at("stylesheets/sinkship.css")'>
+    <script src='@routes.Assets.at("lib/angular/angular-1-2-24.min.js")'></script>
     <script src='@routes.Assets.at("lib/jquery/jquery-2.1.1.js")'></script>
-    <script src='@routes.Assets.at("javascripts/sinkship.js")'></script>
+    <script src='@routes.Assets.at("javascripts/sinkship/app.js")'></script>
 </head>
-<body>
+<body ng-app="SinkShipApp">
 	<div class="container">
 		<header class="text-center">
-     		<h1>JOMAMOMA - Memory</h1>
-			<div>Welcome to memory <span id="userSpan">@userName</span></p>
+     		<h1>JOMAMOMA - Sink ship</h1>
+			<div>Welcome <span id="userSpan">@userName</span></p>
 		</header>
 		<hr/>
 		
 		<section>
-			<div>
+			<div class="text-center">
 				Need to know the rules? Click <a href="javascript:">here</a>.
 				<div>
 					Add rules....
 				</div>
 			</div>
 		</section>
-		  
-		<main>
- 			<div id="infoDiv" class="text-center info"></div>
 		
-	        <div id="returnDiv" class="remove text-center">
-	      		<p>Return to <a href="@routes.Application.home">home page</a>.</p>
+		<section ng-controller="ScoreController">
+			<div id="scoreDiv" class="text-center">
+				<h4>Current score: </h4>
+				<div id="scoreResultDiv">	
+					<table id=scoreTable class="center">
+						<tr>
+							<th>Player Name</th>
+							<th>Ships sunk</th>
+						</tr>
+						<tr>
+							<td id="playerOneName">{{playerOneName}}</td>
+							<td id="playerOneScore">{{playerOneScore}}</td>
+						</tr>
+						<tr>
+							<td id="playerTwoName">{{playerTwoName}}</td>
+							<td id="playerTwoScore">{{playerTwoScore}}</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</section>
+
+		<hr/>
+		
+		<main ng-controller="SinkShipController">
+			<div>
+	 			<div id="infoDiv" class="text-center info">{{info}}</div>
+			
+		        <div id="returnDiv" class="remove text-center">
+		      		<p>Return to <a href="@routes.Application.home">home page</a>.</p>
+		      	</div>
 	      	</div>
         
             <div id="main" class="text-center">
                 <table id="opponentsTable" class="center">
-			      	<thead>
-			      		<tr>
-				      	  	@for(colHeader <- ('A' to 'Z').take(size)){
-				      	  	  	<th>@colHeader</th>
-				      	  	}
-				      	  	<th colspan="@size">Opponents ships</th> 
-			      		</tr>
-			      	</thead>
 			      	<tbody>
 			      	  	@for(row <- 1 to size){
 			      	  	<tr>
