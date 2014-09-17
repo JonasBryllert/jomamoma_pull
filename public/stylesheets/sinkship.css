@@ -94,20 +94,20 @@ hr {
 }
 
 /* table settings */
-#gameTable {
+.game-table {
 	border-collapse: separate;
-	border-spacing: 2px;
+/*	border-spacing: 2px; */
     background-color: #dbdbdb;
 }
-#gameTable, #gameTable td {
+.game-table, .game-table td {
 	border: 1px solid black;
 }
 
-#gameTable td {
-	width: 52px;
-	height: 52px;
+.game-table td {
+	width: 2em;
+	height: 2em;
 }
-
+/*
 #gameTable td.available {
 	background-image: url("../images/memory/checkered.jpg");
 }
@@ -120,7 +120,7 @@ hr {
 td.available:HOVER {
 	cursor: pointer;
 }
-
+*/
 #returnDiv {
 /*	margin-top: 20px; */
 }

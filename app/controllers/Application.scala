@@ -146,7 +146,7 @@ object Application extends Controller {
     	else if ("XandO-5".equals(game)) XandOGame.newGame(10, 5, challenger, user)
     	else if ("Memory-10".equals(game)) MemoryGame.newGame(10, challenger, user)
     	else if ("Memory-20".equals(game)) MemoryGame.newGame(20, challenger, user)
-    	else if ("SinkShip".equals(game)) SinkShipGame.newGame(20, challenger, user)
+    	else if ("SinkShip".equals(game)) SinkShipGame.newGame(6, challenger, user)
     	else "-1"
     val url = 
     	if (game.startsWith("Memory")) "/memory/" + gameId

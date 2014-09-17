@@ -1,4 +1,4 @@
-@(size:Int, userName: String)
+@(size:Int, userName: String, oppName: String)
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,10 +10,10 @@
     <script src='@routes.Assets.at("javascripts/sinkship/app.js")'></script>
 </head>
 <body ng-app="SinkShipApp">
-	<div class="container">
+	<div class="container" ng-controller="SinkShipController">
 		<header class="text-center">
      		<h1>JOMAMOMA - Sink ship</h1>
-			<div>Welcome <span id="userSpan">@userName</span></p>
+			<div>Welcome <span id="userSpan">@userName</span><span id="oppName" class="remove">@oppName</span></div>
 		</header>
 		<hr/>
 		
@@ -26,7 +26,7 @@
 			</div>
 		</section>
 		
-		<section ng-controller="ScoreController">
+		<section>
 			<div id="scoreDiv" class="text-center">
 				<h4>Current score: </h4>
 				<div id="scoreResultDiv">	
@@ -36,11 +36,11 @@
 							<th>Ships sunk</th>
 						</tr>
 						<tr>
-							<td id="playerOneName">{{playerOneName}}</td>
+							<td id="playerOneName">@userName</td>
 							<td id="playerOneScore">{{playerOneScore}}</td>
 						</tr>
 						<tr>
-							<td id="playerTwoName">{{playerTwoName}}</td>
+							<td id="playerTwoName">@oppName</td>
 							<td id="playerTwoScore">{{playerTwoScore}}</td>
 						</tr>
 					</table>
@@ -50,7 +50,7 @@
 
 		<hr/>
 		
-		<main ng-controller="SinkShipController">
+		<main>
 			<div>
 	 			<div id="infoDiv" class="text-center info">{{info}}</div>
 			
@@ -60,12 +60,28 @@
 	      	</div>
         
             <div id="main" class="text-center">
-                <table id="opponentsTable" class="center">
+                <table id="opponentsTable" class="game-table center">
+                	<thead>
+                		<tr><th colSpan=@size>@oppName ships</th></tr>
 			      	<tbody>
 			      	  	@for(row <- 1 to size){
 			      	  	<tr>
 			      	  	  	@for(column <- 1 to size){
-			      	  	  		<td id=pos-@row-@column class="gamePos"></td>
+			      	  	  		<td id=pos-@row-@column class="gamePos">X</td>
+			      	  	  	} 
+			      	  	</tr>
+			      	  	}
+			      	</tbody>    	
+                </table>
+                
+                <table id="userTable" class="game-table center">
+                	<thead>
+                		<tr><th colSpan=@size>Your ships</th></tr>
+			      	<tbody>
+			      	  	@for(row <- 1 to size){
+			      	  	<tr>
+			      	  	  	@for(column <- 1 to size){
+			      	  	  		<td id=pos-@row-@column class="gamePos">X</td>
 			      	  	  	} 
 			      	  	</tr>
 			      	  	}

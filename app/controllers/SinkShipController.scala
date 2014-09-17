@@ -31,7 +31,7 @@ object SinkShipController extends Controller {
       if (game.currentPlayer == user) {
         messageQueue += ((user, Json.obj("type" -> "yourMove")))
       }
-      Ok(views.html.sinkship(game.gameSize, request.session("user")))
+      Ok(views.html.sinkship(game.gameSize, user, game.otherPlayer(user)))
     }
   }
  
