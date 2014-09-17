@@ -1,7 +1,7 @@
 var app = angular.module("SinkShipApp",[]);
 
 app.controller("SinkShipController", function($scope) {
-
+	$scope.info = "testing"
 });
 
 app.controller("ScoreController", function($scope) {
