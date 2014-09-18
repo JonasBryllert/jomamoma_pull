@@ -4,8 +4,11 @@ package controllers
 import play.api.mvc._
 import play.api.libs.iteratee._
 import scala.concurrent.ExecutionContext.Implicits.global
+import model.Ship
+import model.Ship.Position
 import model.SinkShipGame
 import model.SinkShipGame._
+import model.WriteConverters._;
 import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json._
 import play.api.libs.json.Json._
@@ -34,95 +37,155 @@ object SinkShipController extends Controller {
       Ok(views.html.sinkship(game.gameSize, user, game.otherPlayer(user)))
     }
   }
+  
+  def getShips(gameId: String) = Action { implicit request =>
+    if (request.session.get("user") == None || SinkShipGame.getGame(gameId) == None) returnJSON(Json.obj("type"->"empty"))
+    else {
+      val ships: Set[Ship] = SinkShipGame.getGame(gameId).get.getShips(request.session("user")).toSet
+      returnJSON(Json.toJson(ships))
+    }
+  }
  
   /**
    * Client call to retrieve messages
    */
   def getMessages(gameId: String) = Action { implicit request =>
-    val user = request.session("user")
-    println(s"SinkShipController.getMessages -> : user: ${user}, messageQueue: $messageQueue")
-    val message = messageQueue.remove(user)
-    message match {
-      case Some(jsValue) => returnJSON(jsValue)
-      case _ => returnJSON(Json.obj("type"->"empty"))
-    }     
+    if (request.session.get("user") == None || SinkShipGame.getGame(gameId) == None) returnJSON(Json.obj("message"->"empty"))
+    else {
+      val user = request.session("user")
+      println(s"SinkShipController.getMessages -> : user: ${user}, messageQueue: $messageQueue")
+      val message = messageQueue.remove(user)
+      message match {
+        case Some(jsValue) => returnJSON(jsValue)
+        case _ => returnJSON(Json.obj("message" -> "empty"))
+      }   
+    }
   }
   
-  private def returnJSON(json: JsValue): Result = Ok(json).withHeaders(CACHE_CONTROL -> "max-age=0, no-store", EXPIRES -> new java.util.Date().toString)
+  private def returnJSON(json: JsValue): Result = 
+    Ok(json).withHeaders(CACHE_CONTROL -> "max-age=0, no-store", EXPIRES -> new java.util.Date().toString)
   
  
   /**
    * JSON client message
    */
   def clientMessage(gameId: String) = Action { implicit request =>
-    val user = request.session("user")
-    val jsonMessage: Option[JsValue] = request.body.asJson
-    println(s"SinkShipController.clientMessage -> user: $user, json: $jsonMessage")
-    jsonMessage match {
-      case Some(value) => handleClientMessage(value, request.session("user"))
-      case None => {
-        println("clientMessage -> None")
-        Ok("")
+    if (request.session.get("user") == None || SinkShipGame.getGame(gameId) == None) Ok("")
+    else {
+      val user = request.session("user")
+      val game = SinkShipGame.getGame(gameId).get
+      val jsonMessage: Option[JsValue] = request.body.asJson
+      jsonMessage match {
+        case Some(json) => handleClientMessage(game, user, json)
+        case None => {
+          println("clientMessage -> None")
+          Ok("")
+        }
       }
     }
   }
   
-  private def handleClientMessage(jsValue: JsValue, user: String): Result = {
+  /**
+   * Convert a String of syntax: pos-@row-@column to a Position
+   */
+  private def toPos(pos: String): Position = {
+    val arr = pos.split("-")
+    val row = arr(1).toInt
+    val col = arr(2).toInt
+    (row, col)
+  }
+  
+
+  private def handleClientMessage(game: SinkShipGame, user: String, jsValue: JsValue): Result = {
     println(s"SinkShipController.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
-    val gameId = (jsValue \ "gameId").as[String]
-    val game = SinkShipGame.getGame(gameId).get
-    val mType = (jsValue \ "type").asOpt[String]
-    mType match {
-      case Some(sType) => {
-        if (sType == "click") {
-          handleClick(game, jsValue, user)
-        }
+    (jsValue \ "message").asOpt[String].map(message => {
+      if (message == "cellSelected") {
+        val positionString = (jsValue \ "position").as[String]
+        val pos = toPos(positionString)
+        handleCellSelected(game, pos, positionString, user)
+//        game.doClick(pos, user)
       }
-      case _ => {
-        println(s"Unknown client message: ${Json.prettyPrint(jsValue)}")
-        Ok("")
-      } 
-    }
+      else println(s"Unknown client message: ${Json.prettyPrint(jsValue)}")
+    })
     Ok("") 
+
   }
     
-  private def handleClick(game: SinkShipGame, jsValue: JsValue, user: String) = {
-      val moveResult = game.doClick(jsValue, user)
-      val posString = (jsValue \ "position").as[String]    
-      Miss
-//      moveResult match {
-//	      case PlayerWon => {
-//	        val jsUser = Json.obj(
-//	                "type" -> "gameOver",
-//	                "result" -> (user + " has won!!!"))
-//	        val jsOtherUser = Json.obj(
-//	                "type" -> "gameOver",
-//	                "result" -> (user + " has won!!!"),
-//	                "prevMove" -> posString)
-//	        messageQueue += ((user, jsUser))
-//	        messageQueue += ((game.otherPlayer(user), jsOtherUser))
-//	
-//	      }
-//	      case Draw => {
-//	        val jsUser = Json.obj(
-//	                "type" -> "gameOver",
-//	                "result" -> "It is a draw!")
-//	        val jsOtherUser = Json.obj(
-//	                "type" -> "gameOver",
-//	                "result" -> "It is a draw!",
-//	                "prevMove" -> posString)
-//	        messageQueue += ((user, jsUser))
-//	        messageQueue += ((game.otherPlayer(user), jsOtherUser))
-//	      }
-//	      case _ => {
-//	    	 val posString = (jsValue \ "position").as[String]    
-//	         val js = Json.obj(
-//	                "type" -> "yourMove",
-//	                "prevMove" -> posString)
-//	        messageQueue += ((game.otherPlayer(user), js))           
-//	      }
-//      }
-    
+  private def handleCellSelected(game: SinkShipGame, pos: Position, posString: String, user: String) = {
+      val moveResult = game.doClick(pos, user)
+      moveResult match {
+	      case AllShipsSunk(ships) => {
+	        val jsUser = Json.obj(
+	                "type" -> "gameOver",
+	                "result" -> (user + " has won!!!"),
+	                "prevMove" -> Json.obj(
+	                    "pos" -> posString,
+	                    "isHit" -> true, 
+	                    "isSunk" -> true,
+	                    "ships" -> Json.toJson(ships)
+	                ))
+	        val jsOpponent = Json.obj(
+	                "type" -> "gameOver",
+	                "result" -> (user + " has won!!!"),
+	                "prevMove" -> Json.obj(
+	                    "pos" -> posString,
+	                    "isHit" -> true, 
+	                    "isSunk" -> true,
+	                    "ships" -> Json.toJson(ships)
+	                ))
+	        messageQueue += ((user, jsUser))
+	        messageQueue += ((game.otherPlayer(user), jsOpponent))
+	      }
+	      
+	      case ShipSunk(ship) => {
+	         val jsUser = Json.obj(
+	                "type" -> "oppMove",
+	                "prevMove" -> Json.obj(
+	                    "pos" -> posString, 
+	                    "isHit" -> true,
+	                    "isSunk" -> true,
+	                    "ship" -> Json.toJson(ship)))
+	         val jsOpponent = Json.obj(
+	                "type" -> "yourMove",
+	                "prevMove" -> Json.obj(
+	                    "pos" -> posString, 
+	                    "isHit" -> true,
+	                    "isSunk" -> true,
+	                    "ship" -> Json.toJson(ship)))
+	         messageQueue += ((user, jsUser))
+	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
+	      }
+	      
+	      case Hit => {
+	         val jsUser = Json.obj(
+	                "type" -> "oppMove",
+	                "prevMove" -> Json.obj(
+	                    "pos" -> posString, 
+	                    "isHit" -> true))
+	         val jsOpponent = Json.obj(
+	                "type" -> "yourMove",
+	                "prevMove" -> Json.obj(
+	                    "pos" -> posString, 
+	                    "isHit" -> true))
+	         messageQueue += ((user, jsUser))
+	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
+	      }
+	      
+	      case Miss => {
+	         val jsUser = Json.obj(
+	                "type" -> "oppMove",
+	                "prevMove" -> Json.obj(
+	                    "pos" -> posString, 
+	                    "isHit" -> false))
+	         val jsOpponent = Json.obj(
+	                "type" -> "yourMove",
+	                "prevMove" -> Json.obj(
+	                    "pos" -> posString, 
+	                    "isHit" -> false))
+	         messageQueue += ((user, jsUser))
+	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
+	      }   
+      }    
   }
  
 }

@@ -99,7 +99,7 @@ hr {
 /*	border-spacing: 2px; */
     background-color: #dbdbdb;
 }
-.game-table, .game-table td {
+.game-table, .game-table td , .game-table th {
 	border: 1px solid black;
 }
 
@@ -107,6 +107,15 @@ hr {
 	width: 2em;
 	height: 2em;
 }
+
+.game-table td.ship {
+	background-color: white;
+}
+
+.game-table td.idle {
+	background-color: blue;
+}
+
 /*
 #gameTable td.available {
 	background-image: url("../images/memory/checkered.jpg");

@@ -13,8 +13,8 @@ object SinkShipGame {
   sealed trait BombResult
   object Miss extends BombResult
   object Hit extends BombResult
-  object ShipSunk extends BombResult
-  object AllShipsSunk extends BombResult
+  case class ShipSunk(ship: Ship) extends BombResult
+  case class AllShipsSunk(ships: List[Ship]) extends BombResult
 
   var gameIdCounter = 0
   val gameMap: mutable.Map[String, SinkShipGame] = mutable.Map.empty
@@ -38,8 +38,8 @@ class SinkShipGame(val gameSize: Int, player1: String, player2: String) {
   println(s"SinkShipGame.new, size: $gameSize, players: $player1 $player2")
   
   var currentPlayer: String = player1
-  val shipsMap: Map[String, Set[Ship]] = Map(player1 -> generateShipPositions(), player1 -> generateShipPositions());
-  val hitsMap: Map[String, mutable.Set[Position]] = Map(player1 -> mutable.Set.empty, player1 -> mutable.Set.empty);
+  val shipsMap: Map[String, List[Ship]] = Map(player1 -> generateShipPositions(), player2 -> generateShipPositions());
+  val hitsMap: Map[String, mutable.ListBuffer[Position]] = Map(player1 -> mutable.ListBuffer.empty, player2 -> mutable.ListBuffer.empty);
   
   //stores message per player
   val playerToMessageQueue = Map(player1 -> new mutable.ListBuffer[JsValue], player2 -> new mutable.ListBuffer[JsValue])
@@ -51,22 +51,12 @@ class SinkShipGame(val gameSize: Int, player1: String, player2: String) {
     else currentPlayer = player1
     currentPlayer
   }  
-    
-  /**
-   * Convert a String of syntax: pos-@row-@column to a Position
-   */
-  def toPos(pos: String): Position = {
-    val arr = pos.split("-")
-    val row = arr(1).toInt
-    val col = arr(2).toInt
-    (row, col)
-  }
   
-  def doClick(msg: JsValue, player: String): BombResult = {
-    val posString = (msg \ "position").as[String]    
-    val pos: Position = toPos(posString)
+  def getShips(user: String): List[Ship] = shipsMap(user)
+    
+  def doClick(pos: Position, player: String): BombResult = {
 	hitsMap(player) += pos
-    println(s"SinkShipGame.doClick player: $player , pos: $posString, hits size: ${hitsMap(player).size}")
+    println(s"SinkShipGame.doClick player: $player , pos: $pos, hits size: ${hitsMap(player).size}")
 	    
     //check score and send FINISH if game over
     moveResult(player, pos)
@@ -78,17 +68,17 @@ class SinkShipGame(val gameSize: Int, player1: String, player2: String) {
     hitShip match {
       case None => Miss
       case Some(ship) => {
-        if (ship.isSunk(hitsMap(player).toSet)) {
-          if (ships.forall(s => s.isSunk(hitsMap(player).toSet))) AllShipsSunk
-          else ShipSunk
+        if (ship.isSunk(hitsMap(player).toList)) {
+          if (ships.forall(s => s.isSunk(hitsMap(player).toList))) AllShipsSunk(ships)
+          else ShipSunk(ship)
         }
         else Hit
       }
     }    
   }
     
-  private def generateShipPositions(): Set[Ship] = {
-    import scala.collection.mutable.ListBuffer
+  private def generateShipPositions(): List[Ship] = {
+    import mutable.ListBuffer
     
     val ships: ListBuffer[Ship] = ListBuffer.empty
     
@@ -121,7 +111,15 @@ class SinkShipGame(val gameSize: Int, player1: String, player2: String) {
         }
     
         if (!collision) {
-          ship = Ship(shipPositions.toSet);
+          //create and sort the ship positions
+          ship = Ship(shipPositions)
+//          ship = Ship(shipPositions.sortWith(((p1), (p2)) => {
+//            if (p1._1 < p2._1) true
+//            else if (p1._1 > p2._1) false
+//            else if (p1._2 < p2._2) true
+//            else if (p1._2 > p2._2) false
+//            true
+//          }));
         }
     
       }
@@ -130,7 +128,7 @@ class SinkShipGame(val gameSize: Int, player1: String, player2: String) {
       ships += ship;
  
     }
-    ships.toSet
+    ships.toList
   }
   
 }
