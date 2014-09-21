@@ -104,8 +104,8 @@ hr {
 }
 
 .game-table td {
-	width: 2em;
-	height: 2em;
+	width: 30px;
+	height: 30px;
 	background-color: blue;
 }
 

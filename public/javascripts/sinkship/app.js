@@ -49,11 +49,13 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 	$scope.handleMessage = function(data) {
 		if (data.message == "yourMove" && !data.prevMove) {
 			if (!$scope.gameStarted) $scope.gameStarted = true;
-			$scope.info = "Your turn. Click a cell in opponents table.";
+			$scope.info = "You start. Click a cell in opponents table to try to hit a ship.";
 			$scope.yourTurn = true; 
 		}
 		else if (data.message == "yourMove") {
 			if (!$scope.gameStarted) $scope.gameStarted = true;
+			
+			//Insert prev move to myTable and change according to hit/sunk ship
 			var pos = data.prevMove.pos;
 			document.getElementById("myTable-" + pos).innerHTML = "X";
 			var isHit = !!data.prevMove.isHit;
@@ -72,11 +74,12 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 			}
 			$scope.info = infoMessage;
 			$scope.yourTurn = true; 
-			$scope.oppTable[pos].ship = isHit;
+			$scope.myTable[pos].ship = isHit;
 			if (isSunk) {
 				for (i = 0; i < data.prevMove.ship.length; i++) {
 					var posString = "pos-" + data.prevMove.ship[i].x + "-" + data.prevMove.ship[i].y
-					$scope.oppTable[posString].sunk = true;
+					$scope.myTable[posString].sunk = true;
+					
 				}	
 			}
 		}
@@ -107,11 +110,19 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 				for (i = 0; i < data.prevMove.ship.length; i++) {
 					var posString = "pos-" + data.prevMove.ship[i].x + "-" + data.prevMove.ship[i].y
 					$scope.oppTable[posString].sunk = true;
+					//Add body part and vertical or horizontal for looks
+					if (i == 0) $scope.myTable[posString].tail = true;
+        			else if (i == data.prevMove.ship.length - 1) $scope.myTable[posString].head = true;
+        			else $scope.myTable[posString].body = true;
+        			if (data.prevMove.ship[0].x == data.prevMove.ship[1].x) $scope.myTable[posString].ver = true;
+        			else $scope.myTable[posString].hor = true;
+					
 				}	
 			}		
 		}
 		else if (data.message == "gameOver") {
-		
+			$scope.info = "Game over. " + data.result;
+			//Do prev move but need to know whos move it was!!
 		}
 		else console.log("Unknown message: " + data.message);
 	};
