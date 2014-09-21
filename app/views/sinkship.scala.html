@@ -60,14 +60,28 @@
 	      	</div>
         
             <div id="main" class="text-center">
-                <table id="opponentsTable" class="game-table center">
+                <table id="oppTable" class="game-table center">
                 	<thead>
                 		<tr><th colSpan=@size class="text-center">@oppName ships</th></tr>
 			      	<tbody>
 			      	  	@for(row <- 1 to size){
 			      	  	<tr>
 			      	  	  	@for(column <- 1 to size){
-			      	  	  		<td id="pos-@row-@column" class="gamePos" ng-class='oppTable["pos-@row-@column"]'</td>
+			      	  	  		<td id="pos-@column-@row" class="gamePos" 
+			      	  	  			ng-class='{
+			      	  	  				idle: !oppTable["pos-@column-@row"].ship,
+			      	  	  				ship: oppTable["pos-@column-@row"].ship,
+			      	  	  				tail: oppTable["pos-@column-@row"].tail,
+			      	  	  				body: oppTable["pos-@column-@row"].body,
+			      	  	  				tail: oppTable["pos-@column-@row"].tail,
+			      	  	  				head: oppTable["pos-@column-@row"].head,
+			      	  	  				hor: oppTable["pos-@column-@row"].hor,
+			      	  	  				ver: oppTable["pos-@column-@row"].ver,
+			      	  	  				sunk: oppTable["pos-@column-@row"].sunk,
+			      	  	  			}'
+			      	  	  			ng-click='yourTurn && !oppTable["pos-@column-@row"].ship && cellClicked("pos-@column-@row")'>
+			      	  	  			
+			      	  	  		</td>
 			      	  	  	} 
 			      	  	</tr>
 			      	  	}
@@ -76,14 +90,27 @@
                 
                 <br/> <br/>
                 
-                <table id="userTable" class="game-table center">
+                <table id="myTable" class="game-table center">
                 	<thead>
                 		<tr><th colSpan=@size class="text-center">Your ships</th></tr>
 			      	<tbody>
 			      	  	@for(row <- 1 to size){
 			      	  	<tr>
 			      	  	  	@for(column <- 1 to size){
-			      	  	  		<td id="pos-@row-@column" class="gamePos" ng-class='myTable["pos-@row-@column"]'></td>
+			      	  	  		<td id="myTable-pos-@column-@row" class="gamePos" 
+			      	  	  			ng-class='{
+			      	  	  				idle: !myTable["pos-@column-@row"].ship,
+			      	  	  				ship: myTable["pos-@column-@row"].ship,
+			      	  	  				tail: myTable["pos-@column-@row"].tail,
+			      	  	  				body: myTable["pos-@column-@row"].body,
+			      	  	  				tail: myTable["pos-@column-@row"].tail,
+			      	  	  				head: myTable["pos-@column-@row"].head,
+			      	  	  				hor: myTable["pos-@column-@row"].hor,
+			      	  	  				ver: myTable["pos-@column-@row"].ver,
+			      	  	  				sunk: myTable["pos-@column-@row"].sunk,
+			      	  	  			}'>
+			      	  	  			
+			      	  	  		</td>
 			      	  	  	} 
 			      	  	</tr>
 			      	  	}

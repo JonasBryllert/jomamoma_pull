@@ -106,14 +106,52 @@ hr {
 .game-table td {
 	width: 2em;
 	height: 2em;
-}
-
-.game-table td.ship {
-	background-color: white;
+	background-color: blue;
 }
 
 .game-table td.idle {
 	background-color: blue;
+}
+
+.game-table td.ship {
+	background-color: white;
+	color: red;
+}
+
+/* Remove border of horizontal ships */
+.game-table td.ship.head.hor {
+	border-left: none; 
+}
+
+.game-table td.ship.body.hor {
+	border-right: none; 
+	border-left: none; 
+}
+
+.game-table td.ship.tail.hor {
+	border-right: none; 
+}
+
+/* Remove border of vertical ships */
+.game-table td.ship.head.ver {
+	border-top: none; 
+}
+
+.game-table td.ship.body.ver {
+	border-bottom: none; 
+	border-top: none; 
+}
+
+.game-table td.ship.tail.ver {
+	border-bottom: none; 
+}
+
+.game-table td.sunk {
+	background-color: red;
+}
+
+#opponentsTable td.idle {
+	cursor: pointer;
 }
 
 /*

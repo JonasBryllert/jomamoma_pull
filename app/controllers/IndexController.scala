@@ -28,7 +28,7 @@ object IndexController extends Controller {
    */
   def index = Action { implicit request =>
     val user = request.session.get("user")
-    println(s"Application -> index, user: $user")
+    println(s"IndexController.index -> user: $user")
     user match {
       case None => Ok(views.html.index(userForm))
       case Some(uName) => {
@@ -36,6 +36,7 @@ object IndexController extends Controller {
         if (Users.isLoggedIn(uName)) Redirect(routes.Application.home)
         else {
           Users.logout(uName)
+          println(s"IndexController.index: logged out user: $uName and refirecting to index")
           Ok(views.html.index(userForm))
         }
       }
@@ -56,8 +57,8 @@ object IndexController extends Controller {
           BadRequest(views.html.index(formWithErrors))
         },
     	user => {
-          println("User logged in successfully: " + user)
           Users.logon(user);
+          println("IndexController.doLogin: User logged in successfully: " + user)
     	  Redirect(routes.Application.home()).withSession(request.session + ("user" -> user.name))
     	}
     )
@@ -76,13 +77,16 @@ object IndexController extends Controller {
   }
   
   def doLogout = Action { implicit request =>
-    println("LoginController -> Logout!!")
-    request.session.get("user").foreach(s => Users.logout(s))
+    println("IndexController.doLogout ->")
+    request.session.get("user").foreach(s => {
+      println(s"IndexController.doLogout: logging out $s")
+      Users.logout(s)
+    })
     Redirect(routes.IndexController.loggedOut).withNewSession
   }
   
   def loggedOut = Action { implicit request =>
-    println("LoginController -> loggedOut!!")
+    println("IndexController.loggedOut ->")
     Ok(views.html.loggedout())
   }
   

@@ -57,30 +57,36 @@ object Application extends Controller {
    * Client call to retrieve messages as JSON
    */
   def getMessages = Action { implicit request =>
-    val user = request.session("user")
-    println(s"Application.getMessages -> user: ${user}, messageQueue: $messageQueue")
-    val message = messageQueue.remove(user)
-    message match {
-      //Send message from queeu if there is one!
-      case Some(jsValue) => returnJSON(jsValue)
-      case _ => {
-        val usersOption: Option[(List[String], List[String])] = Users.getLoggedOnOffUsers(user)
-        println(s"Application.getMessages -> user: ${user}, users: $usersOption")
-        usersOption match {
-          //2nd chice see if there are any new users logged on/off
-          case Some(users) => {
-            returnJSON(Json.obj(
-                "message" -> "users",
-                "messageObject" -> Json.obj(
-                    "loggedOn" -> toJson(users._1),
-            		"loggedOff" -> toJson(users._2)
-            	)
-            ))
+    if (request.session.get("user") == None) {
+      println(s"Application.getMessage -> WARNING getMessage with no session")
+      returnJSON(Json.obj("message"->"empty"))
+    }
+    else {
+      val user = request.session("user")
+
+//      println(s"Application.getMessages -> user: ${user}, messageQueue: $messageQueue")
+      val message = messageQueue.remove(user)
+      message match {
+        //Send message from queeu if there is one!
+        case Some(jsValue) => returnJSON(jsValue)
+        case _ => {
+            //2nd choice see if there are any new users logged on/off
+          val usersOption: Option[(List[String], List[String])] = Users.getLoggedOnOffUsers(user)
+//          println(s"Application.getMessages -> user: ${user}, users: $usersOption")
+          usersOption match {
+            case Some(users) => {
+              returnJSON(Json.obj(
+                  "message" -> "users",
+                  "messageObject" -> Json.obj(
+                      "loggedOn" -> toJson(users._1),
+            		  "loggedOff" -> toJson(users._2)
+             	)
+              ))
+            }
+            //last case return empty message
+            case _ => returnJSON(Json.obj("message"->"empty"))
           }
-          //last case return empty message
-          case _ => returnJSON(Json.obj("message"->"empty"))
         }
-        
       }
     }     
   }
@@ -89,18 +95,22 @@ object Application extends Controller {
    * JSON client message
    */
   def clientMessage() = Action { implicit request =>
-    val user = request.session("user")
-    println(s"Application.clientMessage -> user: $user")
-    val jsonMessage: Option[JsValue] = request.body.asJson
-    println(s"clientMessage -> user: $user, json: $jsonMessage")
-    jsonMessage match {
-      case Some(value) => handleClientMessage(value, request.session("user"))
-      case None => {
-        println("clientMessage -> None")
-        Ok("")
+    if (request.session.get("user") == None) returnJSON(Json.obj("message"->"empty"))
+    else {
+      val user = request.session("user")
+      println(s"Application.clientMessage -> user: $user")
+      val jsonMessage: Option[JsValue] = request.body.asJson
+      println(s"clientMessage -> user: $user, json: $jsonMessage")
+      jsonMessage match {
+        case Some(value) => handleClientMessage(value, request.session("user"))
+        case None => {
+          println("clientMessage -> None")
+          Ok("")
+        }
       }
     }
   }
+    
   
   private def handleClientMessage(jsValue: JsValue, user: String): Result = {
     println(s"Application.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")

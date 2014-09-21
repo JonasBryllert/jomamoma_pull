@@ -32,14 +32,17 @@ object SinkShipController extends Controller {
       //TODO Add redirect to error page if game not exist
       val game: SinkShipGame = SinkShipGame.getGame(gameId).get
       if (game.currentPlayer == user) {
-        messageQueue += ((user, Json.obj("type" -> "yourMove")))
+        messageQueue += ((user, Json.obj("message" -> "yourMove")))
+      }
+      else {
+        messageQueue += ((user, Json.obj("message" -> "oppMove")))
       }
       Ok(views.html.sinkship(game.gameSize, user, game.otherPlayer(user)))
     }
   }
   
   def getShips(gameId: String) = Action { implicit request =>
-    if (request.session.get("user") == None || SinkShipGame.getGame(gameId) == None) returnJSON(Json.obj("type"->"empty"))
+    if (request.session.get("user") == None || SinkShipGame.getGame(gameId) == None) returnJSON(Json.obj("message"->"empty"))
     else {
       val ships: Set[Ship] = SinkShipGame.getGame(gameId).get.getShips(request.session("user")).toSet
       returnJSON(Json.toJson(ships))
@@ -116,7 +119,7 @@ object SinkShipController extends Controller {
       moveResult match {
 	      case AllShipsSunk(ships) => {
 	        val jsUser = Json.obj(
-	                "type" -> "gameOver",
+	                "message" -> "gameOver",
 	                "result" -> (user + " has won!!!"),
 	                "prevMove" -> Json.obj(
 	                    "pos" -> posString,
@@ -125,7 +128,7 @@ object SinkShipController extends Controller {
 	                    "ships" -> Json.toJson(ships)
 	                ))
 	        val jsOpponent = Json.obj(
-	                "type" -> "gameOver",
+	                "message" -> "gameOver",
 	                "result" -> (user + " has won!!!"),
 	                "prevMove" -> Json.obj(
 	                    "pos" -> posString,
@@ -139,14 +142,14 @@ object SinkShipController extends Controller {
 	      
 	      case ShipSunk(ship) => {
 	         val jsUser = Json.obj(
-	                "type" -> "oppMove",
+	                "message" -> "oppMove",
 	                "prevMove" -> Json.obj(
 	                    "pos" -> posString, 
 	                    "isHit" -> true,
 	                    "isSunk" -> true,
 	                    "ship" -> Json.toJson(ship)))
 	         val jsOpponent = Json.obj(
-	                "type" -> "yourMove",
+	                "message" -> "yourMove",
 	                "prevMove" -> Json.obj(
 	                    "pos" -> posString, 
 	                    "isHit" -> true,
@@ -158,12 +161,12 @@ object SinkShipController extends Controller {
 	      
 	      case Hit => {
 	         val jsUser = Json.obj(
-	                "type" -> "oppMove",
+	                "message" -> "oppMove",
 	                "prevMove" -> Json.obj(
 	                    "pos" -> posString, 
 	                    "isHit" -> true))
 	         val jsOpponent = Json.obj(
-	                "type" -> "yourMove",
+	                "message" -> "yourMove",
 	                "prevMove" -> Json.obj(
 	                    "pos" -> posString, 
 	                    "isHit" -> true))
@@ -173,12 +176,12 @@ object SinkShipController extends Controller {
 	      
 	      case Miss => {
 	         val jsUser = Json.obj(
-	                "type" -> "oppMove",
+	                "message" -> "oppMove",
 	                "prevMove" -> Json.obj(
 	                    "pos" -> posString, 
 	                    "isHit" -> false))
 	         val jsOpponent = Json.obj(
-	                "type" -> "yourMove",
+	                "message" -> "yourMove",
 	                "prevMove" -> Json.obj(
 	                    "pos" -> posString, 
 	                    "isHit" -> false))
