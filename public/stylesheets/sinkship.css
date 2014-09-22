@@ -93,11 +93,18 @@ hr {
 	padding: 3px 10px;
 }
 
+/* div containing game tables need a size to center */
+#main {
+	width: 405px; /* 30*6*2 + 4*1 + 2*2*10 */
+}
+
 /* table settings */
 .game-table {
 	border-collapse: separate;
 /*	border-spacing: 2px; */
     background-color: #dbdbdb;
+    float: left;
+    margin: 0 10px;
 }
 .game-table, .game-table td , .game-table th {
 	border: 1px solid black;
@@ -154,20 +161,7 @@ hr {
 	cursor: pointer;
 }
 
-/*
-#gameTable td.available {
-	background-image: url("../images/memory/checkered.jpg");
-}
 
-#gameTable img {
-	width: 50px;
-	height: 50px;
-}
-
-td.available:HOVER {
-	cursor: pointer;
-}
-*/
 #returnDiv {
 /*	margin-top: 20px; */
 }

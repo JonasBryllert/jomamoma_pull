@@ -52,14 +52,16 @@
 		
 		<main>
 			<div>
-	 			<div id="infoDiv" class="text-center info">{{info}}</div>
+	 			<div id="infoDiv" class="text-center info">
+	 				<p>{{info}}</p>
+	 			</div>
 			
-		        <div id="returnDiv" class="remove text-center">
+		        <div id="returnDiv" class="text-center" ng-class="{remove: !gameOver}">
 		      		<p>Return to <a href="@routes.Application.home">home page</a>.</p>
 		      	</div>
 	      	</div>
         
-            <div id="main" class="text-center">
+            <div id="main" class="center-block text-center">
                 <table id="oppTable" class="game-table center">
                 	<thead>
                 		<tr><th colSpan=@size class="text-center">@oppName ships</th></tr>
@@ -87,9 +89,7 @@
 			      	  	}
 			      	</tbody>    	
                 </table>
-                
-                <br/> <br/>
-                
+                                
                 <table id="myTable" class="game-table center">
                 	<thead>
                 		<tr><th colSpan=@size class="text-center">Your ships</th></tr>
