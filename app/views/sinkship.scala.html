@@ -13,7 +13,11 @@
 	<div class="container" ng-controller="SinkShipController">
 		<header class="text-center">
      		<h1>JOMAMOMA - Sink ship</h1>
-			<div>Welcome <span id="userSpan">@userName</span><span id="oppName" class="remove">@oppName</span></div>
+			<div>Welcome 
+				<span id="userSpan">@userName</span>
+				<span id="oppSpan" class="remove">@oppName</span>
+				<span id="sizeSpan" class="remove">@size</span>
+			</div>
 		</header>
 		<hr/>
 		
@@ -36,12 +40,12 @@
 							<th>Ships sunk</th>
 						</tr>
 						<tr>
-							<td id="playerOneName">@userName</td>
-							<td id="playerOneScore">{{playerOneScore}}</td>
+							<td>@userName</td>
+							<td>{{userScore}}</td>
 						</tr>
 						<tr>
-							<td id="playerTwoName">@oppName</td>
-							<td id="playerTwoScore">{{playerTwoScore}}</td>
+							<td>@oppName</td>
+							<td>{{oppScore}}</td>
 						</tr>
 					</table>
 				</div>
@@ -81,7 +85,7 @@
 			      	  	  				ver: oppTable["pos-@column-@row"].ver,
 			      	  	  				sunk: oppTable["pos-@column-@row"].sunk,
 			      	  	  			}'
-			      	  	  			ng-click='yourTurn && !oppTable["pos-@column-@row"].ship && cellClicked("pos-@column-@row")'>
+			      	  	  			ng-click='yourTurn && oppTable["pos-@column-@row"].idle && cellClicked("pos-@column-@row")'>
 			      	  	  			
 			      	  	  		</td>
 			      	  	  	} 

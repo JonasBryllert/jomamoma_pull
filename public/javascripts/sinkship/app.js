@@ -1,7 +1,5 @@
 var app = angular.module("SinkShipApp",[]);
 
-var size = 6;
-
 app.service('SinkShipService', function($http) {
 	
     this.getMessages = function(callback) {
@@ -25,14 +23,17 @@ app.service('SinkShipService', function($http) {
 app.controller("SinkShipController", function($scope, SinkShipService) {
 	//Initial parameters
 	$scope.userName = document.getElementById("userSpan").innerHTML;
+	$scope.oppName = document.getElementById("oppSpan").innerHTML;
+	$scope.size = parseInt(document.getElementById("sizeSpan").innerHTML);
 	
-	$scope.playerOneScore = 0;
-	$scope.playerTwoScore = 0;
+	$scope.userScore = 0;
+	$scope.oppScore = 0;
+	
 	$scope.info = "Loading game, please wait..."
 	
 	$scope.gameStarted = false;
 	$scope.gameOver = false;
-	$scope.yourTurn = true;
+	$scope.yourTurn = false;
 	
 	$scope.myTable = {};
 	$scope.oppTable = {};
@@ -47,35 +48,39 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 	
 	$scope.handleMessage = function(data) {
 		
-		//inner closure method to insert a move into my (own) table
+		//inner closure method to insert a move into my (own) table. Opponents move end up here!
 		function insertMoveInMyTable(data) {
 			var pos = data.prevMove.pos;
 			document.getElementById("myTable-" + pos).innerHTML = "X";
+			$scope.myTable[pos].idle = false;
 			$scope.myTable[pos].ship = !!data.prevMove.isHit;
 			if (!!data.prevMove.isSunk) {
-				for (i = 0; i < data.prevMove.ship.length; i++) {
-					var posString = "pos-" + data.prevMove.ship[i].x + "-" + data.prevMove.ship[i].y
+				$scope.oppScore += 1;
+				for (i = 0; i < data.prevMove.shipPositions.length; i++) {
+					var posString = "pos-" + data.prevMove.shipPositions[i].x + "-" + data.prevMove.shipPositions[i].y
 					$scope.myTable[posString].sunk = true;					
 				}	
 			}		
 		}
 		
-		//inner closure method to insert move into opponents table
+		//inner closure method to insert move into opponents table. User moves end up here!
 		function insertMoveInOppTable(data) {
 			var pos = data.prevMove.pos;
 			var isHit = !!data.prevMove.isHit;
 			var isSunk = !!data.prevMove.isSunk;
 			
+			$scope.oppTable[pos].idle = false;
 			$scope.oppTable[pos].ship = isHit;
 			if (isSunk) {
-				for (i = 0; i < data.prevMove.ship.length; i++) {
-					var posString = "pos-" + data.prevMove.ship[i].x + "-" + data.prevMove.ship[i].y
+				$scope.userScore += 1;
+				for (i = 0; i < data.prevMove.shipPositions.length; i++) {
+					var posString = "pos-" + data.prevMove.shipPositions[i].x + "-" + data.prevMove.shipPositions[i].y
 					$scope.oppTable[posString].sunk = true;
 					//Add body part and vertical or horizontal for looks
 					if (i == 0) $scope.oppTable[posString].tail = true;
-        			else if (i == data.prevMove.ship.length - 1) $scope.oppTable[posString].head = true;
+        			else if (i == data.prevMove.shipPositions.length - 1) $scope.oppTable[posString].head = true;
         			else $scope.oppTable[posString].body = true;
-        			if (data.prevMove.ship[0].x == data.prevMove.ship[1].x) $scope.oppTable[posString].ver = true;
+        			if (data.prevMove.shipPositions[0].x == data.prevMove.shipPositions[1].x) $scope.oppTable[posString].ver = true;
         			else $scope.oppTable[posString].hor = true;
 				}	
 			}		
@@ -83,7 +88,7 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 		
 		if (data.message == "yourMove" && !data.prevMove) {
 			if (!$scope.gameStarted) $scope.gameStarted = true;
-			$scope.info = "You start. Click a cell in opponents table to try to hit a ship.";
+			$scope.info = "You start. Click a cell in " + $scope.oppName + "'s table to try to hit a ship.";
 			$scope.yourTurn = true; 
 		}
 		else if (data.message == "yourMove") {
@@ -108,7 +113,7 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 		}
 		else if (data.message == "oppMove" && !data.prevMove && !$scope.gameStarted) {
 			$scope.gameStarted = true;
-			$scope.info = "Opponent starts, please wait...";
+			$scope.info = $scope.oppName + " starts, please wait...";
 		}
 		else if (data.message == "oppMove") {
 			if (!$scope.gameStarted) $scope.gameStarted = true;
@@ -120,14 +125,14 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 			var infoMessage = "";
 			if (isHit) {
 				if (isSunk) {
-					infoMessage = "Well done, you sank a ship. Wait for opponents turn...";
+					infoMessage = "Well done, you sank a ship. Wait for " + $scope.oppName + "'s  turn...";
 				}
 				else {
-					infoMessage = "Well done, you hit a ship. Wait for opponents turn...";
+					infoMessage = "Well done, you hit a ship. Wait for " + $scope.oppName + "'s turn...";
 				}
 			}
 			else {
-				infoMessage = "Oops, you missed. Wait for opponents turn...";
+				infoMessage = "Oops, you missed. Wait for " + $scope.oppName + "'s turn...";
 			}
 			$scope.info = infoMessage; 
 		}
@@ -136,15 +141,14 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 			$scope.gameOver = true;
 			if (data.user == $scope.userName) insertMoveInOppTable(data);
 			else insertMoveInMyTable(data);
-			
 		}
 		else console.log("Unknown message: " + data.message);
 	};
 
 	//Set up object for each table cell to 'idle'
 	(function() {
-		for (i = 1; i <= size; i++) {
-			for (j = 1; j <= size; j++) {
+		for (i = 1; i <= $scope.size; i++) {
+			for (j = 1; j <= $scope.size; j++) {
 				var posString = "pos-" + j + "-" + i;
 				$scope.myTable[posString] = {};
 				$scope.oppTable[posString] = {};
@@ -180,17 +184,17 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 		promise.success(function(data, status, headers, config) {
          	console.log("ships: " + JSON.stringify(data));
         	for (i = 0; i < data.length; i++) {
-        		var ship = data[i];
-        		for (j = 0; j < ship.length; j++) {
-        			var pos = ship[j];
+        		var shipPositions = data[i];
+        		for (j = 0; j < shipPositions.length; j++) {
+        			var pos = shipPositions[j];
         			var posString = "pos-" + pos.x + "-" + pos.y
         			console.log("posString: " + posString);
         			$scope.myTable[posString].idle = false;
         			$scope.myTable[posString].ship = true;
         			if (j == 0) $scope.myTable[posString].tail = true;
-        			else if (j == ship.length - 1) $scope.myTable[posString].head = true;
+        			else if (j == shipPositions.length - 1) $scope.myTable[posString].head = true;
         			else $scope.myTable[posString].body = true;
-        			if (ship[0].x == ship[1].x) $scope.myTable[posString].ver = true;
+        			if (shipPositions[0].x == shipPositions[1].x) $scope.myTable[posString].ver = true;
         			else $scope.myTable[posString].hor = true;
         		}
         	}
@@ -199,14 +203,5 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 			console.log("ERROR!!!");
 		});
     })();
-	
-	
-});
-
-app.controller("ScoreController", function($scope) {
-	$scope.playerOneName = "Loading...";
-	$scope.playerTwoName = "Test...";
-	
-	$scope.playerOneScore = 0;
-	$scope.playerTwoScore = 0;
+		
 });

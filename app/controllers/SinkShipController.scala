@@ -126,7 +126,7 @@ object SinkShipController extends Controller {
 	                    "pos" -> posString,
 	                    "isHit" -> true, 
 	                    "isSunk" -> true,
-	                    "ships" -> Json.toJson(ships)
+	                    "shipPositions" -> Json.toJson(ships)
 	                ))
 	        val jsOpponent = Json.obj(
 	                "message" -> "gameOver",
@@ -136,7 +136,7 @@ object SinkShipController extends Controller {
 	                    "pos" -> posString,
 	                    "isHit" -> true, 
 	                    "isSunk" -> true,
-	                    "ships" -> Json.toJson(ships)
+	                    "shipPositions" -> Json.toJson(ships)
 	                ))
 	        messageQueue += ((user, jsUser))
 	        messageQueue += ((game.otherPlayer(user), jsOpponent))
@@ -150,7 +150,7 @@ object SinkShipController extends Controller {
 	                    "pos" -> posString, 
 	                    "isHit" -> true,
 	                    "isSunk" -> true,
-	                    "ship" -> Json.toJson(ship)))
+	                    "shipPositions" -> Json.toJson(ship)))
 	         val jsOpponent = Json.obj(
 	                "message" -> "yourMove",
 	                "prevMove" -> Json.obj(
@@ -158,7 +158,7 @@ object SinkShipController extends Controller {
 	                    "pos" -> posString, 
 	                    "isHit" -> true,
 	                    "isSunk" -> true,
-	                    "ship" -> Json.toJson(ship)))
+	                    "shipPositions" -> Json.toJson(ship)))
 	         messageQueue += ((user, jsUser))
 	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
 	      }

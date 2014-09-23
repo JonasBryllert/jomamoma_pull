@@ -113,16 +113,17 @@ hr {
 .game-table td {
 	width: 30px;
 	height: 30px;
-	background-color: blue;
-}
-
-.game-table td.idle {
-	background-color: blue;
+	background-color: #0099CC;
+	color: black;
 }
 
 .game-table td.ship {
-	background-color: white;
+	background-color: #D2D2BC;
 	color: red;
+}
+
+.game-table td.sunk {
+	background-color: red;
 }
 
 /* Remove border of horizontal ships */
@@ -153,11 +154,7 @@ hr {
 	border-bottom: none; 
 }
 
-.game-table td.sunk {
-	background-color: red;
-}
-
-#opponentsTable td.idle {
+#oppTable td.idle {
 	cursor: pointer;
 }
 
