@@ -29,6 +29,7 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 	$scope.userScore = 0;
 	$scope.oppScore = 0;
 	
+	$scope.showGameInfo = false;
 	$scope.info = "Loading game, please wait..."
 	
 	$scope.gameStarted = false;

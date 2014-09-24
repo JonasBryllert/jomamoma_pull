@@ -10,9 +10,13 @@ hr {
 }
 
 .container {
-	background-color: 	#E6E682;
+	background-color: #E6E682;
 	padding-bottom: 20px;
 }
+
+.info {
+    background-color: #B8B868;
+}    
 
 .vertical-space-10 {
 	padding-top: 10px;
@@ -113,12 +117,12 @@ hr {
 .game-table td {
 	width: 30px;
 	height: 30px;
-	background-color: #0099CC;
+	background-color: #0099CC; /* blue */
 	color: black;
 }
 
 .game-table td.ship {
-	background-color: #D2D2BC;
+	background-color: #7C7C53; /* grey */
 	color: red;
 }
 

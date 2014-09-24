@@ -23,13 +23,32 @@
 		
 		<section>
 			<div class="text-center">
-				Need to know the rules? Click <a href="javascript:">here</a>.
-				<div>
-					Add rules....
+				Need to know the rules? 
+				<span ng-class="{remove: showGameInfo}">
+					Click <a href="javascript:" ng-click="showGameInfo=true">here</a>.
+				</span>
+				<div class="info" ng-class="{remove: !showGameInfo}">
+					<p>The goal of the SinkShip game is to sink the opponents ship before 
+					he/she sinks yours. Below you have two tables with blue background 
+					depicting the sea.</p>
+					<p>In the right table you can see your own ships (grey background)
+					and when it is the opponents turn you will see a X marking where he/she
+					clicked and it will be red if it hit one of you ships. When the ship
+					is sunk (all cells for the ship is clicked) the background color
+					will turn red and a point is given in the score table. </p>
+					<p>When it is your turn you click on cell in the opponents table
+					and you will be informed if hit or miss. If a hit the background
+					color for the cell will turn grey to indicate that there is a ship 
+					in that position. If you sink a ship the background color will go red
+					and you will be given a point in the score table.</p>
+					<p>There are 5 ships each, 2 with length 2, 2 with length 3, and
+					1 with length 5.</p>
+					
+					<a href="javascript:" ng-click="showGameInfo=false">hide info</a>
 				</div>
 			</div>
 		</section>
-		
+		<hr ng-class="{remove: !showGameInfo}" />
 		<section>
 			<div id="scoreDiv" class="text-center">
 				<h4>Current score: </h4>
@@ -56,7 +75,7 @@
 		
 		<main>
 			<div>
-	 			<div id="infoDiv" class="text-center info">
+	 			<div id="infoDiv" class="text-center">
 	 				<p>{{info}}</p>
 	 			</div>
 			

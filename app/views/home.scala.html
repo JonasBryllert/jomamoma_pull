@@ -18,13 +18,13 @@
 	        <hr/>
 	        
 	        <div class="introDiv text-center">
-	        	<h3>Hello <span id="userIdSpan">@user</span> (group: <span id="gruopIdSpan">@group</span>)</h3>
+	        	<h3>Hello <span id="userIdSpan">@user</span> @if("" != group){(group: <span id="gruopIdSpan">@group</span>)}</h3>
 	        	<span class="joinMessageSpan"></span>
 	        </div>
 	        
 	        <div id="challengeDiv" class="remove text-center"> 
 	        	You have been challenged by <span id="challengerSpan"></span> 
-	        	for a game of <span id="challengerGameSpan"></span> Do you want to play?
+	        	for a game of <span id="challengerGameSpan"></span>. Do you want to play?
 	        	<span><button id="acceptChallengeButton" value="Accept">Yes please</button></span>       
 	        	<span><button id="rejectChallengeButton" value="Reject">No thanks</button></span>       
 	        </div>
