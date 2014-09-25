@@ -14,7 +14,7 @@ object SinkShipGame {
   object Miss extends BombResult
   object Hit extends BombResult
   case class ShipSunk(ship: Ship) extends BombResult
-  case class AllShipsSunk(ships: List[Ship]) extends BombResult
+  case class AllShipsSunk(ship: Ship) extends BombResult
 
   var gameIdCounter = 0
   val gameMap: mutable.Map[String, SinkShipGame] = mutable.Map.empty
@@ -69,7 +69,7 @@ class SinkShipGame(val gameSize: Int, player1: String, player2: String) {
       case None => Miss
       case Some(ship) => {
         if (ship.isSunk(hitsMap(player).toList)) {
-          if (ships.forall(s => s.isSunk(hitsMap(player).toList))) AllShipsSunk(ships)
+          if (ships.forall(s => s.isSunk(hitsMap(player).toList))) AllShipsSunk(ship)
           else ShipSunk(ship)
         }
         else Hit

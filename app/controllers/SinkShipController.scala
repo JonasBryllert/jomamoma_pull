@@ -117,7 +117,7 @@ object SinkShipController extends Controller {
   private def handleCellSelected(game: SinkShipGame, pos: Position, posString: String, user: String) = {
       val moveResult = game.doClick(pos, user)
       moveResult match {
-	      case AllShipsSunk(ships) => {
+	      case AllShipsSunk(ship) => {
 	        val jsUser = Json.obj(
 	                "message" -> "gameOver",
 	                "winner" -> user,
@@ -126,7 +126,7 @@ object SinkShipController extends Controller {
 	                    "pos" -> posString,
 	                    "isHit" -> true, 
 	                    "isSunk" -> true,
-	                    "shipPositions" -> Json.toJson(ships)
+	                    "shipPositions" -> Json.toJson(ship)
 	                ))
 	        val jsOpponent = Json.obj(
 	                "message" -> "gameOver",
@@ -136,7 +136,7 @@ object SinkShipController extends Controller {
 	                    "pos" -> posString,
 	                    "isHit" -> true, 
 	                    "isSunk" -> true,
-	                    "shipPositions" -> Json.toJson(ships)
+	                    "shipPositions" -> Json.toJson(ship)
 	                ))
 	        messageQueue += ((user, jsUser))
 	        messageQueue += ((game.otherPlayer(user), jsOpponent))
