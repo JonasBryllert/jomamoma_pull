@@ -3,8 +3,6 @@ var app = angular.module("SinkShipApp",[]);
 app.service('SinkShipService', function($http) {
 	
     this.getMessages = function(callback) {
-//    	console.log("url: " + $location.url);
-//    	console.log("path: " + $location.path);
     	return $http.get(location.pathname + "/messages");
     };
  
@@ -201,7 +199,7 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
         	}
 		});
 		promise.error(function(data, status, headers, config) {
-			console.log("ERROR!!!");
+			console.log("ERROR!!! data:" + data + ", status:" + status);
 		});
     })();
 		
