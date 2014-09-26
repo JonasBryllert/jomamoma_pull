@@ -126,7 +126,7 @@ hr {
 	color: red;
 }
 
-.game-table td.ship.td.sunk {
+.game-table td.ship.sunk {
 	background-color: red;
 	color: black;
 }
