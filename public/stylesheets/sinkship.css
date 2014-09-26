@@ -99,16 +99,16 @@ hr {
 
 /* div containing game tables need a size to center */
 #main {
-	width: 405px; /* 30*6*2 + 4*1 + 2*2*10 */
+	max-width: 405px; /* 30*6*2 + 4*1 + 2*2*10 */
 }
 
 /* table settings */
 .game-table {
 	border-collapse: separate;
-/*	border-spacing: 2px; */
     background-color: #dbdbdb;
-    float: left;
-    margin: 0 10px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
 }
 .game-table, .game-table td , .game-table th {
 	border: 1px solid black;
@@ -167,25 +167,15 @@ hr {
 /*	margin-top: 20px; */
 }
 
-@media (min-width: 600px) {
+@media (min-width: 440px) {
+	.game-table {
+	    margin: 0 10px;
+	    float: left;
+	}
 
 	hr {
 		margin-top: 10px;
 		margin-bottom: 10px;
-	}
-	
-	#gameTable {
-		border-spacing: 3px;
-	}
-	
-	#gameTable td {
-		width: 77px;
-		height: 77px;
-	}
-
-	#gameTable img {
-		width: 75px;
-		height: 75px;
 	}
 	
 }
@@ -197,18 +187,5 @@ hr {
 		margin-bottom: 20px;
 	}
 	
-	#gameTable {
-		border-spacing: 5px;
-	}
-	
-	#gameTable td {
-		width: 102px;
-		height: 102px;
-	}
-
-	#gameTable img {
-		width: 100px;
-		height: 100px;
-	}
 	
 }

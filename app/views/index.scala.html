@@ -49,7 +49,7 @@
 					}	    	
 					
 					@helper.inputText(myForm("name"), 'id -> "name", 'size -> 30, 'required -> None, 'autofocus -> None, '_showConstraints -> false, '_label -> "User name:")
-					<a id="user-name-info-action-show" href="javascript:;" >What's this?</a>
+					<a id="user-name-info-action-show" href="javascript:;" tabindex=-1>What's this?</a>
 					<div class="form-separator"></div>
 					<div id="user-name-info" class="remove info-temp">
 						Your user name is the name you will be identified with in JOMAMOMA and which other people will see to challenge you.
@@ -57,7 +57,7 @@
 					</div>
 					
 			    	@helper.inputText(myForm("group"), 'id -> "group", 'size -> 30, '_label -> "Group(optional):")
-					<a id="group-name-info-action-show" href="javascript:;" >What's this?</a>
+					<a id="group-name-info-action-show" href="javascript:;" tabindex=-1>What's this?</a>
 					<div class="form-separator"></div>			    	
 					<div id="group-name-info" class="remove info-temp">
 						If you enter a group name you will only be able to play with people that have entered the same group name.
