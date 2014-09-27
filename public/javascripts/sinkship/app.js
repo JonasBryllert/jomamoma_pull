@@ -138,7 +138,9 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 		else if (data.message == "gameOver") {
 			$scope.info = "Game over. " + data.winner + " has won!";
 			$scope.gameOver = true;
-			if (data.user == $scope.userName) insertMoveInOppTable(data);
+			
+			//If winner == user it was my move so insert the move in oppTable as that were clicked
+			if (data.winner == $scope.userName) insertMoveInOppTable(data);
 			else insertMoveInMyTable(data);
 		}
 		else console.log("Unknown message: " + data.message);
