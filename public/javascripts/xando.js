@@ -1,6 +1,7 @@
 var symbol; //default O will be X if first player
 var oppSymbol;
 var userId;
+var oppId;
 var gameId = location.pathname.match(/\/xando\/(.*)/)[1];
 
 var clickListener = function(e) {
@@ -21,6 +22,7 @@ var clickListener = function(e) {
 $( document ).ready(function() {
 	//store the user id
 	userId = $("#userIdSpan").text();
+	oppId = $("#oppIdSpan").text();
 	symbol = $("#symbolSpan").text();
 	if (symbol == "X") oppSymbol = "O"
 	else {
@@ -41,6 +43,9 @@ function getMessages(){
 		if ("type" in data && data.type == "yourMove") {
 			handleYourTurn(data);
 		}
+		else if ("type" in data && data.type == "oppMove") {
+			handleOpponentTurn(data);
+		}
 		else if ("type" in data && data.type == "gameOver") {
 			handleGameOver(data.result);
 		}
@@ -49,13 +54,21 @@ function getMessages(){
 }
 
 function handleYourTurn(data) {
-	$("#messageDiv").text("Your turn. Please click in selected square.")
+	$("#messageDiv").text("Your turn " + userId + ". Please select a square.");
 	$(".gamePos").on("click", clickListener);
+}
+
+function handleOpponentTurn(data) {
+	var hyphon;
+	var lastChar = oppId.charAt(oppId.length - 1);
+	if (lastChar == 's' || lastChar == 'S') hyphon = "'";
+	else hyphon = "'s";
+	$("#messageDiv").text(oppId + hyphon + " turn. Please wait...")
 }
 
 function handleGameOver(result) {
 	$("#messageDiv").text("Game over. "+ result);
-	$("#returnDiv").show();
+	$("#returnDiv").removeClass("hide");
 }
 
 function sendClientMessage(json) {

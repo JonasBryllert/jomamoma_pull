@@ -8,7 +8,7 @@ $( document ).ready(function() {
 	console.log("userId: " + userId);
 	
 	//Start message checking
-	setInterval(function() {getMessages()}, 3000);
+	setInterval(function() {getMessages()}, 2000);
 	
 	//load users logged in
 	loadUsers();

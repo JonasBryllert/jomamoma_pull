@@ -33,7 +33,10 @@ object XandOController extends Controller {
       if (playerSymbol == "X") {
         messageQueue += ((user, Json.obj("type" -> "yourMove")))
       }
-      Ok(views.html.XandO(game.size, request.session("user"), playerSymbol))
+      else {
+        messageQueue += ((user, Json.obj("type" -> "oppMove")))
+      }
+      Ok(views.html.XandO(game.size, user, playerSymbol, game.otherPlayer(user)))
     }
   }
  
@@ -116,11 +119,13 @@ object XandOController extends Controller {
 	        messageQueue += ((game.otherPlayer(user), jsOtherUser))
 	      }
 	      case _ => {
-	    	 val posString = (jsValue \ "position").as[String]    
-	         val js = Json.obj(
+	        val jsUser = Json.obj(
+	                "type" -> "oppMove")
+	        val jsOtherUser = Json.obj(
 	                "type" -> "yourMove",
 	                "prevMove" -> posString)
-	        messageQueue += ((game.otherPlayer(user), js))           
+	        messageQueue += ((user, jsUser))
+	        messageQueue += ((game.otherPlayer(user), jsOtherUser))           
 	      }
       }
     

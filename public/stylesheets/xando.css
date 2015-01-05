@@ -2,14 +2,20 @@ body {
 	background-color: #2C2C0F;
 }
 
+hr {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	border-top-color: black;
+}
+	
 .container {
-	background-color: 	#E6E682;
+	background-color: #E6E682;
 	padding-bottom: 20px;
 }
 
 .info-margins {
-	padding-top: 20px;
-	padding-bottom: 20px;
+	padding-top: 5px;
+	padding-bottom: 5px;
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
@@ -32,4 +38,19 @@ table {
 th, td {
 	width: 30px;
 	height: 30px;
+}
+
+@media (min-width: 800px) {
+	.info-margins {
+		padding-top: 20px;
+		padding-bottom: 20px;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	
+	hr {
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}	
+	
 }

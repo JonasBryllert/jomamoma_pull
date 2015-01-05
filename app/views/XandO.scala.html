@@ -1,4 +1,4 @@
-@(size:Int, userName: String, sign: String)
+@(size:Int, userName: String, sign: String, oppName: String)
 <!DOCTYPE html>
 <html>
   <head>
@@ -14,7 +14,9 @@
       <hr>
       
    	  <div id="gameInfoDiv" class="text-center info-margins">
-   	    Good luck <span id="userIdSpan">@userName</span>. You have <span id="symbolSpan">@sign</span>.
+   	    Good luck <span id="userIdSpan">@userName</span>. 
+   	    You have <span id="symbolSpan">@sign</span>.
+   	    <span id="oppIdSpan" class="hide">@oppName</span>
    	  </div>
    	  
    	  <div id="messageDiv" class="text-center info-margins">
