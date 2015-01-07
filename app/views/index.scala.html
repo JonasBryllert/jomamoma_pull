@@ -18,10 +18,10 @@
 	        <hr/>
 	        
 	        <div class="text-center">
-	        	<p>Here you can play online classic games like memory, X and O, by challenging someone else. 
+	        	<p>Here you can play online classic games like Memory, X and O, by challenging someone else. 
+	        	You need to enter your name to continue.</p>
 	        	<a id="more-info-action" href="javascript:;" >Tell me more.</a>
-	        	</p>
-	        	<div id="info-div" class="info-temp remove">
+	        	<div id="info-div" class="info-temp hide">
 	        		<p>JOMAMOMA is a site for playing classic kids games over internet.
 	        		You login with a user name of your liking. Make sure your opponents knows your user name so they can challenge you.
 	        		If you enter a group name you will only be able to challenge (or be challenged) by people
@@ -29,16 +29,16 @@
 	        		challenge each other.</p>
 	        		<p>All games are for two players and are typical mind challenge games that are great to play with kids
 	        		for example memory, X and O, sink ships etc.
+	        		<p>A good idea is to keep a Skype or phone call open so you can chat and have fun while playing.</p>
 	        		<p><a id="less-info-action" href="javascript:;" >Hide.</a></p>
 	        	</div>
-	        	<p>You need to log in to continue.</p>
 	        </div>
     		
 	        <hr/>
 	        
     		<div class="text-center">
 				@helper.form(action = routes.IndexController.doLogin) {
-					<h4>Please login:</h4>
+					<h4>Enter name:</h4>
 					
 					@if(myForm.hasGlobalErrors) {
 					  <ul>
@@ -51,7 +51,7 @@
 					@helper.inputText(myForm("name"), 'id -> "name", 'size -> 30, 'required -> None, 'autofocus -> None, '_showConstraints -> false, '_label -> "User name:")
 					<a id="user-name-info-action-show" href="javascript:;" tabindex=-1>What's this?</a>
 					<div class="form-separator"></div>
-					<div id="user-name-info" class="remove info-temp">
+					<div id="user-name-info" class="hide info-temp">
 						Your user name is the name you will be identified with in JOMAMOMA and which other people will see to challenge you.
 						<p><a id="user-name-info-action-hide" href="javascript:;" >Hide.</a></p>
 					</div>
@@ -59,7 +59,7 @@
 			    	@helper.inputText(myForm("group"), 'id -> "group", 'size -> 30, '_label -> "Group(optional):")
 					<a id="group-name-info-action-show" href="javascript:;" tabindex=-1>What's this?</a>
 					<div class="form-separator"></div>			    	
-					<div id="group-name-info" class="remove info-temp">
+					<div id="group-name-info" class="hide info-temp">
 						If you enter a group name you will only be able to play with people that have entered the same group name.
 						<p><a id="group-name-info-action-hide" href="javascript:;" >Hide.</a></p>
 					</div>

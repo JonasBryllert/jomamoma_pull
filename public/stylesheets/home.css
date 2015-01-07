@@ -2,6 +2,10 @@ body {
 	background-color: #2C2C0F;
 }
 
+hr {
+	border-top-color: black;
+}
+
 .container {
 	background-color: 	#E6E682;
 	padding-bottom: 20px;

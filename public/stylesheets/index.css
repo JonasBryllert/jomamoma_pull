@@ -4,8 +4,41 @@ body {
 
 .container {
 	background-color: 	#E6E682;
-	padding-bottom: 20px;
+	padding-bottom: 5px;
 }
+
+hr {
+	border-top-color: black;
+}
+
+@media (min-height: 400px) {
+	html, body {
+		height: 100%;
+	}
+	
+	.container {
+		padding-bottom: 20px;
+		position: relative;
+		top: 50%;
+		-webkit-transform: translateY(-50%);
+	    -ms-transform: translateY(-50%);
+		transform:translateY(-50%);	
+	}
+}
+
+@media (min-width: 500px) {
+	.container {
+		border-radius: 20px;
+	}
+}
+	
+@media (min-width: 500px) and (max-width: 767px) {
+	.container {
+		margin-left: 10px;
+		margin-right: 10px;
+	}
+}
+	
 
 .form-separator {
 	height: 2px;

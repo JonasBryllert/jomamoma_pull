@@ -12,17 +12,17 @@ $( document ).ready(function() {
 });
 
 function toggleDisplayInfoDiv() {
-	$("#info-div").toggleClass("remove");
-	$("#more-info-action").toggleClass("remove");
+	$("#info-div").toggleClass("hide");
+	$("#more-info-action").toggleClass("hide");
 }
 
 function toggleUserNameInfoDiv() {
-	$("#user-name-info").toggleClass("remove");
-	$("#user-name-info-action-show").toggleClass("remove");
+	$("#user-name-info").toggleClass("hide");
+	$("#user-name-info-action-show").toggleClass("hide");
 }
 
 function toggleGroupNameInfoDiv() {
-	$("#group-name-info").toggleClass("remove");
-	$("#group-name-info-action-show").toggleClass("remove");
+	$("#group-name-info").toggleClass("hide");
+	$("#group-name-info-action-show").toggleClass("hide");
 }
 
