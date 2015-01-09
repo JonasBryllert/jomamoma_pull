@@ -30,9 +30,17 @@ $( document ).ready(function() {
 	}
 	console.log("userId: " + userId + ", symbol: " + symbol + ", oppSymbol: " + oppSymbol + ", gameId: " + gameId);
 	
+	$("#more-info-action").click(toggleDisplayInfoDiv);
+	$("#less-info-action").click(toggleDisplayInfoDiv);
+	
 	//Start message checking
 	setInterval(function() {getMessages()}, 4000);
 });
+
+function toggleDisplayInfoDiv() {
+	$("#info-div").toggleClass("hide");
+	$("#more-info-action").toggleClass("hide");
+}
 
 function getMessages(){
 	$.getJSON("/xando/getMessages", function( data ) {

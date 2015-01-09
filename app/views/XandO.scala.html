@@ -1,52 +1,77 @@
-@(size:Int, userName: String, sign: String, oppName: String)
+@(size:Int, nrToWin:Int, userName: String, sign: String, oppName: String)
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>jomamoma - XandO</title>
-   	<link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
-    <link rel='stylesheet' href='@routes.Assets.at("stylesheets/xando.css")'>
-    <script src='@routes.Assets.at("lib/jquery/jquery-2.1.1.js")'></script>
-    <script src='@routes.Assets.at("javascripts/xando.js")'></script>
-  </head>
-  <body>
-     <div class="container">
-      <h1 class="text-center">JOMAMOMA - X and O</h1>
-      <hr>
-      
-   	  <div id="gameInfoDiv" class="text-center info-margins">
-   	    Good luck <span id="userIdSpan">@userName</span>. 
-   	    You have <span id="symbolSpan">@sign</span>.
-   	    <span id="oppIdSpan" class="hide">@oppName</span>
-   	  </div>
-   	  
-   	  <div id="messageDiv" class="text-center info-margins">
-   	  	Please wait...
-   	  </div>
+    <head>
+	    <title>JOMAMOMA - XandO</title>
+	   	<link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
+	    <link rel='stylesheet' href='@routes.Assets.at("stylesheets/xando.css")'>
+	    <script src='@routes.Assets.at("lib/jquery/jquery-2.1.1.js")'></script>
+	    <script src='@routes.Assets.at("javascripts/xando.js")'></script>
 
-      <table id="gameTable" class="xtable">
-      	<!-- thead>
-      	  <tr>
-      	  	<th></th>
-      	  	@for(colHeader <- ('A' to 'Z').take(size)){
-      	  	  <th>@colHeader</th>
-      	  	}
-      	  </tr>
-      	</thead-->
-      	<tbody>
-      	  @for(row <- 1 to size){
-      	  	<tr>
-      	  	  <!-- td>@row</td-->
-      	  	  @for(column <- 1 to size){
-      	  	  	<td id=row-col-@row-@column class="gamePos"></td>
-      	  	  } 
-      	  	</tr>
-      	  }
-      	</tbody>    	
-      </table>
+	    <!-- Analytics -->
+		<script>
+		  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+		
+		  ga('create', 'UA-58367791-1', 'auto');
+		  ga('send', 'pageview');
+		
+		</script>	
+			
+  	</head>
+  	<body>
+      	<div class="container">
+			<header class="text-center">
+      			<h1>JOMAMOMA - X and O</h1>
+   	  			<div>Welcome 
+   	    			<span id="userIdSpan"><strong>@userName</strong></span>. 
+   	    			You have <span id="symbolSpan">@sign</span>.
+   	    			<span id="oppIdSpan" class="hide">@oppName</span>
+   	  			</div>
+			</header>
+			
+      		<hr>
       
-      <div id="returnDiv" class="text-center hide">
-      	Return to <a href="@routes.Application.home">home page</a>.
-      </div>
-	</div>
- </body>    
+		    <div class="text-center">
+		     	<p>Not sure how it works? 
+		     	<a id="more-info-action" href="javascript:;" >Tell me the rules.</a></p>
+				<div id="info-div" class="info-temp hide">
+			   		<p>Your goal is the get @nrToWin @sign's in a row horizontally, vertically or diagonally.
+			   		When it is your turn you click on a free square to put your @sign in.</p>
+		   			<p><a id="less-info-action" href="javascript:;" >Hide.</a></p>
+		 		</div>
+		   	</div>
+		
+			<div id="messageDiv" class="text-center info-margins">
+			  	Please wait...
+			</div>
+		
+		    <table id="gameTable" class="xtable">
+		   	<!-- thead>
+		   		<tr>
+		   	  		<th></th>
+		   	  		@for(colHeader <- ('A' to 'Z').take(size)){
+		   	  	  		<th>@colHeader</th>
+		   	  		}
+		   	  	</tr>
+		   	</thead-->
+		   		<tbody>
+		   	 		@for(row <- 1 to size){
+		   	  			<tr>
+		   	  	  		<!-- td>@row</td-->
+		   	  	  			@for(column <- 1 to size){
+		   	  	  				<td id=row-col-@row-@column class="gamePos"></td>
+		   	  	 			} 
+		   	  			</tr>
+		   	  		}
+		   		</tbody>    	
+			</table>
+		   
+		   	<div id="returnDiv" class="text-center hide">
+				Return to <a href="@routes.Application.home">home page</a>.
+		   	</div>
+		</div>
+ 	</body>    
 </html>

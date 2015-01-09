@@ -2,19 +2,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>jomamoma - SinkShip</title>
+    <title>JOMAMOMA - SinkShip</title>
    	<link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
     <link rel='stylesheet' href='@routes.Assets.at("stylesheets/sinkship.css")'>
     <script src='@routes.Assets.at("lib/angular/angular-1-2-24.min.js")'></script>
     <script src='@routes.Assets.at("lib/jquery/jquery-2.1.1.js")'></script>
     <script src='@routes.Assets.at("javascripts/sinkship/app.js")'></script>
+
+    <!-- Analytics -->
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	
+	  ga('create', 'UA-58367791-1', 'auto');
+	  ga('send', 'pageview');
+	
+	</script>	
+			
 </head>
 <body ng-app="SinkShipApp">
 	<div class="container" ng-controller="SinkShipController">
 		<header class="text-center">
      		<h1>JOMAMOMA - Sink ship</h1>
 			<div>Welcome 
-				<span id="userSpan">@userName</span>
+				<span id="userSpan"><strong>@userName</strong></span>
 				<span id="oppSpan" class="remove">@oppName</span>
 				<span id="sizeSpan" class="remove">@size</span>
 			</div>

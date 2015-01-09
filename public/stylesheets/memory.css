@@ -10,6 +10,12 @@ hr {
 	border-top-color: black;
 }
 
+.info-temp {
+	background-color: #CFCF75;
+	padding: 10px 10px 5px 10px;
+	margin-bottom: 5px;
+}
+
 .container {
 	background-color: 	#E6E682;
 	padding-bottom: 20px;

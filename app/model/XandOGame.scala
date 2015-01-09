@@ -32,7 +32,7 @@ object XandOGame {
   
 }
 
-class XandOGame(val size: Int, nrToWin: Int, player1: String, player2: String) {
+class XandOGame(val size: Int, val nrToWin: Int, player1: String, player2: String) {
   import XandOGame._
   println(s"XandOGame.new, size: $size, nrToWin: $nrToWin, players: $player1 $player2")
   type Position = (Int, Int)

@@ -72,6 +72,7 @@ define([
 			this.waitingIndicator = false;
 			this.userName = dom.byId("userSpan").innerHTML
 			this.otherUserName = ""
+			this._addInfoDivHandling();
 			runTopicLoop(this);
 			topic.subscribe(topicName, lang.hitch(this, function(object) { //object is: {functionName: xx, args: yy}
 //				executeFunctionByName(object.functionName, this, object.args);
@@ -198,6 +199,20 @@ define([
 			document.getElementById("playerTwoScore").innerHTML = score.player2;
 		},
 		
+		_addInfoDivHandling: function() {
+			query("#more-info-action").on("click", lang.hitch(this, function(event) {
+				this._toggleDisplayInfoDiv();
+			}));
+			query("#less-info-action").on("click", lang.hitch(this, function(event) {
+				this._toggleDisplayInfoDiv();
+			}));
+		},
+		
+		_toggleDisplayInfoDiv: function() {
+			domClass.toggle("info-div", "hide");
+			domClass.toggle("more-info-action", "hide");
+		},
+
 		_reset: function() {
 			this.firstCell = null;
 			this.secondCell = null;

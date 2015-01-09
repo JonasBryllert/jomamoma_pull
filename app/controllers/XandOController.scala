@@ -36,7 +36,7 @@ object XandOController extends Controller {
       else {
         messageQueue += ((user, Json.obj("type" -> "oppMove")))
       }
-      Ok(views.html.XandO(game.size, user, playerSymbol, game.otherPlayer(user)))
+      Ok(views.html.XandO(game.size, game.nrToWin,  user, playerSymbol, game.otherPlayer(user)))
     }
   }
  

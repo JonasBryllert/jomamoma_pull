@@ -20,6 +20,12 @@ hr {
 	margin-bottom: 10px;
 }
 
+.info-temp {
+	background-color: #CFCF75;
+	padding: 10px 10px 5px 10px;
+	margin-bottom: 5px;
+}
+
 #returnDiv {
 	margin-top: 30px;
 }
@@ -40,14 +46,7 @@ th, td {
 	height: 30px;
 }
 
-@media (min-width: 800px) {
-	.info-margins {
-		padding-top: 20px;
-		padding-bottom: 20px;
-		margin-top: 10px;
-		margin-bottom: 10px;
-	}
-	
+@media (min-height: 450px) {
 	hr {
 		margin-top: 20px;
 		margin-bottom: 20px;

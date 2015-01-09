@@ -5,18 +5,47 @@
 	<meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>jomamoma - Memory</title>
+    <title>JOMAMOMA - Memory</title>
     <link rel='stylesheet' href='@routes.Assets.at("lib/bootstrap/css/bootstrap.css")'>
     <link rel='stylesheet' href='@routes.Assets.at("stylesheets/memory.css")'>
+
+    <!-- Analytics -->
+	<script>
+	  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 	
+	  ga('create', 'UA-58367791-1', 'auto');
+	  ga('send', 'pageview');
+	
+	</script>	
+				
 </head>
 <body>
 	<div class="container">
 		<header class="text-center">
      		<h1>JOMAMOMA - Memory</h1>
-			<div>Welcome to memory <span id="userSpan">@userName</span></p>
+			<div>Welcome <span id="userSpan"><strong>@userName</strong></span></p>
 		</header>
+		
 		<hr/>
+		
+		<section>
+		    <div class="text-center">
+		     	<p>Not sure how it works? 
+		     	<a id="more-info-action" href="javascript:;" >Tell me the rules.</a></p>
+				<div id="info-div" class="info-temp hide">
+			   		<p>Your goal is to collect pairs of the same picture. 
+			   		When it is your turn select a square, then select a second square trying to 
+			   		find the the one with the same picture as the first. </p>
+			   		<p>In order to be successful you need to memorize any picture already opened
+			   		so you remember the position if the same picture comes up again.</p>
+		   			<p><a id="less-info-action" href="javascript:;" >Hide.</a></p>
+		 		</div>
+		   	</div>
+		</section>
+		
 		<section>
 			<div id="scoreDiv" class="text-center">
 				<h4>Current score: </h4>
