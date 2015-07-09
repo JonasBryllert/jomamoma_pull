@@ -1,3 +1,4 @@
+//Not used I think
 function Ship(p1, p2) {
   this.start = p1;
   this.end = p2;

@@ -2,15 +2,19 @@ name := "jomamoma_pull"
 
 version := "1.0-SNAPSHOT"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.6"
 
 lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 //lazy val root = (project in file(".")).enablePlugins(SbtWeb)
 
 // The Typesafe repository 
-resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+//resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-resolvers += "webjars" at "http://www.webjars.org/" 
+//resolvers += "webjars" at "http://www.webjars.org/" 
 
 //libraryDependencies ++= Seq(javaJdbc, javaEbean)
+
+fork in run := true
+
+routesGenerator := InjectedRoutesGenerator

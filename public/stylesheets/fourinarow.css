@@ -1,0 +1,168 @@
+@CHARSET "UTF-8";
+
+body {
+	background-color: #2C2C0F;
+}
+
+hr {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	border-top-color: black;
+}
+
+.container {
+	background-color: #E6E682;
+	padding-bottom: 20px;
+}
+
+.info {
+    background-color: #B8B868;
+}    
+
+.vertical-space-10 {
+	padding-top: 10px;
+}
+
+.messageChange {
+	-webkit-animation: messageChangeAnimate 2s; /* Chrome, Safari, Opera */
+    animation: messageChangeAnimate 2s;
+}
+
+.enlargeText {
+	-webkit-animation: enlargeTextAnimate 2s; /* Chrome, Safari, Opera */
+    animation: enlargeTextAnimate 2s;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes messageChangeAnimate {
+    from {
+    	color: white;
+    	opacity: 0;
+	}
+}
+
+/* Standard syntax */
+@keyframes messageChangeAnimate {
+    from {
+    	color: white;
+    	opacity: 1;
+ 	}
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes enlargeTextAnimate {
+    from {
+    	opacity: 0;
+	},
+	to {
+    	font-size: 200%;	
+	}
+}
+
+/* Standard syntax */
+@keyframes enlargeTextAnimate {
+    from {
+    	opacity: 0;
+	},
+	to {
+    	font-size: 200%;	
+	}
+}
+
+.winner-color {
+	background-color: green;
+}
+
+.looser-color {
+	background-color: red;
+}
+
+.red {
+	color: red;
+}
+
+.blue {
+	color: blue;	
+}
+
+/* div containing game tables need a size to center */
+#main {
+	max-width: 850px; /* 30*6*2 + 4*1 + 2*2*10 */
+}
+
+/* table settings */
+.game-table {
+	border-top: 2px solid black;
+	border-right: 5px solid black;
+	border-left: 5px solid black;
+	border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+}
+
+.game-table th.idle {
+	cursor: pointer;
+}
+
+.game-table th.idle:hover {
+	background-color: #969652;
+}
+
+.game-table td {
+	border: 5px solid black;
+	background-color: black;
+}
+
+.game-table td {
+	border: 5px solid black;
+	background-color: black;
+	width: 80px;
+	height: 80px;
+}
+
+.game-table td div {
+	border-radius: 40px;
+	width: 100%;
+	height: 100%;
+}
+
+.game-table td div.idle {
+	background-color: #CCCCCC; /* grey */
+}
+
+.game-table td div.blue {
+	background-color: blue; 
+}
+
+.game-table td div.red {
+	background-color: red; 
+}
+
+
+#returnDiv {
+/*	margin-top: 20px; */
+}
+
+@media (min-width: 440px) {
+	.game-table {
+	    margin: 0 10px;
+	    float: left;
+	}
+
+	hr {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	
+}
+
+@media (min-width: 800px) {
+	
+	hr {
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+	
+	
+}

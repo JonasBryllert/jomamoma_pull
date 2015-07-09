@@ -1,21 +1,36 @@
 package controllers
 
-//import play.api._
-import play.api.mvc._
-import play.api.libs.iteratee._
-import scala.concurrent.ExecutionContext.Implicits.global
-import model.XandOGame
+import scala.collection.mutable.Map
+import scala.concurrent.Await
+import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
+
+import akka.actor.ActorSystem
+import akka.actor.Props
+import akka.pattern.ask
+import akka.util.Timeout
+import javax.inject.Inject
+import javax.inject.Singleton
+import model.GameCreator
 import model.MemoryGame
 import model.SinkShipGame
 import model.Users
-import com.fasterxml.jackson.databind.JsonNode
-import play.api.libs.json._
-import play.api.libs.json.Json._
+import model.XandOGame
+import play.api.Logger
+import play.api.libs.json.JsValue
+import play.api.libs.json.Json
+import play.api.libs.json.Json.toJson
+import play.api.mvc.Action
+import play.api.mvc.Controller
+import play.api.mvc.Result
 
-object Application extends Controller {
+@Singleton
+class Application @Inject() (system: ActorSystem, users: Users) extends Controller {
   
   //message queue, user, JsValue
-  val messageQueue = scala.collection.mutable.Map.empty[String, JsValue]
+  val messageQueue = Map.empty[String, JsValue]
+  val gameCreator = system.actorOf(Props[GameCreator], "GameCreator")
+  implicit val timeout = Timeout(2 seconds) 
   
 
   /**
@@ -23,12 +38,12 @@ object Application extends Controller {
    */
   def home = Action { implicit request =>
     val userName = request.session.get("user")
-    println(s"Application -> home, user: userName")
+    Logger.debug(s"Application -> home, user: userName")
     userName match {
       case None => Redirect(routes.IndexController.index())
       case Some(uName) => {
-        if (Users.isLoggedIn(uName)) {
-          val user = Users.userForName(uName).get
+        if (users.isLoggedIn(uName)) {
+          val user = users.userForName(uName).get
           val group = user.group.getOrElse("")
           Ok(views.html.home(user.name, group))
         }
@@ -48,7 +63,7 @@ object Application extends Controller {
   def loadUsers = Action { implicit request =>
     val user = request.session("user")
     println(s"Application -> loadUsers, user: ${user}")
-    val userNames: List[String] = Users.getLoggedOnUsers(user)
+    val userNames: List[String] = users.getLoggedOnUsers(user)
     println(s"Application <- loadUsers: ${userNames}")
     returnJSON(toJson(userNames))
   }
@@ -71,7 +86,7 @@ object Application extends Controller {
         case Some(jsValue) => returnJSON(jsValue)
         case _ => {
             //2nd choice see if there are any new users logged on/off
-          val usersOption: Option[(List[String], List[String])] = Users.getLoggedOnOffUsers(user)
+          val usersOption: Option[(List[String], List[String])] = users.getLoggedOnOffUsers(user)
 //          println(s"Application.getMessages -> user: ${user}, users: $usersOption")
           usersOption match {
             case Some(users) => {
@@ -151,17 +166,23 @@ object Application extends Controller {
     println(s"handleClientChallengeAccepted -> user: $user, game: $game, challenger: $challenger")
      
     //Create game
-    val gameId = 
+    val gameId: String = 
     	if ("XandO-3".equals(game)) XandOGame.newGame(3, 3, challenger, user)
     	else if ("XandO-5".equals(game)) XandOGame.newGame(10, 5, challenger, user)
     	else if ("Memory-10".equals(game)) MemoryGame.newGame(10, challenger, user)
     	else if ("Memory-20".equals(game)) MemoryGame.newGame(20, challenger, user)
-    	else if ("SinkShip".equals(game)) SinkShipGame.newGame(6, challenger, user)
+      else if ("SinkShip".equals(game)) SinkShipGame.newGame(6, challenger, user)
+      else if ("FourInARow".equals(game)) {
+        val future: Future[String] = (gameCreator ? GameCreator.NewGame(challenger, user)).mapTo[String]
+        Await.result(future, 2 seconds)
+      }
     	else "-1"
     val url = 
     	if (game.startsWith("Memory")) "/memory/" + gameId
     	else if (game.startsWith("XandO")) "/xando/" + gameId
-    	else "/sinkship/" + gameId
+      else if ("SinkShip".equals(game)) "/sinkship/" + gameId
+      else if ("FourInARow".equals(game)) "/fourinarow/" + gameId
+      else "-1"
     
     val jsObject = Json.obj(
       "message" -> "challengeAccepted",

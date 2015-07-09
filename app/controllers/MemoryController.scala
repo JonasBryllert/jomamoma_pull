@@ -3,6 +3,8 @@ package controllers
 //import play.api._
 import play.api.mvc._
 import play.api.libs.iteratee._
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.MemoryGame
 import model.MemoryGame._;
@@ -12,7 +14,7 @@ import play.api.libs.json.Json._
 import java.util.Timer
 import scala.collection._
 
-object MemoryController extends Controller {  
+class MemoryController extends Controller {  
   
   val games: mutable.Map[String, MemoryGame] = mutable.Map.empty
   val waitQueue: scala.collection.mutable.Map[String, String] = mutable.Map.empty
@@ -96,7 +98,7 @@ object MemoryController extends Controller {
       val responseJson: JsValue = Json.obj(
               "message" -> "firstCellSelected",
               "messageObject" -> Json.obj(
-                  "firstCell" -> (jsonMessage \ "messageObject" \ "firstCell")
+                  "firstCell" -> (jsonMessage \ "messageObject" \ "firstCell").get
               )
       )
       println(s"\nMemoryController.clientMessage -> user: $user, adding response message json: ${responseJson}")

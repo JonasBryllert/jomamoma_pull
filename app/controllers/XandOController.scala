@@ -3,6 +3,8 @@ package controllers
 //import play.api._
 import play.api.mvc._
 import play.api.libs.iteratee._
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.XandOGame
 import model.XandOGame._;
@@ -11,7 +13,7 @@ import play.api.libs.json._
 import play.api.libs.json.Json._
 import java.util.Timer
 
-object XandOController extends Controller {  
+class XandOController extends Controller {  
   
   val games: scala.collection.mutable.Map[String, XandOGame] = scala.collection.mutable.Map.empty
   val waitQueue: scala.collection.mutable.Map[String, String] = scala.collection.mutable.Map.empty

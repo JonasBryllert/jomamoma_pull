@@ -1,3 +1,4 @@
+//Not used I think
 function OwnBoard(size) {
   this.shipLengths = [2,2,3,3,5];
   this.ships = this.generateShips(size);

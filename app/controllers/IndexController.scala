@@ -4,23 +4,20 @@ package controllers
 import play.api.mvc._
 import play.api.data.Form
 import play.api.data.Forms._
-//import play.api.libs.iteratee._
-//import scala.concurrent.ExecutionContext.Implicits.global
-//import model.XandOGame
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 import model.Users
 import model.User
-//import com.fasterxml.jackson.databind.JsonNode
-//import play.api.libs.json._
-//import play.api.libs.json.Json._
 import play.api.data.Forms
+import javax.inject.Inject
 
-object IndexController extends Controller {
+class IndexController @Inject() (users: Users) extends Controller {
 
   val userForm = Form(
 	mapping(
       "name" -> nonEmptyText,
       "group" -> optional(text)
-    )(User.apply)(User.unapply)verifying("User is not unique. Please try another name.", user => !Users.exists(user))
+    )(User.apply)(User.unapply)verifying("User is not unique. Please try another name.", user => !users.exists(user))
   )
   
   /**
@@ -33,9 +30,10 @@ object IndexController extends Controller {
       case None => Ok(views.html.index(userForm))
       case Some(uName) => {
         //Check that hte user also exist in the DB
-        if (Users.isLoggedIn(uName)) Redirect(routes.Application.home)
+        if (users.isLoggedIn(uName)) Redirect(routes.Application.home)
         else {
-          Users.logout(uName)
+          
+          users.logout(uName)
           println(s"IndexController.index: logged out user: $uName and refirecting to index")
           Ok(views.html.index(userForm))
         }
@@ -57,7 +55,7 @@ object IndexController extends Controller {
           BadRequest(views.html.index(formWithErrors))
         },
     	user => {
-          Users.logon(user);
+          users.logon(user);
           println("IndexController.doLogin: User logged in successfully: " + user)
     	  Redirect(routes.Application.home()).withSession(request.session + ("user" -> user.name))
     	}
@@ -80,7 +78,7 @@ object IndexController extends Controller {
     println("IndexController.doLogout ->")
     request.session.get("user").foreach(s => {
       println(s"IndexController.doLogout: logging out $s")
-      Users.logout(s)
+      users.logout(s)
     })
     Redirect(routes.IndexController.loggedOut).withNewSession
   }

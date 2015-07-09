@@ -1,4 +1,4 @@
-@(myForm: Form[model.User])
+@(myForm: Form[model.User])(implicit messages: Messages)
 <!DOCTYPE html>
 
 <html>
@@ -25,7 +25,7 @@
     <body>
     	<div class="container">
 	        <div class="text-center">
-	        	<h1>Welcome to JOMAMOMA games</h1>
+	        	<h1>@messages("index.title", "JOMAMOMA")</h1>
 	        </div>
 	        
 	        <hr/>

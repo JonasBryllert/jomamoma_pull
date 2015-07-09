@@ -3,6 +3,8 @@ package controllers
 //import play.api._
 import play.api.mvc._
 import play.api.libs.iteratee._
+import play.api.i18n.Messages.Implicits._
+import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.Ship
 import model.Ship.Position
@@ -13,10 +15,9 @@ import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json._
 import play.api.libs.json.Json._
 
-object SinkShipController extends Controller {  
+class SinkShipController extends Controller {  
   
   val games: scala.collection.mutable.Map[String, SinkShipGame] = scala.collection.mutable.Map.empty
-  val waitQueue: scala.collection.mutable.Map[String, String] = scala.collection.mutable.Map.empty
   
   //message queue, user, JsValue
   val messageQueue = scala.collection.mutable.Map.empty[String, JsValue]
