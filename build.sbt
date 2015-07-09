@@ -15,6 +15,6 @@ lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 //libraryDependencies ++= Seq(javaJdbc, javaEbean)
 
-fork in run := true
+//fork in run := true
 
 routesGenerator := InjectedRoutesGenerator
