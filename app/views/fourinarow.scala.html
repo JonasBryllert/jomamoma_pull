@@ -54,7 +54,11 @@
 		<main>
 			<div>
 	 			<div id="infoDiv" class="text-center">
-	 				<p>{{info}}</p>
+	 				<p>&nbsp;
+	 				    <span ng-class='{enlargeText: gameOver} '>
+	 				        {{info}}
+	 				    </span>
+	 				</p>
 	 			</div>
 			
 		        <div id="returnDiv" class="text-center" ng-class="{hide: !gameOver}">
@@ -84,6 +88,7 @@
 			      	  	  			    idle: gameTable["pos-@row-@column"].idle,
 			      	  	  				blue: gameTable["pos-@row-@column"].blue,
 			      	  	  				red: gameTable["pos-@row-@column"].red,
+			      	  	  				"animate-color": !gameTable["pos-@row-@column"].idle,
 			      	  	  			}'>
 			      	  	  			</div>		      	  	  			
 			      	  	  		</td>

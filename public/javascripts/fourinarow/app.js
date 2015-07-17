@@ -20,6 +20,7 @@ app.controller("FourInARowController", function($scope, FourInARowService) {
 	$scope.oppNameWithS = /s$/.test($scope.oppName) ? $scope.oppName + "\'" : $scope.oppName + "\'s";
 		
 	$scope.showGameInfo = false;
+	$scope.messageChanged = false;
 	$scope.info = "Loading game, please wait..."
 	
 	$scope.gameStarted = false;
@@ -77,11 +78,18 @@ app.controller("FourInARowController", function($scope, FourInARowService) {
 		$scope.gameTable[pos][color] = true;
 	}
 	
+//	function changeMessage(newMessage) {
+//		$scope.messageChanged = false;
+//		$scope.info = newMessage;
+////		$scope.info = "<span class='message-changed'>" + newMessage + "</span>";
+//		$scope.messageChanged = true;		
+//	}
+	
 
 	$scope.handleMessage = function(data) {		
 		if (data.message == "yourMove" && !data.prevMove) {
 			if (!$scope.gameStarted) $scope.gameStarted = true;
-			$scope.info = "You start. Click on an arrow above table to drop a marker in that column ";
+			$scope.info = "You start. Click on an arrow above the game board to drop a marker in that column.";
 			$scope.yourTurn = true; 
 		}
 		else if (data.message == "yourMove") {
@@ -98,12 +106,20 @@ app.controller("FourInARowController", function($scope, FourInARowService) {
 		}
 		else if (data.message == "oppMove") {
 			if (!$scope.gameStarted) $scope.gameStarted = true;			
-			var infoMessage = "Please wait for" + $scope.oppNameWithS + " turn...";
+			var infoMessage = "Please wait for " + $scope.oppNameWithS + " turn...";
 			$scope.info = infoMessage; 
 		}
 		else if (data.message == "gameOver") {
-			if (data.winner != $scope.userName && data.prevMove) insertMoveInTable(data.prevMove, false);
-			$scope.info = "Game over. " + data.winner + " has won!";
+			if (data.prevMove) insertMoveInTable(data.prevMove, false);
+			if (data.winner) {
+				if (data.winner == $scope.userName) {
+					$scope.info = "Game over. You have won!"
+				}
+				else {
+					$scope.info = "Game over. " + data.winner + " has won!"
+				}
+			}
+			else $scope.info = "Game over. It is a draw!" 
 			$scope.gameOver = true;
 		}
 		else console.log("Unknown message: " + data.message);

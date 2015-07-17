@@ -18,6 +18,7 @@ import play.api.mvc.Controller
 import play.api.mvc.Result
 import play.api.libs.json.Json
 import scala.concurrent.Await
+import play.api.libs.json.JsString
 
 @Singleton
 class FourInARowController @Inject() (system: ActorSystem) extends Controller {  
@@ -134,12 +135,12 @@ class FourInARowController @Inject() (system: ActorSystem) extends Controller {
   
   private def handleResponse(user: String, response: Future[FourInARowGame.Result]) = {
     response.map(_ match {
-        case FourInARowGame.NextPlayer(player, row, col) => {
+        case FourInARowGame.NextPlayer(player, prevPosition) => {
           val response1 = Json.obj(
               "message" -> "yourMove",
               "prevMove" ->  Json.obj(
-                "row" -> row,
-                "column" -> col
+                "row" -> prevPosition._1,
+                "column" -> prevPosition._2
               )
           ) 
           messageQueue += ((player, response1))
@@ -148,22 +149,22 @@ class FourInARowController @Inject() (system: ActorSystem) extends Controller {
           ) 
           messageQueue += ((user, response2))
         }
-        case FourInARowGame.GameOver(player, row, col, winner) => {
-          val response1 = Json.obj(
+        case FourInARowGame.GameOver(nextPlayer, prevPosition, winner) => {
+          var nextPlayerResponse = Json.obj(
               "message" -> "gameOver",
-              "winner" -> winner,
               "prevMove" -> Json.obj(
-                "row" -> row,
-                "column" -> col
+                "row" -> prevPosition._1,
+                "column" -> prevPosition._2
               )
           )
-          messageQueue += ((player, response1))
+          if (winner.nonEmpty) nextPlayerResponse += (("winner", JsString(winner.get)))
+          messageQueue += ((nextPlayer, nextPlayerResponse))
           
-          val response2 = Json.obj(
-              "message" -> "gameOver",
-              "winner" -> winner
+          var currentPlayerResponse = Json.obj(
+              "message" -> "gameOver"
           )
-          messageQueue += ((user, response2))
+          if (winner.nonEmpty) currentPlayerResponse += (("winner", JsString(winner.get)))
+          messageQueue += ((user, currentPlayerResponse))
        }
     })
   }

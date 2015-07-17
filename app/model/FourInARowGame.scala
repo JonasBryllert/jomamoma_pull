@@ -12,8 +12,8 @@ object FourInARowGame {
   case class Move(player: String, column: Int)
   
   sealed trait Result
-  case class NextPlayer(player: String, row: Int, col: Int) extends Result
-  case class GameOver(player: String, row: Int, col: Int, winner: String) extends Result
+  case class NextPlayer(player: String, position: Position) extends Result
+  case class GameOver(player: String, position: Position, winner: Option[String]) extends Result
 }
 
 class FourInARowGame(gameId: String, challenger: String, challengee: String) extends Actor {
@@ -38,11 +38,14 @@ class FourInARowGame(gameId: String, challenger: String, challengee: String) ext
       Logger.info(s"FourInARowGame.Move, id: $gameId, column: $column")
       val row = entries.map(e => e._1).filter(p => p._2 == column).foldLeft(6)((c, s) => if (s._1 <= c ) s._1 - 1 else c)
       entries += (((row, column), player))
-      if (isGameOver(player, row, column, entries)) {
-        sender ! GameOver(getOtherPlayer(player), row, column, player)
+      if (hasPlayerWon(player, row, column, entries)) {
+        sender ! GameOver(getOtherPlayer(player), (row, column), Some(player))
+      }
+      else if (isBoardFull()) {
+        sender ! GameOver(getOtherPlayer(player), (row, column), None)
       }
       else {
-        sender ! NextPlayer(getOtherPlayer(player), row, column)
+        sender ! NextPlayer(getOtherPlayer(player), (row, column))
       }
     }
   }
@@ -50,14 +53,18 @@ class FourInARowGame(gameId: String, challenger: String, challengee: String) ext
   private def getOtherPlayer(player: String): String = {
     if (player == challenger) challengee else challenger 
   }
+  
+  private def isBoardFull(): Boolean = {
+    entries.size == 48  //8x6
+  }
 
-  private def isGameOver(player: String, row: Int, column: Int, entries: ListBuffer[(Position, String)]): Boolean = {
+  private def hasPlayerWon(player: String, row: Int, column: Int, entries: ListBuffer[(Position, String)]): Boolean = {
     val playerPositions: ListBuffer[Position] = entries.filter(e => e._2 == player).map(pe => pe._1)
     val rowEntries = playerPositions.filter(pp => pp._2 == column).map(pp => pp._1).sorted.toList 
     val colEntries = playerPositions.filter(pp => pp._1 == row).map(pp => pp._2).sorted.toList 
     val diag1Entries = playerPositions.filter(pp => pp._1 - pp._2 == row - column).map(pp => pp._2).sorted.toList 
     val diag2Entries = playerPositions.filter(pp => pp._1 + pp._2 == row + column).map(pp => pp._2).sorted.toList
-    return countItems(rowEntries) || countItems(colEntries) || countItems(diag1Entries) || countItems(diag2Entries)  
+    countItems(rowEntries) || countItems(colEntries) || countItems(diag1Entries) || countItems(diag2Entries)
   }
   
   private def countItems(list: List[Int], prevNr: Int = -1, count: Int = 0): Boolean = {
