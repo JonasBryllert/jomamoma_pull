@@ -79,9 +79,9 @@ hr {
 
 /* table settings */
 .game-table {
-	border-top: 5px solid black;
-	border-right: 5px solid black;
-	border-left: 5px solid black;
+	border-top: 3px solid black;
+	border-right: 3px solid black;
+	border-left: 3px solid black;
 	border-collapse: collapse;
     margin-left: auto;
     margin-right: auto;
@@ -98,14 +98,14 @@ hr {
 }
 
 .game-table td {
-	border: 5px solid black;
+	border: 3px solid black;
 	background-color: black;
-	width: 80px;
-	height: 80px;
+	width: 40px;
+	height: 40px;
 }
 
 .game-table td div {
-	border-radius: 40px;
+	border-radius: 20px;
 	width: 100%;
 	height: 100%;
 }
@@ -127,19 +127,45 @@ hr {
 /*	margin-top: 20px; */
 }
 
-@media (min-width: 440px) {
+@media (min-width: 500px) {
 	hr {
 		margin-top: 10px;
 		margin-bottom: 10px;
 	}
+	.game-table {
+		border-top: 4px solid black;
+		border-right: 4px solid black;
+		border-left: 4px solid black;
+	}
+	.game-table td {
+		border: 4px solid black;
+		width: 60px;
+		height: 60px;
+	}
+	.game-table td div {
+		border-radius: 30px;
+	}
 	
 }
 
-@media (min-width: 800px) {
+@media (min-width: 760px) {
 	
 	hr {
 		margin-top: 20px;
 		margin-bottom: 20px;
+	}
+	.game-table {
+		border-top: 5px solid black;
+		border-right: 5px solid black;
+		border-left: 5px solid black;
+	}
+	.game-table td {
+		border: 5px solid black;
+		width: 80px;
+		height: 80px;
+	}
+	.game-table td div {
+		border-radius: 40px;
 	}
 	
 	
