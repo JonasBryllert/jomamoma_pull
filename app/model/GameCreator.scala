@@ -8,7 +8,7 @@ import collection.mutable.Map
 import play.api.Logger
 
 object GameCreator {
-  case class NewGame(challenger: String, challengee: String)
+  case class Connect4(challenger: String, challengee: String)
   case class GetGame(id: String)
 }
 
@@ -20,12 +20,12 @@ class GameCreator extends Actor {
   val gameMap: Map[String, ActorRef] = Map.empty
   
   def receive: Receive = {
-    case NewGame(challenger, challengee) => {
+    case Connect4(challenger, challengee) => {
       Logger.info(s"GameCreator.NewGame -> challenger: $challenger, challengee: $challengee")
       val gameId = currentGameId.toString()
       //step current game id for next game
       currentGameId += 1
-      val fourInARowGame: ActorRef = this.context.actorOf(Props(new FourInARowGame(gameId, challenger, challengee)), "FourInARowGame-" + gameId)
+      val fourInARowGame: ActorRef = this.context.actorOf(Props(new Connect4Game(gameId, challenger, challengee)), "FourInARowGame-" + gameId)
       gameMap += ((gameId, fourInARowGame))
       sender ! gameId
       

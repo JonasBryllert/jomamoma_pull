@@ -172,8 +172,8 @@ class Application @Inject() (system: ActorSystem, users: Users) extends Controll
     	else if ("Memory-10".equals(game)) MemoryGame.newGame(10, challenger, user)
     	else if ("Memory-20".equals(game)) MemoryGame.newGame(20, challenger, user)
       else if ("SinkShip".equals(game)) SinkShipGame.newGame(6, challenger, user)
-      else if ("FourInARow".equals(game)) {
-        val future: Future[String] = (gameCreator ? GameCreator.NewGame(challenger, user)).mapTo[String]
+      else if ("Connect4".equals(game)) {
+        val future: Future[String] = (gameCreator ? GameCreator.Connect4(challenger, user)).mapTo[String]
         Await.result(future, 2 seconds)
       }
     	else "-1"
@@ -181,7 +181,7 @@ class Application @Inject() (system: ActorSystem, users: Users) extends Controll
     	if (game.startsWith("Memory")) "/memory/" + gameId
     	else if (game.startsWith("XandO")) "/xando/" + gameId
       else if ("SinkShip".equals(game)) "/sinkship/" + gameId
-      else if ("FourInARow".equals(game)) "/fourinarow/" + gameId
+      else if ("Connect4".equals(game)) "/connect4/" + gameId
       else "-1"
     
     val jsObject = Json.obj(

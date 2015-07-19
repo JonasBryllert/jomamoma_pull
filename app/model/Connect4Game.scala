@@ -4,7 +4,7 @@ import akka.actor.Actor
 import play.api.Logger
 import scala.collection.mutable.ListBuffer
 
-object FourInARowGame {
+object Connect4Game {
   type Position = (Int, Int) //row, column (row start from 1 at top to 6 at bottom)
 
   case class OtherPlayer(player: String)
@@ -16,8 +16,8 @@ object FourInARowGame {
   case class GameOver(player: String, position: Position, winner: Option[String]) extends Result
 }
 
-class FourInARowGame(gameId: String, challenger: String, challengee: String) extends Actor {
-  import FourInARowGame._
+class Connect4Game(gameId: String, challenger: String, challengee: String) extends Actor {
+  import Connect4Game._
   
   val entries: ListBuffer[(Position, String)] = new ListBuffer  //player, position
 

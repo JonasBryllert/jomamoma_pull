@@ -7,10 +7,11 @@ import com.google.inject.Inject
 import com.google.inject.Singleton
 import akka.actor.ActorRef
 import akka.actor.ActorSystem
+import akka.actor.ActorSelection
 import akka.pattern.ask
 import akka.util.Timeout
 import model.GameCreator
-import model.FourInARowGame
+import model.Connect4Game
 import play.api.Logger
 import play.api.libs.json.JsValue
 import play.api.mvc.Action
@@ -21,9 +22,10 @@ import scala.concurrent.Await
 import play.api.libs.json.JsString
 
 @Singleton
-class FourInARowController @Inject() (system: ActorSystem) extends Controller {  
+class Connect4Controller @Inject() (system: ActorSystem) extends Controller {  
 //  val logger = Logger(this.getClass)
-  val gameCreator = system.actorFor("/user/GameCreator")
+  val gameCreator: ActorSelection = system.actorSelection("/user/GameCreator")
+//  system.actorSelection("").
   implicit val timeout = Timeout(2 seconds) 
   Logger.info(s"FourInARowController -> Got actor gameCreator ${gameCreator.toString}")
 
@@ -53,9 +55,9 @@ class FourInARowController @Inject() (system: ActorSystem) extends Controller {
       else {
         val gameActor = games(gameId)
         //Get (otherPlayer, color)
-        val otherInfoFuture: Future[(String, String)] = (gameActor ? FourInARowGame.OtherPlayer(user)).mapTo[(String, String)]
+        val otherInfoFuture: Future[(String, String)] = (gameActor ? Connect4Game.OtherPlayer(user)).mapTo[(String, String)]
         otherInfoFuture.map(otherInfo => {
-          val currentPlayer = (gameActor ? FourInARowGame.CurrentPlayer).mapTo[String]
+          val currentPlayer = (gameActor ? Connect4Game.CurrentPlayer).mapTo[String]
           currentPlayer.onSuccess { case curPlayer =>
             if (curPlayer == user) {
               messageQueue += ((user, Json.obj("message" -> "yourMove")))
@@ -65,7 +67,7 @@ class FourInARowController @Inject() (system: ActorSystem) extends Controller {
             }
           }
           
-          Ok(views.html.fourinarow(user, otherInfo._1, otherInfo._2))
+          Ok(views.html.connect4(user, otherInfo._1, otherInfo._2))
         })
       }
       
@@ -122,7 +124,7 @@ class FourInARowController @Inject() (system: ActorSystem) extends Controller {
       message match {
         case Some("columnSelected") => {
           val column = (jsonMessage.get \ "column").as[Int]
-          val response: Future[FourInARowGame.Result] = (gameActor ? FourInARowGame.Move(user, column)).mapTo[FourInARowGame.Result]
+          val response: Future[Connect4Game.Result] = (gameActor ? Connect4Game.Move(user, column)).mapTo[Connect4Game.Result]
           handleResponse(user, response)
         }
         case _ => {
@@ -133,9 +135,9 @@ class FourInARowController @Inject() (system: ActorSystem) extends Controller {
     Ok("")
   }
   
-  private def handleResponse(user: String, response: Future[FourInARowGame.Result]) = {
+  private def handleResponse(user: String, response: Future[Connect4Game.Result]) = {
     response.map(_ match {
-        case FourInARowGame.NextPlayer(player, prevPosition) => {
+        case Connect4Game.NextPlayer(player, prevPosition) => {
           val response1 = Json.obj(
               "message" -> "yourMove",
               "prevMove" ->  Json.obj(
@@ -149,7 +151,7 @@ class FourInARowController @Inject() (system: ActorSystem) extends Controller {
           ) 
           messageQueue += ((user, response2))
         }
-        case FourInARowGame.GameOver(nextPlayer, prevPosition, winner) => {
+        case Connect4Game.GameOver(nextPlayer, prevPosition, winner) => {
           var nextPlayerResponse = Json.obj(
               "message" -> "gameOver",
               "prevMove" -> Json.obj(
