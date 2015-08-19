@@ -1,6 +1,6 @@
-var app = angular.module("FourInARowApp",[]);
+var app = angular.module("Connect4App",[]);
 
-app.service('FourInARowService', function($http) {
+app.service('Connect4Service', function($http) {
 	
     this.getMessages = function(callback) {
     	return $http.get(location.pathname + "/messages");
@@ -11,7 +11,7 @@ app.service('FourInARowService', function($http) {
     };
 });
 
-app.controller("FourInARowController", function($scope, FourInARowService) {
+app.controller("Connect4Controller", function($scope, Connect4Service) {
 	//Initial parameters
 	$scope.userName = document.getElementById("userSpan").innerHTML;
 	$scope.oppName = document.getElementById("oppSpan").innerHTML;
@@ -49,7 +49,7 @@ app.controller("FourInARowController", function($scope, FourInARowService) {
 		console.log("Clicked: " + column);	
 		$scope.yourTurn = false;
 		$scope.info = "Updating, please wait...";
-		FourInARowService.columnClicked({message: "columnSelected", column: column});
+		Connect4Service.columnClicked({message: "columnSelected", column: column});
 		var row = findFirstFreeRow(column);
 		var prevMove = {
 			row: row,
@@ -130,7 +130,7 @@ app.controller("FourInARowController", function($scope, FourInARowService) {
     	if ($scope.gameOver) return;
         // Request the JSON data from the server every second
     	setTimeout(function() {
-    		var promise = FourInARowService.getMessages();
+    		var promise = Connect4Service.getMessages();
     		promise.success(function(data, status, headers, config) {
 	        	if (data.message !== "empty") {
 	        		console.log("Message received: " + JSON.stringify(data));

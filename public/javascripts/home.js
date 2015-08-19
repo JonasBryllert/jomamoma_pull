@@ -31,16 +31,16 @@ function disableGameSelection() {
 
 function checkShowGameDiv() {
 	if (userArray.length > 0) {
-		$("#startGameDiv").removeClass("remove");
-		if (!$("#waitForOpponentDiv").hasClass("remove")) {
-			$("#waitForOpponentDiv").addClass("remove")
+		$("#startGameDiv").removeClass("hide");
+		if (!$("#waitForOpponentDiv").hasClass("hide")) {
+			$("#waitForOpponentDiv").addClass("hide")
 		};		
 	}
 	else {
-		if (!$("#startGameDiv").hasClass("remove")) {
-			$("#startGameDiv").addClass("remove")
+		if (!$("#startGameDiv").hasClass("hide")) {
+			$("#startGameDiv").addClass("hide")
 		};		
-		$("#waitForOpponentDiv").removeClass("remove");
+		$("#waitForOpponentDiv").removeClass("hide");
 	}
 }
 
@@ -125,25 +125,24 @@ function handleChallenge(challenger, gameChoice) {
 		sendClientMessage(json)
 		handleChallengeRejected();
 	});
-	$("#challengeDiv").show();
+	$("#challengeDiv").removeClass("hide");
 }
 
 function handleChallengeAccepted(challengee, url) {
+	$("#challengeDiv").addClass("hide");
 	$("#messageDiv").text("The challenge has been accepted, please wait...")
 	$("#messageDiv").show();
 	window.setTimeout(function(){
-		$("#challengeDiv").hide();		
 		$("#messageDiv").hide();
-//		window.location.href = "/xando/" + gameId; 	
 		window.location.href = url; 	
 	}, 2000);
 }
 
 function handleChallengeRejected() {
+	$("#challengeDiv").addClass("hide");
 	$("#messageDiv").text("The challenge has been rejected, please wait...")
 	$("#messageDiv").show();
 	window.setTimeout(function(){
-		$("#challengeDiv").hide();		
 		$("#messageDiv").hide();
 		enableGameSelection();
 	}, 3000);

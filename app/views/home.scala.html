@@ -33,7 +33,7 @@
 
 	        <hr/>
 
-	        <div id="challengeDiv" class="remove text-center"> 
+	        <div id="challengeDiv" class="hide text-center"> 
 	        	You have been challenged by <span id="challengerSpan"></span> 
 	        	for a game of <span id="challengerGameSpan"></span>. Do you want to play?
 	        	<span><button id="acceptChallengeButton" value="Accept">Yes please</button></span>       
@@ -43,32 +43,46 @@
 	        <div id="messageDiv" class="text-center">
 	        </div>
 	        
-	        <div id="startGameDiv" class="remove text-center">
-	        	<span class="startMessageSpan">
+	        <div id="startGameDiv" class="hide text-center">
+	        	<p class="startMessageSpan">
 	        		To play select a game and opponent and click the 'Challenge' button.
-	        	</span>
-	        	<br/><br/>
-	        	<span id="gameId">
-	        		Game: 
-	        		<select id="gameSelect" name="game">
-	        			<option value="XandO-3">X and O, size 3</option>
-	        			<option value="XandO-5">X and O, size 5</option>        			
-	        			<option value="Memory-10">Memory, size 10</option>        			
-	        			<option value="Memory-20">Memory, size 20</option>        			
-	        			<option value="SinkShip">Sink Ship</option>        			
-	        			<option value="Connect4">Connect 4</option>        			
-	        		</select>
-	        	</span>
-	        	<span>
-	        		Opponent: 
-	        		<select id="opponentSelect" name="opponent"></select>
-	        		<input type="button" id="challengeButton" value="Challenge" ></input>
-	        	</span>
+	        	</p>
+	        	
+	        	<table>
+	        		<tr>
+	        			<td class="text-right">Game:</td>
+	        			<td class="text-left">
+			        		<select id="gameSelect" name="game">
+			        			<option value="XandO-3">X and O, size 3</option>
+			        			<option value="XandO-5">X and O, size 5</option>        			
+			        			<option value="Memory-10">Memory, size 10</option>        			
+			        			<option value="Memory-20">Memory, size 20</option>        			
+			        			<option value="SinkShip">Sink Ship</option>        			
+			        			<option value="Connect4">Connect 4</option>        			
+			        		</select>
+	        			</td>
+	        		</tr>
+	        		<tr>
+	        			<td class="text-right">Opponent:</td>
+	        			<td class="text-left">
+	        				<select id="opponentSelect" name="opponent"></select>
+	        			</td>
+	        		</tr>
+	        		<tr>
+	        			<td></td>
+	        			<td class="text-left">
+	        				<input type="button" id="challengeButton" value="Challenge" ></input>
+	        			</td>
+	        		</tr>
+	        			
+	        	</table>
 	        </div>
-	        <div id="waitForOpponentDiv" class="remove text-center">
+	        <div id="waitForOpponentDiv" class="hide text-center">
 	        	No opponent is currently logged in. Please wait for someone to join...
 	        </div>
 	        
+	        <hr/>
+
 	        <div id="footerDiv" class="text-center">
 	        	<form method="post" action="doLogout">
 	        		<input type="submit" value="Logout"></input>

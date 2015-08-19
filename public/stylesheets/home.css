@@ -15,11 +15,24 @@ div {
 	text-align: center;
 }
 
+table {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+td {
+	padding: 5px;	
+}
+
+td.fill {
+	width: 100%;
+}
+
+
 div#challengeDiv {
 	border: medium black solid;
 	padding-top: 30px;
 	padding-bottom: 30px;
-	display: none;
 	color: red;
 }
 
