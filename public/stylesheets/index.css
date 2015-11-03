@@ -70,3 +70,10 @@ form dl {
 	margin-bottom: 5px;
 }
 
+form ul {
+	list-style: none;
+}
+form li {
+	color: red;
+}
+

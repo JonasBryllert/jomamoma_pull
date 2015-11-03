@@ -31,8 +31,9 @@
 	        <hr/>
 	        
 	        <div class="text-center">
-	        	<p>Here you can play online classic games like Memory, X and O, by challenging someone else. 
-	        	You need to enter your name to continue.</p>
+	        	<p>Here you can play classic games like Memory, Sink Ship and 'X and O' 
+	        	over the internet by challenging someone else. 
+	        	You need to enter a name to continue.</p>
 	        	<a id="more-info-action" href="javascript:;" >Tell me more.</a>
 	        	<div id="info-div" class="info-temp hide">
 	        		<p>JOMAMOMA is a site for playing classic kids games over internet.
@@ -41,7 +42,7 @@
 	        		who join the same group, so this is a way of privacy. Agree with your friends a group name and
 	        		challenge each other.</p>
 	        		<p>All games are for two players and are typical mind challenge games that are great to play with kids
-	        		for example memory, X and O, sink ships etc.
+	        		for example Memory, X and O, Sink Ships, Connect4.
 	        		<p>A good idea is to keep a Skype or phone call open so you can chat and have fun while playing.</p>
 	        		<p><a id="less-info-action" href="javascript:;" >Hide.</a></p>
 	        	</div>
@@ -51,13 +52,13 @@
 	        
     		<div class="text-center">
 				@helper.form(action = routes.IndexController.doLogin) {
-					<h4>Enter name:</h4>
-					
+										
 					@if(myForm.hasGlobalErrors) {
 					  <ul>
-					  @for(error <- myForm.globalErrors) {
+					  	<li>Please correct errors:</li>
+					  	@for(error <- myForm.globalErrors) {
 					    <li>@error.message</li>
-					  }
+					  	}
 					  </ul>
 					}	    	
 					
