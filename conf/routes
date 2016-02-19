@@ -25,12 +25,16 @@ POST 	/memory/:gameId/clientMessage	controllers.MemoryController.clientMessage(g
 
 GET     /sinkship/:gameId				controllers.SinkShipController.sinkShip(gameId: String)
 GET     /sinkship/:gameId/ships			controllers.SinkShipController.getShips(gameId: String)
-GET     /sinkship/:gameId/messages		controllers.SinkShipController.getMessages(gameId: String)
+GET     /sinkship/:gameId/messages/:msgId		controllers.SinkShipController.getMessages(gameId: String, msgId: Int)
 POST 	/sinkship/:gameId/messages		controllers.SinkShipController.clientMessage(gameId: String)
 
 GET     /connect4/:gameId				controllers.Connect4Controller.fourinarow(gameId: String)
 GET     /connect4/:gameId/messages		controllers.Connect4Controller.getMessages(gameId: String)
 POST 	/connect4/:gameId/messages		controllers.Connect4Controller.clientMessage(gameId: String)
+
+#GET     /chess/:gameId					controllers.ChessController.chess(gameId: String)
+#GET     /chess/:gameId/messages			controllers.ChessController.getMessages(gameId: String)
+#POST 	/chess/:gameId/messages			controllers.ChessController.clientMessage(gameId: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

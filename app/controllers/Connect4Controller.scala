@@ -27,7 +27,7 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
   val gameCreator: ActorSelection = system.actorSelection("/user/GameCreator")
 //  system.actorSelection("").
   implicit val timeout = Timeout(2 seconds) 
-  Logger.info(s"FourInARowController -> Got actor gameCreator ${gameCreator.toString}")
+  Logger.info(s"Connect4Controller -> Got actor gameCreator ${gameCreator.toString}")
 
   val games: scala.collection.mutable.Map[String, ActorRef] = scala.collection.mutable.Map.empty
   val waitQueue: scala.collection.mutable.Map[String, String] = scala.collection.mutable.Map.empty
@@ -39,15 +39,15 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
    * The game page where user will be redirected to when game starts
    */
   def fourinarow(gameId: String) = Action.async { implicit request =>
-    Logger.info(s"FourInARowController.fourinarow -> gameId: $gameId")
+    Logger.info(s"Connect4Controller.fourinarow -> gameId: $gameId")
     if (request.session.get("user") == None ) {
-      Logger.warn(s"FourInARowController.fourinarow, no user session found!!")
+      Logger.warn(s"Connect4Controller.fourinarow, no user session found!!")
       Future{Redirect(routes.IndexController.index)}
     }
     else {
       val user = request.session("user")
       if (!storeGameActor(gameId)) {
-        Logger.warn(s"FourInARowController.fourinarow, no game found!!")
+        Logger.warn(s"Connect4Controller.fourinarow, no game found!!")
         Future { 
           Redirect(routes.IndexController.index)
         }
@@ -94,11 +94,11 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
     if (request.session.get("user") == None || !games.contains(gameId)) returnJSON(Json.obj("message"->"empty"))
     else { 
       val user = request.session("user")
-//      Logger.info(s"FourInARowController.getMessages -> : user: ${user}, messageQueue: $messageQueue")
+//      Logger.info(s"Connect4Controller.getMessages -> : user: ${user}, messageQueue: $messageQueue")
       val message = messageQueue.remove(user)
       message match {
         case Some(jsValue) => {
-          Logger.info(s"FourInARowController.getMessages -> : user: ${user}, message: $message")
+          Logger.info(s"Connect4Controller.getMessages -> : user: ${user}, message: $message")
           returnJSON(jsValue)
         }
         case _ => returnJSON(Json.obj("message" -> "empty"))
@@ -128,7 +128,7 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
           handleResponse(user, response)
         }
         case _ => {
-          Logger.warn(s"FourInARowController.clientMessage -> Message: $message, user: $user, game: gameId")
+          Logger.warn(s"Connect4Controller.clientMessage -> Message: $message, user: $user, game: gameId")
         }
       }
     }

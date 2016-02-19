@@ -6,37 +6,60 @@ import play.api.libs.iteratee._
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.collection.mutable.{Map => MMap, Queue}
 import model.Ship
 import model.Ship.Position
 import model.SinkShipGame
 import model.SinkShipGame._
 import model.WriteConverters._;
 import com.fasterxml.jackson.databind.JsonNode
+import play.api.Logger
 import play.api.libs.json._
 import play.api.libs.json.Json._
 
 class SinkShipController extends Controller {  
   
-  val games: scala.collection.mutable.Map[String, SinkShipGame] = scala.collection.mutable.Map.empty
+  val games: MMap[String, SinkShipGame] = MMap.empty
   
   //message queue, user, JsValue
-  val messageQueue = scala.collection.mutable.Map.empty[String, JsValue]
+  val messageQueue = MMap.empty[String, Queue[JsValue]]
+  val lastMessageQueue = MMap.empty[String, (Int, JsValue)]
 
+  private def addToQueue(user: String, jsValue: JsValue) = {
+    if  (messageQueue.contains(user)) {
+      messageQueue(user).enqueue(jsValue)
+    }
+    else {
+      messageQueue.put(user, Queue(jsValue))
+    }
+  }
+  
+  private def removeFromQueue(user: String): Option[JsValue] = {
+    if  (messageQueue.contains(user)) {
+      val jsValue = messageQueue(user).dequeue()
+      if (messageQueue(user).isEmpty) messageQueue.remove(user)
+      Some(jsValue)
+    }
+    else {
+      None
+    }
+  }
+  
   /**
    * The game page where user will be redirected to when game starts
    */
   def sinkShip(gameId: String) = Action { implicit request =>
-    println("SinkShipController.sinkShip -> " + gameId)
+    Logger.info("SinkShipController.sinkShip -> " + gameId)
     if (request.session.get("user") == None ) Redirect(routes.IndexController.index)
     else {
       val user = request.session("user")
       //TODO Add redirect to error page if game not exist
       val game: SinkShipGame = SinkShipGame.getGame(gameId).get
       if (game.currentPlayer == user) {
-        messageQueue += ((user, Json.obj("message" -> "yourMove")))
+        addToQueue(user, Json.obj("message" -> "yourMove"))
       }
       else {
-        messageQueue += ((user, Json.obj("message" -> "oppMove")))
+        addToQueue(user, Json.obj("message" -> "oppMove"))
       }
       Ok(views.html.sinkship(game.gameSize, user, game.otherPlayer(user)))
     }
@@ -53,15 +76,46 @@ class SinkShipController extends Controller {
   /**
    * Client call to retrieve messages
    */
-  def getMessages(gameId: String) = Action { implicit request =>
+  def getMessages(gameId: String, msgId: Int) = Action { implicit request =>
     if (request.session.get("user") == None || SinkShipGame.getGame(gameId) == None) returnJSON(Json.obj("message"->"empty"))
     else {
       val user = request.session("user")
-      println(s"SinkShipController.getMessages -> : user: ${user}, messageQueue: $messageQueue")
-      val message = messageQueue.remove(user)
-      message match {
-        case Some(jsValue) => returnJSON(jsValue)
-        case _ => returnJSON(Json.obj("message" -> "empty"))
+      if (messageQueue.contains(user) || lastMessageQueue.contains(user)) {
+        Logger.info(s"SinkShipController.getMessages -> : user: ${user}, msgId: $msgId, messageQueue: $messageQueue, lastMessageQueue: $lastMessageQueue")
+      }
+      val lastMessage = lastMessageQueue.remove(user)
+      lastMessage match {
+        case Some((lastMsgId, lastjsValue)) => {
+          //check if last msgId is same as last message and resend if so
+          if (lastMsgId == msgId) {
+            lastMessageQueue += ((user, (msgId, lastjsValue)))
+            Logger.info(s"SinkShipController.getMessages resend last message -> : user: ${user}, msgId: $msgId, jsValue: $lastjsValue")
+            returnJSON(lastjsValue)    
+          }
+          else {
+            val message = removeFromQueue(user)
+            message match {
+              case Some(jsValue) => {
+                lastMessageQueue += ((user, (msgId, jsValue)))
+                Logger.info(s"SinkShipController.getMessages message -> : user: ${user}, msgId: $msgId, jsValue: $jsValue")
+                returnJSON(jsValue)
+              }
+              case None => returnJSON(Json.obj("message" -> "empty"))
+            } 
+          }
+        }
+        //Otherwise see if any new messages and put it in lastMessage
+        case None => {
+          val message = removeFromQueue(user)
+          message match {
+            case Some(jsValue) => {
+              lastMessageQueue += ((user, (msgId, jsValue)))
+              returnJSON(jsValue)
+            }
+            case None => returnJSON(Json.obj("message" -> "empty"))
+    
+          }
+        }
       }   
     }
   }
@@ -82,7 +136,7 @@ class SinkShipController extends Controller {
       jsonMessage match {
         case Some(json) => handleClientMessage(game, user, json)
         case None => {
-          println("clientMessage -> None")
+          Logger.info("clientMessage -> None")
           Ok("")
         }
       }
@@ -101,7 +155,7 @@ class SinkShipController extends Controller {
   
 
   private def handleClientMessage(game: SinkShipGame, user: String, jsValue: JsValue): Result = {
-    println(s"SinkShipController.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
+    Logger.info(s"SinkShipController.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
     (jsValue \ "message").asOpt[String].map(message => {
       if (message == "cellSelected") {
         val positionString = (jsValue \ "position").as[String]
@@ -109,7 +163,7 @@ class SinkShipController extends Controller {
         handleCellSelected(game, pos, positionString, user)
 //        game.doClick(pos, user)
       }
-      else println(s"Unknown client message: ${Json.prettyPrint(jsValue)}")
+      else Logger.info(s"Unknown client message: ${Json.prettyPrint(jsValue)}")
     })
     Ok("") 
 
@@ -139,8 +193,8 @@ class SinkShipController extends Controller {
 	                    "isSunk" -> true,
 	                    "shipPositions" -> Json.toJson(ship)
 	                ))
-	        messageQueue += ((user, jsUser))
-	        messageQueue += ((game.otherPlayer(user), jsOpponent))
+	        addToQueue(user, jsUser)
+          addToQueue(game.otherPlayer(user), jsOpponent)
 	      }
 	      
 	      case ShipSunk(ship) => {
@@ -160,8 +214,8 @@ class SinkShipController extends Controller {
 	                    "isHit" -> true,
 	                    "isSunk" -> true,
 	                    "shipPositions" -> Json.toJson(ship)))
-	         messageQueue += ((user, jsUser))
-	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
+           addToQueue(user, jsUser)
+           addToQueue(game.otherPlayer(user), jsOpponent)
 	      }
 	      
 	      case Hit => {
@@ -177,8 +231,8 @@ class SinkShipController extends Controller {
 	                    "user" -> user,
 	                    "pos" -> posString, 
 	                    "isHit" -> true))
-	         messageQueue += ((user, jsUser))
-	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
+           addToQueue(user, jsUser)
+           addToQueue(game.otherPlayer(user), jsOpponent)
 	      }
 	      
 	      case Miss => {
@@ -194,8 +248,8 @@ class SinkShipController extends Controller {
 	                    "user" -> user,
 	                    "pos" -> posString, 
 	                    "isHit" -> false))
-	         messageQueue += ((user, jsUser))
-	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
+           addToQueue(user, jsUser)
+           addToQueue(game.otherPlayer(user), jsOpponent)
 	      }   
       }    
   }

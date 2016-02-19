@@ -18,10 +18,10 @@ object Timer {
 
 @Singleton
 class Users {
-  val logger = Logger(this.getClass.getName)
-  logger.info("Users has started")
-  val t:javax.swing.Timer = Timer(60*60*1000){
-    logger.info("Users timeout")
+//  val logger = Logger(this.getClass.getName)
+  Logger.info("Users has started")
+  val t:javax.swing.Timer = Timer(60*1000){
+    Logger.info("Users timeout")
     logoutOldUsers(compat.Platform.currentTime);
   }
 
@@ -37,38 +37,38 @@ class Users {
   def exists(user: User) : Boolean = loggedInUsers.keys.map(u => u.name).exists(_ == user.name)
   
   private def addLoggedOnUser(alreadyLoggedinUser: User, currentlyLogginInUser: User) = {
-    logger.info(s"-> addLoggedOnUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginInUser.name}, map: $userToUserLoggedOnOffmap")
+    Logger.info(s"-> addLoggedOnUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginInUser.name}, map: $userToUserLoggedOnOffmap")
     val (loggedOn, loggedOff)  = userToUserLoggedOnOffmap.getOrElse(alreadyLoggedinUser, (mutable.Set.empty[User], mutable.Set.empty[User]))
     loggedOn += currentlyLogginInUser
     if (loggedOff.contains(currentlyLogginInUser)) loggedOff -= currentlyLogginInUser
     userToUserLoggedOnOffmap.put(alreadyLoggedinUser, (loggedOn, loggedOff))
-    logger.info(s"<- addLoggedOnUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginInUser.name}, map: $userToUserLoggedOnOffmap")
+    Logger.info(s"<- addLoggedOnUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginInUser.name}, map: $userToUserLoggedOnOffmap")
   }
   
   private def addLoggedOffUser(alreadyLoggedinUser: User, currentlyLogginOffUser: User) = {
-    logger.info(s"-> addLoggedOffUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginOffUser.name}, map: $userToUserLoggedOnOffmap")
+    Logger.info(s"-> addLoggedOffUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginOffUser.name}, map: $userToUserLoggedOnOffmap")
     val (loggedOn, loggedOff) = userToUserLoggedOnOffmap.getOrElse(alreadyLoggedinUser, (mutable.Set.empty[User], mutable.Set.empty[User]))
     loggedOff += currentlyLogginOffUser
     if (loggedOn.contains(currentlyLogginOffUser)) loggedOn -= currentlyLogginOffUser
     userToUserLoggedOnOffmap.put(alreadyLoggedinUser, (loggedOn, loggedOff))
-    logger.info(s"<- addLoggedOffUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginOffUser.name}, map: $userToUserLoggedOnOffmap")
+    Logger.info(s"<- addLoggedOffUser, alreadyLoggedinUser: ${alreadyLoggedinUser.name}, currentlyLogginInUser: ${currentlyLogginOffUser.name}, map: $userToUserLoggedOnOffmap")
   }
   
   def logon(user: User) = {
     //Message to all other users that user has logged in
-    logger.info(s"-> logon, user: ${user.name}, loggedinUsers: $loggedInUsers")
+    Logger.info(s"-> logon, user: ${user.name}, loggedinUsers: $loggedInUsers")
     for (u <- loggedInUsers.keys.filter(_.group == user.group)) {
       addLoggedOnUser(u, user)
     }
     
     //login the user
     loggedInUsers += (user -> compat.Platform.currentTime)
-    logger.info(s"<- logon, user: ${user.name}, loggedinUsers: $loggedInUsers")
+    Logger.info(s"<- logon, user: ${user.name}, loggedinUsers: $loggedInUsers")
   } 
 
   def logout(uName: String) = {
     //logout the user
-    logger.info(s"-> logOut, user: $uName")
+    Logger.info(s"-> logOut, user: $uName")
     val userOption = userForName(uName)
     userOption match {
       case Some(user) => {
@@ -99,9 +99,11 @@ class Users {
   }
   
   def getLoggedOnOffUsers(uName: String): Option[(List[String],List[String])] = {
-    val user = userForName(uName).get
-    logger.info(s"-> getLoggedOnOffUsers, user: $uName, map: ${userToUserLoggedOnOffmap.get(user)}")
-    userToUserLoggedOnOffmap.remove(user).map(e => (e._1.map(_.name).toList, e._2.map(_.name).toList))
+    val userOption = userForName(uName)
+    userOption match {
+      case Some(user) => userToUserLoggedOnOffmap.remove(user).map(e => (e._1.map(_.name).toList, e._2.map(_.name).toList))
+      case None => None
+    }
   }
   
   /**
@@ -120,7 +122,7 @@ class Users {
   def updateTimeStamp(uName: String): Unit = {
     userForName(uName).foreach(user => {
       if (loggedInUsers.contains(user)) loggedInUsers(user) = compat.Platform.currentTime
-      else logger.warn("Warning: UpdateTime stamp for non existing user: " + user.name)
+      else Logger.warn("Warning: UpdateTime stamp for non existing user: " + user.name)
     })
   }
 

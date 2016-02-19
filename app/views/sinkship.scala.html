@@ -108,7 +108,7 @@
 			      	  	  	@for(column <- 1 to size){
 			      	  	  		<td id="pos-@column-@row" class="gamePos" 
 			      	  	  			ng-class='{
-			      	  	  				idle: !oppTable["pos-@column-@row"].ship,
+			      	  	  				idle: oppTable["pos-@column-@row"].idle,
 			      	  	  				ship: oppTable["pos-@column-@row"].ship,
 			      	  	  				tail: oppTable["pos-@column-@row"].tail,
 			      	  	  				body: oppTable["pos-@column-@row"].body,
