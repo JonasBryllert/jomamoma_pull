@@ -3,6 +3,7 @@ package controllers
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.collection.mutable.{Map => MutableMap, Queue}
 import com.google.inject.Inject
 import com.google.inject.Singleton
 import akka.actor.ActorRef
@@ -20,6 +21,7 @@ import play.api.mvc.Result
 import play.api.libs.json.Json
 import scala.concurrent.Await
 import play.api.libs.json.JsString
+import model.MessageQueue
 
 @Singleton
 class Connect4Controller @Inject() (system: ActorSystem) extends Controller {  
@@ -29,11 +31,10 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
   implicit val timeout = Timeout(2 seconds) 
   Logger.info(s"Connect4Controller -> Got actor gameCreator ${gameCreator.toString}")
 
-  val games: scala.collection.mutable.Map[String, ActorRef] = scala.collection.mutable.Map.empty
-  val waitQueue: scala.collection.mutable.Map[String, String] = scala.collection.mutable.Map.empty
+  val games: MutableMap[String, ActorRef] = MutableMap.empty
   
   //message queue, user, JsValue
-  val messageQueue = scala.collection.mutable.Map.empty[String, JsValue]
+  val messageQueue = new MessageQueue()
 
   /**
    * The game page where user will be redirected to when game starts
@@ -60,10 +61,10 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
           val currentPlayer = (gameActor ? Connect4Game.CurrentPlayer).mapTo[String]
           currentPlayer.onSuccess { case curPlayer =>
             if (curPlayer == user) {
-              messageQueue += ((user, Json.obj("message" -> "yourMove")))
+              messageQueue.addToQueue(user, Json.obj("message" -> "yourMove"))
             }
             else {
-              messageQueue += ((user, Json.obj("message" -> "oppMove")))
+              messageQueue.addToQueue(user, Json.obj("message" -> "oppMove"))
             }
           }
           
@@ -95,7 +96,7 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
     else { 
       val user = request.session("user")
 //      Logger.info(s"Connect4Controller.getMessages -> : user: ${user}, messageQueue: $messageQueue")
-      val message = messageQueue.remove(user)
+      val message = messageQueue.removeFromQueue(user)
       message match {
         case Some(jsValue) => {
           Logger.info(s"Connect4Controller.getMessages -> : user: ${user}, message: $message")
@@ -144,12 +145,12 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
                 "row" -> prevPosition._1,
                 "column" -> prevPosition._2
               )
-          ) 
-          messageQueue += ((player, response1))
+          )
+          messageQueue.addToQueue(player, response1)
           val response2 = Json.obj(
               "message" -> "oppMove"
           ) 
-          messageQueue += ((user, response2))
+          messageQueue.addToQueue(user, response2)
         }
         case Connect4Game.GameOver(nextPlayer, prevPosition, winner) => {
           var nextPlayerResponse = Json.obj(
@@ -160,125 +161,14 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
               )
           )
           if (winner.nonEmpty) nextPlayerResponse += (("winner", JsString(winner.get)))
-          messageQueue += ((nextPlayer, nextPlayerResponse))
+          messageQueue.addToQueue(nextPlayer, nextPlayerResponse)
           
           var currentPlayerResponse = Json.obj(
               "message" -> "gameOver"
           )
           if (winner.nonEmpty) currentPlayerResponse += (("winner", JsString(winner.get)))
-          messageQueue += ((user, currentPlayerResponse))
+          messageQueue.addToQueue(user, currentPlayerResponse)
        }
     })
-  }
-  /**
-   * Convert a String of syntax: pos-@row-@column to a Position
-   */
-//  private def toPos(pos: String): Position = {
-//    val arr = pos.split("-")
-//    val row = arr(1).toInt
-//    val col = arr(2).toInt
-//    (row, col)
-//  }
-  
-
-//  private def handleClientMessage(game: SinkShipGame, user: String, jsValue: JsValue): Result = {
-//    println(s"SinkShipController.handleClientMessage -> user: $user, ${Json.prettyPrint(jsValue)}")
-//    (jsValue \ "message").asOpt[String].map(message => {
-//      if (message == "cellSelected") {
-//        val positionString = (jsValue \ "position").as[String]
-//        val pos = toPos(positionString)
-//        handleCellSelected(game, pos, positionString, user)
-////        game.doClick(pos, user)
-//      }
-//      else println(s"Unknown client message: ${Json.prettyPrint(jsValue)}")
-//    })
-//    Ok("") 
-//
-//  }
-//    
-//  private def handleCellSelected(game: SinkShipGame, pos: Position, posString: String, user: String) = {
-//      val moveResult = game.doClick(pos, user)
-//      moveResult match {
-//	      case AllShipsSunk(ship) => {
-//	        val jsUser = Json.obj(
-//	                "message" -> "gameOver",
-//	                "winner" -> user,
-//	                "prevMove" -> Json.obj(
-//	                    "user" -> user,
-//	                    "pos" -> posString,
-//	                    "isHit" -> true, 
-//	                    "isSunk" -> true,
-//	                    "shipPositions" -> Json.toJson(ship)
-//	                ))
-//	        val jsOpponent = Json.obj(
-//	                "message" -> "gameOver",
-//	                "winner" -> user,
-//	                "prevMove" -> Json.obj(
-//	                    "user" -> user,
-//	                    "pos" -> posString,
-//	                    "isHit" -> true, 
-//	                    "isSunk" -> true,
-//	                    "shipPositions" -> Json.toJson(ship)
-//	                ))
-//	        messageQueue += ((user, jsUser))
-//	        messageQueue += ((game.otherPlayer(user), jsOpponent))
-//	      }
-//	      
-//	      case ShipSunk(ship) => {
-//	         val jsUser = Json.obj(
-//	                "message" -> "oppMove",
-//	                "prevMove" -> Json.obj(
-//	                    "user" -> user,
-//	                    "pos" -> posString, 
-//	                    "isHit" -> true,
-//	                    "isSunk" -> true,
-//	                    "shipPositions" -> Json.toJson(ship)))
-//	         val jsOpponent = Json.obj(
-//	                "message" -> "yourMove",
-//	                "prevMove" -> Json.obj(
-//	                    "user" -> user,
-//	                    "pos" -> posString, 
-//	                    "isHit" -> true,
-//	                    "isSunk" -> true,
-//	                    "shipPositions" -> Json.toJson(ship)))
-//	         messageQueue += ((user, jsUser))
-//	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
-//	      }
-//	      
-//	      case Hit => {
-//	         val jsUser = Json.obj(
-//	                "message" -> "oppMove",
-//	                "prevMove" -> Json.obj(
-//	                    "user" -> user,
-//	                    "pos" -> posString, 
-//	                    "isHit" -> true))
-//	         val jsOpponent = Json.obj(
-//	                "message" -> "yourMove",
-//	                "prevMove" -> Json.obj(
-//	                    "user" -> user,
-//	                    "pos" -> posString, 
-//	                    "isHit" -> true))
-//	         messageQueue += ((user, jsUser))
-//	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
-//	      }
-//	      
-//	      case Miss => {
-//	         val jsUser = Json.obj(
-//	                "message" -> "oppMove",
-//	                "prevMove" -> Json.obj(
-//	                    "user" -> user,
-//	                    "pos" -> posString, 
-//	                    "isHit" -> false))
-//	         val jsOpponent = Json.obj(
-//	                "message" -> "yourMove",
-//	                "prevMove" -> Json.obj(
-//	                    "user" -> user,
-//	                    "pos" -> posString, 
-//	                    "isHit" -> false))
-//	         messageQueue += ((user, jsUser))
-//	         messageQueue += ((game.otherPlayer(user), jsOpponent))                   
-//	      }   
-//      }    
-//  }
-// 
+  } 
 }
