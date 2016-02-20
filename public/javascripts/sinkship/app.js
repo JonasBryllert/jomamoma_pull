@@ -1,9 +1,8 @@
 var app = angular.module("SinkShipApp",[]);
 
 app.service('SinkShipService', function($http) {
-	
-    this.getMessages = function(callback) {
-    	return $http.get(location.pathname + "/messages");
+    this.getMessages = function(msgId) {
+    	return $http.get(location.pathname + "/messages/" + msgId);
     };
  
     this.getShipPositions = function() {
@@ -13,8 +12,22 @@ app.service('SinkShipService', function($http) {
     	return $http.get(location.pathname + "/ships");
     };
     
-    this.cellClicked = function(pos) {
-    	$http.post(location.pathname + "/messages", pos);
+    this.cellClicked = function postCellClicked(pos, retry) {
+    	$http.post(location.pathname + "/messages", pos).then(
+    	  function() {
+      	  },
+    	  function() {
+      		if (retry && retry == 5) {
+      			alert("Looks like you internet connection is down. Please verify and then restart the game.");
+      		}
+      		else {
+  	    		console.log("Error posting pos: " + pos + ", retrying in 2 sec.");
+      			setTimeout(function() {
+      	    		postCellClicked(pos, retry ? retry + 1 : 1);   				
+      			}, 2000);
+      		}
+    	  }
+      	);
     };
 });
 
@@ -158,22 +171,31 @@ app.controller("SinkShipController", function($scope, SinkShipService) {
 		}
 	})();
 	
+	var msgId = 0;
 	//Start read messages from server
     (function getMessages (){
     	if ($scope.gameOver) return;
         // Request the JSON data from the server every second
     	setTimeout(function() {
-    		var promise = SinkShipService.getMessages();
-    		promise.success(function(data, status, headers, config) {
-	        	if (data.message !== "empty") {
-	        		console.log("Message received: " + JSON.stringify(data));
+    		SinkShipService.getMessages(msgId).then(
+    		  function(data, status, headers, config) {
+//    			if (Math.floor((Math.random() * 10) + 1) > 6) return;
+//        		console.log("Message received: " + JSON.stringify(data.data));
+    			msgId += 1;
+	        	if (data.data.message !== "empty") {
+	        		console.log("Message received: " + JSON.stringify(data.data));
 	        		//Handle message here.. 
-	        		$scope.handleMessage(data);
-	        	}			
-    		});
-    		promise.error(function(data, status, headers, config) {
-    			console.log("ERROR!!!");
-    		});
+	        		$scope.handleMessage(data.data);
+	        	}
+    		  },
+    		  function(data, status, headers, config) {
+    			var argString = "";
+    			for (var i = 0; i < arguments.length; i ++) {
+    				argString = argString + " " + arguments[i];
+    			}
+    			console.log("ERROR!!! " + argString);
+    		  }
+    		);
     		
    	        //keep the loop going
 	        getMessages();
