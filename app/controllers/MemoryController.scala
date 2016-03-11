@@ -7,20 +7,21 @@ import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.MemoryGame
-import model.MemoryGame._;
+import model.MemoryGame._
 import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json._
 import play.api.libs.json.Json._
 import java.util.Timer
 import scala.collection._
+import model.MessageQueue
 
 class MemoryController extends Controller {  
   
   val games: mutable.Map[String, MemoryGame] = mutable.Map.empty
-  val waitQueue: scala.collection.mutable.Map[String, String] = mutable.Map.empty
   
   //message queue, user, JsValue
-  val messageQueue = mutable.Map.empty[String, mutable.Queue[JsValue]]
+  //val messageQueue = mutable.Map.empty[String, mutable.Queue[JsValue]]
+  val messageQueue = new MessageQueue
   
 //  //Json conversion
 //  implicit val locationWrites = new Writes[ImageWithId] {
@@ -41,7 +42,6 @@ class MemoryController extends Controller {
       //TODO Add redirect to error page if game not exist
       val game: MemoryGame = MemoryGame.getGame(gameId).get
       //Add a queue for player
-      messageQueue += ((user, new mutable.Queue))
       
       val isFirst = (user == game.currentPlayer)
       val jsonMessageGameInfo = Json.obj(
@@ -53,7 +53,7 @@ class MemoryController extends Controller {
    		          "yourMove" -> isFirst
     		   ))
       println(s"\nMemoryController.memory game: $gameId user: $user sending message <gameInfo>")
-      messageQueue(user).enqueue(jsonMessageGameInfo)
+      messageQueue.addToQueue(user, jsonMessageGameInfo)
 
       Ok(views.html.memory(game.size, request.session("user")))
     }
@@ -64,14 +64,10 @@ class MemoryController extends Controller {
    */
   def getMessages(gameId: String) = Action { implicit request =>
     val user = request.session("user")
-    val queue = messageQueue.getOrElse(user, mutable.Queue.empty)
-    if (!queue.isEmpty) {
-      val message = messageQueue(user).dequeue
-      println(s"\nMemoryController.getMessages -> : user: ${user}, message: ${message}, messageQueue: $messageQueue")
-      returnJSON(message)      
-    }
-    else {
-    	returnJSON(Json.obj("message" -> "empty"))
+    val message = messageQueue.removeFromQueue(user)
+    message match {
+      case Some(msg) => returnJSON(msg)
+      case None => returnJSON(Json.obj("message" -> "empty"))
     }
   }
   
@@ -102,7 +98,7 @@ class MemoryController extends Controller {
               )
       )
       println(s"\nMemoryController.clientMessage -> user: $user, adding response message json: ${responseJson}")
-      messageQueue(game.getOtherPlayer(user)).enqueue(responseJson)
+      messageQueue.addToQueue(game.getOtherPlayer(user), responseJson)
       
     } else if ("secondCellSelected".equals(message)) {
       val firstCell = (jsonMessage \ "messageObject" \ "firstCell").as[String]
@@ -116,7 +112,7 @@ class MemoryController extends Controller {
               )
       )
       println(s"\nMemoryController.clientMessage -> user: $user, adding response message json: ${responseJson}")
-      messageQueue(game.getOtherPlayer(user)).enqueue(responseJson) 
+      messageQueue.addToQueue(game.getOtherPlayer(user), responseJson) 
       
       val (score, result) = game.secondCellSelected(user, firstCell, secondCell)
       val scoreJson: JsValue = Json.obj(
@@ -127,8 +123,8 @@ class MemoryController extends Controller {
           )
       )
       println(s"\nMemoryController.clientMessage -> user: $user, adding response message json: ${scoreJson}")
-      messageQueue(user).enqueue(scoreJson) 
-      messageQueue(game.getOtherPlayer(user))enqueue(scoreJson) 
+      messageQueue.addToQueue(user, scoreJson) 
+      messageQueue.addToQueue(game.getOtherPlayer(user), scoreJson)  
       
       result match {
         case PlayerWon(p) => {
@@ -136,24 +132,24 @@ class MemoryController extends Controller {
             "message" -> "gameOver",
             "messageObject" -> Json.obj("winner" -> p)
           )          
-          messageQueue(user).enqueue(resultJson) 
-          messageQueue(game.getOtherPlayer(user))enqueue(resultJson) 
+          messageQueue.addToQueue(user, resultJson) 
+          messageQueue.addToQueue(game.getOtherPlayer(user), resultJson) 
         }
         case Draw => {
           val resultJson: JsValue = Json.obj(
             "message" -> "gameOver",
             "messageObject" -> Json.obj("draw" -> true)
           )          
-          messageQueue(user).enqueue(resultJson) 
-          messageQueue(game.getOtherPlayer(user))enqueue(resultJson) 
+          messageQueue.addToQueue(user, resultJson) 
+          messageQueue.addToQueue(game.getOtherPlayer(user), resultJson) 
         }
         case NextMove(isScore) => {
           val nextMoveJson: JsValue = Json.obj(
             "message" -> "yourMove",
             "messageObject" -> Json.obj("isNotFirst" -> isScore)        
           )       
-          if (isScore) messageQueue(user)enqueue(nextMoveJson)
-          else messageQueue(game.getOtherPlayer(user))enqueue(nextMoveJson) 
+          if (isScore) messageQueue.addToQueue(user, nextMoveJson)
+          else messageQueue.addToQueue(game.getOtherPlayer(user), nextMoveJson)
         }
       }
     } else {

@@ -7,11 +7,12 @@ import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import scala.concurrent.ExecutionContext.Implicits.global
 import model.XandOGame
-import model.XandOGame._;
+import model.XandOGame._
 import com.fasterxml.jackson.databind.JsonNode
 import play.api.libs.json._
 import play.api.libs.json.Json._
 import java.util.Timer
+import model.MessageQueue
 
 class XandOController extends Controller {  
   
@@ -19,7 +20,7 @@ class XandOController extends Controller {
   val waitQueue: scala.collection.mutable.Map[String, String] = scala.collection.mutable.Map.empty
   
   //message queue, user, JsValue
-  val messageQueue = scala.collection.mutable.Map.empty[String, JsValue]
+  val messageQueue = new MessageQueue
 
   /**
    * The game page where user will be redirected to when game starts
@@ -33,10 +34,10 @@ class XandOController extends Controller {
       val game: XandOGame = XandOGame.getGame(gameId).get
       val playerSymbol = game.getPlayerSymbol(user)
       if (playerSymbol == "X") {
-        messageQueue += ((user, Json.obj("type" -> "yourMove")))
+        messageQueue.addToQueue(user, Json.obj("type" -> "yourMove"))
       }
       else {
-        messageQueue += ((user, Json.obj("type" -> "oppMove")))
+        messageQueue.addToQueue(user, Json.obj("type" -> "oppMove"))
       }
       Ok(views.html.XandO(game.size, game.nrToWin,  user, playerSymbol, game.otherPlayer(user)))
     }
@@ -48,7 +49,7 @@ class XandOController extends Controller {
   def getMessages = Action { implicit request =>
     val user = request.session("user")
     println(s"XandO.getMessages -> : user: ${user}, messageQueue: $messageQueue")
-    val message = messageQueue.remove(user)
+    val message = messageQueue.removeFromQueue(user)
     message match {
       case Some(jsValue) => returnJSON(jsValue)
       case _ => returnJSON(Json.obj("type"->"empty"))
@@ -105,8 +106,8 @@ class XandOController extends Controller {
 	                "type" -> "gameOver",
 	                "result" -> (user + " has won!!!"),
 	                "prevMove" -> posString)
-	        messageQueue += ((user, jsUser))
-	        messageQueue += ((game.otherPlayer(user), jsOtherUser))
+	        messageQueue.addToQueue(user, jsUser)
+	        messageQueue.addToQueue(game.otherPlayer(user), jsOtherUser)
 	
 	      }
 	      case Draw => {
@@ -117,8 +118,8 @@ class XandOController extends Controller {
 	                "type" -> "gameOver",
 	                "result" -> "It is a draw!",
 	                "prevMove" -> posString)
-	        messageQueue += ((user, jsUser))
-	        messageQueue += ((game.otherPlayer(user), jsOtherUser))
+	        messageQueue.addToQueue(user, jsUser)
+	        messageQueue.addToQueue(game.otherPlayer(user), jsOtherUser)
 	      }
 	      case _ => {
 	        val jsUser = Json.obj(
@@ -126,8 +127,9 @@ class XandOController extends Controller {
 	        val jsOtherUser = Json.obj(
 	                "type" -> "yourMove",
 	                "prevMove" -> posString)
-	        messageQueue += ((user, jsUser))
-	        messageQueue += ((game.otherPlayer(user), jsOtherUser))           
+	        messageQueue.addToQueue(user, jsUser)
+	        messageQueue.addToQueue(game.otherPlayer(user), jsOtherUser)           
+          
 	      }
       }
     
