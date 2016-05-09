@@ -27,5 +27,7 @@ class MessageQueue {
   }
   
   def contains(user: String): Boolean = messageQueue.contains(user)
+  
+  override def toString(): String = messageQueue.toString()
 
 }
