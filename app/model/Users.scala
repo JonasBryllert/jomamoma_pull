@@ -3,6 +3,7 @@ package model
 import scala.collection._
 import play.api.Logger
 import javax.inject.Singleton
+import java.util.Date
 
 object Timer {
   def apply(interval: Int, repeats: Boolean = true)(op: => Unit) = {
@@ -111,11 +112,13 @@ class Users {
    */
   def logoutOldUsers(currentTime: Long): Unit = {
     val expiredUser:  mutable.ListBuffer[User] = mutable.ListBuffer.empty
+    Logger.info(s"User timeout, logged in users: ${loggedInUsers.map {case(k,v) => (k, new Date(v))}}")
     loggedInUsers.foreach { case(u, t) => {
       if (currentTime > t + 60 * 60 * 1000) { //More than one hour gone
         expiredUser += u
       }
     }}
+    if (!expiredUser.isEmpty) Logger.info(s"Logging out expired user: ${expiredUser}")
     expiredUser.foreach(u => logout(u.name))
   }
   
