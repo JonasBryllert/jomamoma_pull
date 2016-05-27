@@ -42,16 +42,16 @@ class GameCreator extends Actor {
       sender ! gameId
       
     }
-    case Chess(challenger, challengee) => {
-      Logger.info(s"GameCreator.Chess -> challenger: $challenger, challengee: $challengee")
-      val gameId = currentGameId.toString()
-      //step current game id for next game
-      currentGameId += 1
-      val chessGame: ActorRef = this.context.actorOf(Props(new ChessGame(gameId, challenger, challengee)), "ChessGame-" + gameId)
-      gameMap += ((gameId, chessGame))
-      sender ! gameId
-      
-    }
+//    case Chess(challenger, challengee) => {
+//      Logger.info(s"GameCreator.Chess -> challenger: $challenger, challengee: $challengee")
+//      val gameId = currentGameId.toString()
+//      //step current game id for next game
+//      currentGameId += 1
+//      val chessGame: ActorRef = this.context.actorOf(Props(new ChessGame(gameId, challenger, challengee)), "ChessGame-" + gameId)
+//      gameMap += ((gameId, chessGame))
+//      sender ! gameId
+//      
+//    }
     case GetGame(id) => {
       val gameActor: Option[ActorRef] = gameMap.get(id)
       sender ! gameActor
