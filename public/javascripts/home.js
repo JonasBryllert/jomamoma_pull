@@ -53,7 +53,7 @@ function challenge() {
 	var oMessage = {message: "challenge", game: gameChoice, opponent: opp};
 	var message = JSON.stringify(oMessage)
 	console.log("startGame: " + message)
-	$("#messageDiv").text("You have challenged " + opp + ". Waiting for resonse...")
+	$("#messageDiv").text("You have challenged " + opp + ". Waiting for response...")
 	$("#messageDiv").show();
 	sendClientMessage(message)
 }

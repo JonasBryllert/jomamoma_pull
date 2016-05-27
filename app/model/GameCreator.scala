@@ -9,6 +9,8 @@ import play.api.Logger
 
 object GameCreator {
   case class Connect4(challenger: String, challengee: String)
+  case class Othello(size: Int, challenger: String, challengee: String)
+  case class Chess(challenger: String, challengee: String)
   case class GetGame(id: String)
 }
 
@@ -21,12 +23,32 @@ class GameCreator extends Actor {
   
   def receive: Receive = {
     case Connect4(challenger, challengee) => {
-      Logger.info(s"GameCreator.NewGame -> challenger: $challenger, challengee: $challengee")
+      Logger.info(s"GameCreator.Connect4 -> challenger: $challenger, challengee: $challengee")
       val gameId = currentGameId.toString()
       //step current game id for next game
       currentGameId += 1
-      val fourInARowGame: ActorRef = this.context.actorOf(Props(new Connect4Game(gameId, challenger, challengee)), "FourInARowGame-" + gameId)
-      gameMap += ((gameId, fourInARowGame))
+      val connect4Game: ActorRef = this.context.actorOf(Props(new Connect4Game(gameId, challenger, challengee)), "Connect4Game-" + gameId)
+      gameMap += ((gameId, connect4Game))
+      sender ! gameId
+      
+    }
+    case Othello(size, challenger, challengee) => {
+      Logger.info(s"GameCreator.Othello -> size: $size, challenger: $challenger, challengee: $challengee")
+      val gameId = currentGameId.toString()
+      //step current game id for next game
+      currentGameId += 1
+      val connect4Game: ActorRef = this.context.actorOf(Props(new OthelloGame(gameId, size, challenger, challengee)), "Connect4Game-" + gameId)
+      gameMap += ((gameId, connect4Game))
+      sender ! gameId
+      
+    }
+    case Chess(challenger, challengee) => {
+      Logger.info(s"GameCreator.Chess -> challenger: $challenger, challengee: $challengee")
+      val gameId = currentGameId.toString()
+      //step current game id for next game
+      currentGameId += 1
+      val chessGame: ActorRef = this.context.actorOf(Props(new ChessGame(gameId, challenger, challengee)), "ChessGame-" + gameId)
+      gameMap += ((gameId, chessGame))
       sender ! gameId
       
     }

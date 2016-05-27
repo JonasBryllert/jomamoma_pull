@@ -28,9 +28,13 @@ GET     /sinkship/:gameId/ships			controllers.SinkShipController.getShips(gameId
 GET     /sinkship/:gameId/messages/:msgId		controllers.SinkShipController.getMessages(gameId: String, msgId: Int)
 POST 	/sinkship/:gameId/messages		controllers.SinkShipController.clientMessage(gameId: String)
 
-GET     /connect4/:gameId				controllers.Connect4Controller.fourinarow(gameId: String)
+GET     /connect4/:gameId				controllers.Connect4Controller.connect4(gameId: String)
 GET     /connect4/:gameId/messages		controllers.Connect4Controller.getMessages(gameId: String)
 POST 	/connect4/:gameId/messages		controllers.Connect4Controller.clientMessage(gameId: String)
+
+GET     /othello/:gameId				controllers.OthelloController.othello(gameId: String)
+GET     /othello/:gameId/messages		controllers.OthelloController.getMessages(gameId: String)
+POST 	/othello/:gameId/messages		controllers.OthelloController.clientMessage(gameId: String)
 
 #GET     /chess/:gameId					controllers.ChessController.chess(gameId: String)
 #GET     /chess/:gameId/messages			controllers.ChessController.getMessages(gameId: String)

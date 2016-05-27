@@ -21,7 +21,7 @@ object Timer {
 class Users {
 //  val logger = Logger(this.getClass.getName)
   Logger.info("Users has started")
-  val t:javax.swing.Timer = Timer(60*1000){
+  val t:javax.swing.Timer = Timer(5*60*1000){  //5 min
     Logger.info("Users timeout")
     logoutOldUsers(compat.Platform.currentTime);
   }

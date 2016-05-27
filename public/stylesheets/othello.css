@@ -1,0 +1,170 @@
+@CHARSET "UTF-8";
+
+body {
+	background-color: #2C2C0F;
+}
+
+hr {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	border-top-color: black;
+}
+
+.container {
+	background-color: #E6E682;
+	padding-bottom: 20px;
+}
+
+.info {
+    background-color: #B8B868;
+}    
+
+.vertical-space-10 {
+	padding-top: 10px;
+}
+
+.animate-color {
+	-webkit-animation: animateColorFrame 4s; /* Chrome, Safari, Opera */
+    animation: animateColorFrame 4s;
+}
+
+.enlargeText {
+	font-size: 200%;
+	-webkit-animation: enlargeTextAnimate 4s; /* Chrome, Safari, Opera */
+    animation: enlargeTextAnimate 4s;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes animateColorFrame {
+    from {
+    	background-color: #CCCCCC;
+	}
+}
+
+/* Standard syntax */
+@keyframes animateColorFrame {
+    from {
+    	background-color: #CCCCCC;
+ 	}
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes enlargeTextAnimate {
+    from {
+    	opacity: 0;
+    	font-size: 50%;
+	},
+	to {
+    	font-size: 200%;	
+	}
+}
+
+/* Standard syntax */
+@keyframes enlargeTextAnimate {
+    from {
+    	opacity: 0;
+	},
+	to {
+    	font-size: 200%;	
+	}
+}	
+
+
+/* table settings */
+.game-table {
+	border-top: 3px solid black;
+	border-right: 3px solid black;
+	border-left: 3px solid black;
+	border-collapse: collapse;
+	margin-top: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 10px;
+    float: none;
+}
+
+.game-table.your-turn td>div.idle {
+	cursor: pointer;
+}
+
+.game-table td>div.idle:hover {
+	background-color: #AAAAAA;
+}
+
+.game-table td {
+	border: 3px solid black;
+	background-color: black;
+	width: 40px;
+	height: 40px;
+}
+
+.game-table td div {
+	border-radius: 20px;
+	width: 100%;
+	height: 100%;
+}
+
+.game-table td div.idle {
+	background-color: #CCCCCC; /* grey */
+}
+
+.game-table td div.blue {
+	background-color: blue; 
+	-webkit-animation: animateColorFrame 4s; /* Chrome, Safari, Opera */
+    animation: animateColorFrame 4s;
+}
+
+.game-table td div.red {
+	background-color: red; 
+	-webkit-animation: animateColorFrame 4s; /* Chrome, Safari, Opera */
+    animation: animateColorFrame 4s;	
+}
+
+
+#returnDiv {
+/*	margin-top: 20px; */
+}
+
+@media (min-width: 500px) {
+	hr {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	.game-table {
+		border-top: 4px solid black;
+		border-right: 4px solid black;
+		border-left: 4px solid black;
+	}
+	.game-table td {
+		border: 4px solid black;
+		width: 60px;
+		height: 60px;
+	}
+	.game-table td div {
+		border-radius: 30px;
+	}
+	
+}
+
+@media (min-width: 760px) {
+	
+	hr {
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+	.game-table {
+		border-top: 5px solid black;
+		border-right: 5px solid black;
+		border-left: 5px solid black;
+	}
+	.game-table td {
+		border: 5px solid black;
+		width: 80px;
+		height: 80px;
+	}
+	.game-table td div {
+		border-radius: 40px;
+	}
+	
+	
+}

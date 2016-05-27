@@ -12,7 +12,8 @@ import akka.actor.ActorSelection
 import akka.pattern.ask
 import akka.util.Timeout
 import model.GameCreator
-import model.Connect4Game
+import model.OthelloGame
+import model.OthelloGame.Position
 import play.api.Logger
 import play.api.libs.json.JsValue
 import play.api.mvc.Action
@@ -24,12 +25,12 @@ import play.api.libs.json.JsString
 import model.MessageQueue
 
 @Singleton
-class Connect4Controller @Inject() (system: ActorSystem) extends Controller {  
+class OthelloController @Inject() (system: ActorSystem) extends Controller {  
 //  val logger = Logger(this.getClass)
   val gameCreator: ActorSelection = system.actorSelection("/user/GameCreator")
 //  system.actorSelection("").
   implicit val timeout = Timeout(2 seconds) 
-  Logger.info(s"Connect4Controller -> Got actor gameCreator ${gameCreator.toString}")
+  Logger.info(s"OthelloController -> Got actor gameCreator ${gameCreator.toString}")
 
   val games: MutableMap[String, ActorRef] = MutableMap.empty
   
@@ -39,16 +40,17 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
   /**
    * The game page where user will be redirected to when game starts
    */
-  def connect4(gameId: String) = Action.async { implicit request =>
-    import Connect4Game.{GameInfo, GetGameInfo} 
+  def othello(gameId: String) = Action.async { implicit request =>
+    import OthelloGame.{GameInfo, GetGameInfo}
+    Logger.info(s"OthelloController.othello -> gameId: $gameId")
     if (request.session.get("user") == None ) {
-      Logger.warn(s"Connect4Controller.connect4, no user session found!!")
+      Logger.warn(s"OthelloController.othello, no user session found!!")
       Future{Redirect(routes.IndexController.index)}
     }
     else {
       val user = request.session("user")
       if (!storeGameActor(gameId)) {
-        Logger.warn(s"Connect4Controller.connect4, no game found!!")
+        Logger.warn(s"OthelloController.othello, no game found!!")
         Future { 
           Redirect(routes.IndexController.index)
         }
@@ -58,7 +60,7 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
         //Get (otherPlayer, color)
         val gameInfoFuture: Future[GameInfo] = (gameActor ? GetGameInfo(user)).mapTo[GameInfo]
         gameInfoFuture.map(gameInfo => {
-          Logger.info(s"GameInfo: player: ${user}, gameInfo: ${gameInfo}")
+          Logger.info(s"OthelloController:GameInfo: player: ${user}, gameInfo: ${gameInfo}")
           if (gameInfo.isGameOver) {
            Redirect(routes.IndexController.index) 
           }
@@ -69,7 +71,7 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
             else {
               messageQueue.addToQueue(user, Json.obj("message" -> "oppMove"))
             }
-            Ok(views.html.connect4(user, gameInfo.otherPlayer, gameInfo.color))
+            Ok(views.html.othello(user, gameInfo.size, gameInfo.otherPlayer, gameInfo.color))
           }
         })
       }      
@@ -96,11 +98,11 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
     if (request.session.get("user") == None || !games.contains(gameId)) returnJSON(Json.obj("message"->"empty"))
     else { 
       val user = request.session("user")
-//      Logger.info(s"Connect4Controller.getMessages -> : user: ${user}, messageQueue: $messageQueue")
+//      Logger.info(s"OthelloController.getMessages -> : user: ${user}, messageQueue: $messageQueue")
       val message = messageQueue.removeFromQueue(user)
       message match {
         case Some(jsValue) => {
-          Logger.info(s"Connect4Controller.getMessages -> : user: ${user}, message: $message")
+          Logger.info(s"OthelloController.getMessages -> : user: ${user}, message: $message")
           returnJSON(jsValue)
         }
         case _ => returnJSON(Json.obj("message" -> "empty"))
@@ -117,55 +119,70 @@ class Connect4Controller @Inject() (system: ActorSystem) extends Controller {
    */
   def clientMessage(gameId: String) = Action { implicit request =>
 //    Ok("")
-    if (request.session.get("user") != None || games.contains(gameId)) {
+    if (request.session.get("user") != None && games.contains(gameId)) {
       val user = request.session("user")
       val gameActor: ActorRef = games(gameId)
  
       val jsonMessage: Option[JsValue] = request.body.asJson
+      Logger.info(s"message: $jsonMessage")
       val message: Option[String] = jsonMessage.flatMap(js => (js \ "message").asOpt[String])
       message match {
-        case Some("columnSelected") => {
-          val column = (jsonMessage.get \ "column").as[Int]
-          val response: Future[Connect4Game.Result] = (gameActor ? Connect4Game.Move(user, column)).mapTo[Connect4Game.Result]
+        case Some("positionSelected") => {
+          val row = (jsonMessage.get \ "row").as[Int]
+          val column = (jsonMessage.get \ "col").as[Int]
+          val position: Option[Position] = if (row < 0) None else Some(row,column)
+          val response: Future[OthelloGame.Result] = (gameActor ? OthelloGame.Move(user, position)).mapTo[OthelloGame.Result]
           handleResponse(user, response)
         }
         case _ => {
-          Logger.warn(s"Connect4Controller.clientMessage -> Message: $message, user: $user, game: gameId")
+          Logger.warn(s"OthelloController.clientMessage -> Unknown message: $message, user: $user, game: $gameId")
         }
       }
     }
     Ok("")
   }
   
-  private def handleResponse(user: String, response: Future[Connect4Game.Result]) = {
+  private def handleResponse(user: String, response: Future[OthelloGame.Result]) = {
     response.map(_ match {
-        case Connect4Game.NextPlayer(player, prevPosition) => {
+        case OthelloGame.InvalidMove(position) => {
+          val response = Json.obj(
+            "message" -> "invalidMove",
+            "prevMove" -> Json.obj(
+              "row" -> position._1,
+              "column" -> position._2
+            )
+          )
+          messageQueue.addToQueue(user, response)
+        }
+        case OthelloGame.NextPlayer(nextPlayer, prevColor, prevPosition) => {
+          val prevPosJsonArray = prevPosition.map { case (r,c) => Json.obj("row" -> r, "column" -> c) }
           val response1 = Json.obj(
               "message" -> "yourMove",
-              "prevMove" ->  Json.obj(
-                "row" -> prevPosition._1,
-                "column" -> prevPosition._2
-              )
+              "prevColor" -> prevColor,
+              "prevMove" ->  prevPosJsonArray
           )
-          messageQueue.addToQueue(player, response1)
+          messageQueue.addToQueue(nextPlayer, response1)
           val response2 = Json.obj(
-              "message" -> "oppMove"
+              "message" -> "oppMove",
+              "prevColor" -> prevColor,
+              "prevMove" ->  prevPosJsonArray              
           ) 
           messageQueue.addToQueue(user, response2)
         }
-        case Connect4Game.GameOver(nextPlayer, prevPosition, winner) => {
+        case OthelloGame.GameOver(nextPlayer, prevColor, prevPosition, winner) => {
+          val prevPosJsonArray = prevPosition.map { case (r,c) => Json.obj("row" -> r, "column" -> c) }
           var nextPlayerResponse = Json.obj(
               "message" -> "gameOver",
-              "prevMove" -> Json.obj(
-                "row" -> prevPosition._1,
-                "column" -> prevPosition._2
-              )
+              "prevColor" -> prevColor,
+              "prevMove" -> prevPosJsonArray
           )
           if (winner.nonEmpty) nextPlayerResponse += (("winner", JsString(winner.get)))
           messageQueue.addToQueue(nextPlayer, nextPlayerResponse)
           
           var currentPlayerResponse = Json.obj(
-              "message" -> "gameOver"
+              "message" -> "gameOver",
+              "prevColor" -> prevColor,
+              "prevMove" -> prevPosJsonArray
           )
           if (winner.nonEmpty) currentPlayerResponse += (("winner", JsString(winner.get)))
           messageQueue.addToQueue(user, currentPlayerResponse)

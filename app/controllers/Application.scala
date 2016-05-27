@@ -176,12 +176,22 @@ class Application @Inject() (system: ActorSystem, users: Users) extends Controll
         val future: Future[String] = (gameCreator ? GameCreator.Connect4(challenger, user)).mapTo[String]
         Await.result(future, 2 seconds)
       }
+      else if ("Othello".equals(game)) {
+        val future: Future[String] = (gameCreator ? GameCreator.Othello(6, challenger, user)).mapTo[String]
+        Await.result(future, 2 seconds)
+      }
+      else if ("Chess".equals(game)) {
+        val future: Future[String] = (gameCreator ? GameCreator.Chess(challenger, user)).mapTo[String]
+        Await.result(future, 2 seconds)
+      }
     	else "-1"
     val url = 
     	if (game.startsWith("Memory")) "/memory/" + gameId
     	else if (game.startsWith("XandO")) "/xando/" + gameId
       else if ("SinkShip".equals(game)) "/sinkship/" + gameId
       else if ("Connect4".equals(game)) "/connect4/" + gameId
+      else if ("Othello".equals(game)) "/othello/" + gameId
+      else if ("Chess".equals(game)) "/chess/" + gameId
       else "-1"
     
     val jsObject = Json.obj(
