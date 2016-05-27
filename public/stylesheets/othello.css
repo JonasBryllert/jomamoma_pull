@@ -17,7 +17,15 @@ hr {
 
 .info {
     background-color: #B8B868;
-}    
+}
+
+span .red {
+	color: red;
+}  
+
+span .blue {
+	color: blue
+}
 
 .vertical-space-10 {
 	padding-top: 10px;
