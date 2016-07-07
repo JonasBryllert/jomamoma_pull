@@ -35,9 +35,11 @@
 
 	        <div id="challengeDiv" class="hide text-center"> 
 	        	You have been challenged by <span id="challengerSpan"></span> 
-	        	for a game of <span id="challengerGameSpan"></span>. Do you want to play?
-	        	<span><button id="acceptChallengeButton" value="Accept">Yes please</button></span>       
-	        	<span><button id="rejectChallengeButton" value="Reject">No thanks</button></span>       
+	        	for a game of <span id="challengerGameSpan"></span>.
+	        	<br/>Do you want to play?
+	        	<br/>
+	        	<span><button id="acceptChallengeButton" class="positive-action-color" value="Accept">Yes please</button></span>       
+	        	<span><button id="rejectChallengeButton" class="negative-action-color" value="Reject">No thanks</button></span>       
 	        </div>
 	        
 	        <div id="messageDiv" class="text-center">
@@ -71,9 +73,8 @@
 	        			</td>
 	        		</tr>
 	        		<tr>
-	        			<td></td>
-	        			<td class="text-left">
-	        				<input type="button" id="challengeButton" value="Challenge" ></input>
+	        			<td colspan="2" class="text-center">
+	        				<input type="button" id="challengeButton" class="positive-action-color" value="Challenge" ></input>
 	        			</td>
 	        		</tr>
 	        			

@@ -24,16 +24,27 @@ td {
 	padding: 5px;	
 }
 
-td.fill {
+td > select {
 	width: 100%;
 }
 
+.positive-action-color {
+	background-color: darkgreen;
+	color: white;
+	padding: 0 30px;
+}
+
+.negative-action-color {
+	background-color: darkred;
+	color: white;
+	padding: 0 30px;
+}
 
 div#challengeDiv {
 	border: medium black solid;
 	padding-top: 30px;
 	padding-bottom: 30px;
-	color: red;
+	color: green;
 }
 
 div#messageDiv {

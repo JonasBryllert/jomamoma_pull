@@ -47,13 +47,14 @@ function checkShowGameDiv() {
 function challenge() {
 	disableGameSelection();
 	var gameChoice = $("#gameSelect").val();
+	var gameChoiceAsText = $("#gameSelect option:selected").text();
 	var opp = $("#opponentSelect").val();
 	if (!opp || "" == opp) return;
 	console.log("startGame: " + opp);
 	var oMessage = {message: "challenge", game: gameChoice, opponent: opp};
 	var message = JSON.stringify(oMessage)
 	console.log("startGame: " + message)
-	$("#messageDiv").text("You have challenged " + opp + ". Waiting for response...")
+	$("#messageDiv").text("You have challenged " + opp + " for a game of " + gameChoiceAsText + ". Waiting for response...")
 	$("#messageDiv").show();
 	sendClientMessage(message)
 }
@@ -130,7 +131,7 @@ function handleChallenge(challenger, gameChoice) {
 
 function handleChallengeAccepted(challengee, url) {
 	$("#challengeDiv").addClass("hide");
-	$("#messageDiv").text("The challenge has been accepted, please wait...")
+	$("#messageDiv").text("The challenge has been accepted, launching game...")
 	$("#messageDiv").show();
 	window.setTimeout(function(){
 		$("#messageDiv").hide();
