@@ -223,7 +223,8 @@ define([
 			var availableList = query("td.available");
 			availableList.addClass("selectCursor");
 			this.removeHandler = availableList.on("click", lang.hitch(this, function(event) {
-				this._handleCellClick(event.target);
+				this._handleCellClick(event.currentTarget);
+//				event.preventDefault();
 			}));
       	},
       	
@@ -235,6 +236,7 @@ define([
         },
 
 		_handleCellClick: function(tdCell) {
+			if (tdCell == this.firstCell) return; //ignore clicks on same cell
 			domClass.remove(tdCell.children[0], "hide");
 			domClass.remove(tdCell, "selectCursor");
 			if (this.firstCell == null) {
