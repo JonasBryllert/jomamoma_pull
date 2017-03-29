@@ -1,0 +1,13 @@
+<div id="main" class="text-center">
+	<table id="gameTable" class="center">
+		<tbody>
+			<tr data-ng-repeat="r in vm.getRows()">
+				<td data-ng-repeat="im in vm.getImagesForRow(r) track by $index" id="{{'pos-'+ $parent.$index+'-'+$index}}" 
+						data-ng-class="{available:vm.isAvailable($parent.$index, $index), clickable:vm.isClickable($parent.$index, $index)}"
+						data-ng-click="vm.isClickable($parent.$index, $index) && vm.cellClicked($parent.$index, $index)">
+					<img class="gameImage" data-ng-if="vm.isSelected($parent.$index, $index)" alt="picture" data-ng-src="{{im}}">
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

@@ -31,6 +31,14 @@ class MemoryController extends Controller {
 //    )
 //  }
 
+  //Json conversion
+//  implicit val imgFormat = Json.format[(String, String)];
+  implicit val tjs = new Writes[(String, String)] {
+    def writes(image: (String, String)) = Json.obj(
+      image._1 -> image._2
+   )
+  }
+
   /**
    * The game page where user will be redirected to when game starts
    */
@@ -49,13 +57,13 @@ class MemoryController extends Controller {
     		  "messageObject" -> Json.obj(
      		      "player1" -> game.player1,
     		      "player2" -> game.player2,
-   		          "images" -> Json.toJson(game.shuffledIdImageMap),
+                "images" -> Json.toJson(game.shuffledIdImageList),
    		          "yourMove" -> isFirst
     		   ))
       println(s"\nMemoryController.memory game: $gameId user: $user sending message <gameInfo>")
       messageQueue.addToQueue(user, jsonMessageGameInfo)
 
-      Ok(views.html.memory(game.size, request.session("user")))
+      Ok(views.html.memoryAng(game.size, request.session("user")))
     }
   }
  
@@ -94,15 +102,15 @@ class MemoryController extends Controller {
       val responseJson: JsValue = Json.obj(
               "message" -> "firstCellSelected",
               "messageObject" -> Json.obj(
-                  "firstCell" -> (jsonMessage \ "messageObject" \ "firstCell").get
+                  "pos" -> (jsonMessage \ "messageObject" \ "pos").get
               )
       )
       println(s"\nMemoryController.clientMessage -> user: $user, adding response message json: ${responseJson}")
       messageQueue.addToQueue(game.getOtherPlayer(user), responseJson)
       
     } else if ("secondCellSelected".equals(message)) {
-      val firstCell = (jsonMessage \ "messageObject" \ "firstCell").as[String]
-      val secondCell = (jsonMessage \ "messageObject" \ "secondCell").as[String]
+      val firstCell = (jsonMessage \ "messageObject" \ "firstCell").as[Int]
+      val secondCell = (jsonMessage \ "messageObject" \ "secondCell").as[Int]
       //Send update to opponent, and then send to game.
       val responseJson: JsValue = Json.obj(
               "message" -> "secondCellSelected",
@@ -144,12 +152,21 @@ class MemoryController extends Controller {
           messageQueue.addToQueue(game.getOtherPlayer(user), resultJson) 
         }
         case NextMove(isScore) => {
-          val nextMoveJson: JsValue = Json.obj(
+          val yourMoveJson: JsValue = Json.obj(
             "message" -> "yourMove",
-            "messageObject" -> Json.obj("isNotFirst" -> isScore)        
+            "messageObject" -> Json.obj("isFirstMove" -> !isScore)        
           )       
-          if (isScore) messageQueue.addToQueue(user, nextMoveJson)
-          else messageQueue.addToQueue(game.getOtherPlayer(user), nextMoveJson)
+          val oppMoveJson: JsValue = Json.obj(
+            "message" -> "oppMove"       
+          )       
+          if (isScore) {
+            messageQueue.addToQueue(user, yourMoveJson)
+            messageQueue.addToQueue(game.getOtherPlayer(user), oppMoveJson)
+          }
+          else {
+            messageQueue.addToQueue(user, oppMoveJson)
+            messageQueue.addToQueue(game.getOtherPlayer(user), yourMoveJson)
+          }
         }
       }
     } else {

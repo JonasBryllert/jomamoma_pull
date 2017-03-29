@@ -1,0 +1,179 @@
+@CHARSET "UTF-8";
+
+body {
+	background-color: #2C2C0F;
+}
+
+hr {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	border-top-color: black;
+}
+
+.info-temp {
+	background-color: #CFCF75;
+	padding: 10px 10px 5px 10px;
+	margin-bottom: 5px;
+}
+
+.container {
+	background-color: 	#E6E682;
+	padding-bottom: 20px;
+}
+
+.vertical-space-10 {
+	padding-top: 10px;
+}
+
+.hide {
+	opacity:0.0
+}
+
+.remove {
+	display: none;
+}
+
+.messageChange {
+	-webkit-animation: messageChangeAnimate 2s; /* Chrome, Safari, Opera */
+    animation: messageChangeAnimate 2s;
+}
+
+.enlargeText {
+	-webkit-animation: enlargeTextAnimate 2s; /* Chrome, Safari, Opera */
+    animation: enlargeTextAnimate 2s;
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes messageChangeAnimate {
+    from {
+    	color: white;
+    	opacity: 0;
+	}
+}
+
+/* Standard syntax */
+@keyframes messageChangeAnimate {
+    from {
+    	color: white;
+    	opacity: 1;
+ 	}
+}
+
+/* Chrome, Safari, Opera */
+@-webkit-keyframes enlargeTextAnimate {
+    from {
+    	opacity: 0;
+	},
+	to {
+    	font-size: 200%;	
+	}
+}
+
+/* Standard syntax */
+@keyframes enlargeTextAnimate {
+    from {
+    	opacity: 0;
+	},
+	to {
+    	font-size: 200%;	
+	}
+}
+
+.winner-color {
+	background-color: green;
+}
+
+.looser-color {
+	background-color: red;
+}
+
+.center {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#scoreTable, #scoreTable th , #scoreTable td {
+	border: 1px solid black;
+	border-collapse: collapse;	
+}
+#scoreTable th , #scoreTable td {
+	padding: 3px 10px;
+}
+
+/* table settings */
+#gameTable {
+	border-collapse: separate;
+	border-spacing: 2px;
+    background-color: #dbdbdb;
+}
+#gameTable, #gameTable td {
+	border: 1px solid black;
+}
+
+#gameTable td {
+	width: 52px;
+	height: 52px;
+}
+
+#gameTable td.available {
+	background-image: url("../images/memory/checkered.jpg");
+}
+
+#gameTable img {
+	width: 50px;
+	height: 50px;
+}
+
+#gameTable td.clickable {
+	cursor: pointer;
+}
+
+#returnDiv {
+/*	margin-top: 20px; */
+}
+
+@media (min-width: 600px) {
+
+	hr {
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+	
+	#gameTable {
+		border-spacing: 3px;
+	}
+	
+	#gameTable td {
+		width: 77px;
+		height: 77px;
+	}
+
+	#gameTable img {
+		width: 75px;
+		height: 75px;
+	}
+	
+}
+
+@media (min-width: 800px) {
+	
+	hr {
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+	
+	#gameTable {
+		border-spacing: 5px;
+	}
+	
+	#gameTable td {
+		width: 102px;
+		height: 102px;
+	}
+
+	#gameTable img {
+		width: 100px;
+		height: 100px;
+	}
+	
+}

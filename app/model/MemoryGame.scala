@@ -12,7 +12,6 @@ import controllers.Assets
 
 object MemoryGame {
   
-//  case class ImageWithId(id: String, image: String)
   
   class Score(val player1: String, val player2: String) {
     private var player1Score = 0
@@ -61,12 +60,11 @@ class MemoryGame(val size: Int, val player1: String, val player2: String) {
   private val score = new Score(player1,player2)
   
   //The map with <id, images>
-  val shuffledIdImageMap: scala.collection.immutable.Map[String, String] = {
+  val shuffledIdImageList: Array[String] = {
     val images = for (i <- 1 to size /2) yield "/assets/images/memory/pic" + i + ".jpg"
     val duplicatedImages = images ++ images
     val shuffledImages: Seq[String] = scala.util.Random.shuffle(duplicatedImages)
-    val shuffledImageWithIds: Seq[(String, String)] = for(i <- 1 to shuffledImages.length) yield (("pos-" + i, shuffledImages(i-1)));
-    shuffledImageWithIds.toMap
+    shuffledImages.toArray
   }
     
   def getOtherPlayer(player: String): String = if (player == player1) player2 else player1
@@ -77,8 +75,8 @@ class MemoryGame(val size: Int, val player1: String, val player2: String) {
     currentPlayer
   }  
     
-  def secondCellSelected(player: String, firstCell: String, secondCell: String): (Score, MoveResult) = {
-    val isScore = shuffledIdImageMap(firstCell).equals(shuffledIdImageMap(secondCell))
+  def secondCellSelected(player: String, firstCell: Int, secondCell: Int): (Score, MoveResult) = {
+    val isScore = shuffledIdImageList(firstCell).equals(shuffledIdImageList(secondCell))
     if (isScore) score.increment(player)
     
     val moveResult: MoveResult = {

@@ -169,7 +169,7 @@ class Application @Inject() (system: ActorSystem, users: Users) extends Controll
     val gameId: String = 
     	if ("XandO-3".equals(game)) XandOGame.newGame(3, 3, challenger, user)
     	else if ("XandO-5".equals(game)) XandOGame.newGame(10, 5, challenger, user)
-    	else if ("Memory-10".equals(game)) MemoryGame.newGame(10, challenger, user)
+      else if ("Memory-10".equals(game)) MemoryGame.newGame(10, challenger, user)
     	else if ("Memory-20".equals(game)) MemoryGame.newGame(20, challenger, user)
       else if ("SinkShip".equals(game)) SinkShipGame.newGame(6, challenger, user)
       else if ("Connect4".equals(game)) {
@@ -186,7 +186,7 @@ class Application @Inject() (system: ActorSystem, users: Users) extends Controll
       }
     	else "-1"
     val url = 
-    	if (game.startsWith("Memory")) "/memory/" + gameId
+      if (game.startsWith("Memory")) "/memory/" + gameId
     	else if (game.startsWith("XandO")) "/xando/" + gameId
       else if ("SinkShip".equals(game)) "/sinkship/" + gameId
       else if ("Connect4".equals(game)) "/connect4/" + gameId

@@ -22,7 +22,7 @@ class Users {
 //  val logger = Logger(this.getClass.getName)
   Logger.info("Users has started")
   val t:javax.swing.Timer = Timer(5*60*1000){  //5 min
-    Logger.info("Users timeout")
+//    Logger.info("Users timeout")
     logoutOldUsers(compat.Platform.currentTime);
   }
 
@@ -108,7 +108,7 @@ class Users {
   }
   
   /**
-   * Called periodically to log out users that have no intreaction for one hour.
+   * Called periodically to log out users that have no interaction for one hour.
    */
   def logoutOldUsers(currentTime: Long): Unit = {
     val expiredUser:  mutable.ListBuffer[User] = mutable.ListBuffer.empty

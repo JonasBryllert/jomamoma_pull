@@ -1,0 +1,16 @@
+<section>
+    <div class="text-center">
+    	<div ng-class="{hide: vm.rulesShowing}">
+     		<p>Not sure how it works? 
+     		<a id="more-info-action" href="javascript:;" ng-click="vm.showRules()" >Tell me the rules.</a></p>
+     	</div>
+		<div id="info-div" class="info-temp" ng-class="{hide: !vm.rulesShowing}">
+	   		<p>Your goal is to collect pairs of the same picture. 
+	   		When it is your turn select a square, then select a second square trying to 
+	   		find the the one with the same picture as the first. </p>
+	   		<p>In order to be successful you need to memorize any picture already opened
+	   		so you remember the position if the same picture comes up again.</p>
+   			<p><a id="less-info-action" href="javascript:;" ng-click="vm.hideRules()">Hide.</a></p>
+ 		</div>
+   	</div>
+</section>

@@ -1,0 +1,30 @@
+<div class="container">
+	<div data-ng-if="!vm.isBootstrapped" class="text-center">
+		Loading...
+	</div>
+	<div data-ng-if="vm.isBootstrapped">
+		<memory-header data-user="vm.user">
+		</memory-header>
+			
+		<hr/>
+		
+		<memory-rules>
+		</memory-rules>
+			
+		<memory-scores data-player-names="vm.playerNames" data-player-scores="vm.playerScores">
+		</memory-scores>
+		
+		<hr/>
+
+		<main>
+        	<memory-info data-message="vm.message" data-gameover="vm.gameOver">
+        	</memory-info>
+        	
+        	<memory-game data-ng-if="vm.images" data-images="vm.images" data-my-turn="vm.myTurn">
+        	</memory-game>
+        </main>
+	
+	</div>
+
+   
+</div>
